@@ -1,478 +1,890 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GLOW Ops — Get an IT GLOW Op Report</title>
-  <meta name="description" content="GLOW Ops writes a GLOW Op Report: which laptops to keep, repair, redeploy, refresh, or recycle. Green Lifecycle and Operation Workflows. getglowop.com">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@420;560;680&family=Newsreader:ital,opsz,wght@0,6..72,480;0,6..72,620;1,6..72,480&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #efeae2;
-      --paper: #fbf8f3;
-      --ink: #17211c;
-      --muted: #5c665f;
-      --line: #ddd4c6;
-      --pine: #12382d;
-      --pine-2: #1d5644;
-      --moss: #e6f1e6;
-      --copper: #8d4318;
-      --gold: #f4ead3;
-      --shadow: 0 18px 44px rgba(23, 33, 28, 0.07);
-      --serif: "Newsreader", Palatino, Georgia, serif;
-      --sans: "Figtree", "Segoe UI", sans-serif;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--sans);
-      font-size: 17px;
-      line-height: 1.55;
-    }
-    a { color: var(--pine-2); }
-    button, input, select { font-family: inherit; }
-    .skip { position: absolute; left: 12px; top: -40px; background: var(--pine); color: #fff; padding: 8px 12px; z-index: 5; }
-    .skip:focus { top: 12px; }
-    .wrap { width: min(1100px, calc(100% - 36px)); margin: 0 auto; }
-    header.top { background: var(--pine); color: #f6f3ec; position: sticky; top: 0; z-index: 4; }
-    .top-inner { display: flex; justify-content: space-between; gap: 20px; align-items: center; min-height: 72px; }
-    .brand { text-decoration: none; color: inherit; }
-    .brand small { display: block; letter-spacing: 0.08em; text-transform: uppercase; font-size: 11px; color: #c9ddd2; }
-    .brand strong { font-size: 18px; letter-spacing: -0.03em; }
-    nav { display: flex; flex-wrap: wrap; gap: 8px 16px; }
-    nav a { color: #f6f3ec; text-decoration: none; font-size: 14.5px; }
-    nav a:hover { text-decoration: underline; }
-    .hero { padding: 58px 0 18px; display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 36px; align-items: start; }
-    .eyebrow { color: var(--copper); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 680; margin: 0 0 10px; }
-    h1 { font-family: var(--serif); font-weight: 480; font-size: clamp(46px, 6.4vw, 76px); line-height: 0.94; letter-spacing: -0.035em; margin: 0 0 12px; }
-    .expand { margin: 0 0 14px; letter-spacing: 0.08em; text-transform: uppercase; font-size: 13px; font-weight: 680; color: var(--pine-2); }
-    .lede { font-size: 18.5px; max-width: 38em; margin: 0 0 18px; }
-    .lede strong { font-weight: 680; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn { display: inline-flex; align-items: center; border-radius: 999px; padding: 11px 16px; text-decoration: none; border: 1px solid transparent; cursor: pointer; font-weight: 560; }
-    .btn-primary { background: var(--pine); color: #f7f4ec; }
-    .btn-ghost { background: transparent; border-color: var(--line); color: var(--ink); }
-    .stamp {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-    .stamp-top { background: var(--ink); color: #f6f3ec; display: flex; justify-content: space-between; gap: 10px; padding: 12px 16px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
-    .stamp-body { padding: 16px; }
-    .stamp h2 { font-family: var(--serif); font-weight: 620; font-size: 28px; margin: 0 0 4px; }
-    .muted { color: var(--muted); }
-    .call { margin-top: 12px; background: var(--moss); border-radius: 12px; padding: 12px; }
-    .pill { display: inline-block; background: var(--pine); color: #f6f3ec; border-radius: 999px; padding: 3px 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 680; }
-    .pill.repair { background: #7a5410; }
-    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0 8px; }
-    .fact { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
-    .fact b { display: block; font-family: var(--serif); font-size: 34px; line-height: 1; letter-spacing: -0.03em; margin-bottom: 8px; }
-    .fact span { color: var(--muted); font-size: 14.5px; }
-    section { padding: 46px 0; }
-    h2 { font-family: var(--serif); font-weight: 620; font-size: clamp(32px, 4vw, 46px); line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 12px; }
-    .intro { max-width: 70ch; color: var(--muted); margin: 0 0 18px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; }
-    .card h3 { margin: 0 0 6px; font-size: 18px; }
-    .card p, .card li { color: var(--muted); }
-    .card ul { margin: 8px 0 0; padding-left: 18px; }
-    .own { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .own article { border-radius: 16px; padding: 16px 18px; }
-    .own .pub { background: #fff; border: 1px solid var(--line); }
-    .own .prop { background: var(--pine); color: #f6f3ec; }
-    .own .prop p, .own .prop li { color: #d5e4dc; }
-    .own h3 { margin: 0 0 8px; }
-    table { width: 100%; border-collapse: collapse; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 15px; }
-    th { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: #f6f1e8; }
-    tr:last-child td { border-bottom: 0; }
-    .calc { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 16px; align-items: start; }
-    form.calc-form { display: grid; gap: 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
-    label { display: grid; gap: 4px; font-size: 13.5px; font-weight: 680; }
-    input, select { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 16px; background: #fff; color: var(--ink); }
-    .result { background: var(--ink); color: #f6f3ec; border-radius: 18px; padding: 18px; min-height: 100%; }
-    .result h3 { font-family: var(--serif); font-weight: 480; font-size: 32px; margin: 8px 0; }
-    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-    .result-grid div { background: rgba(255,255,255,0.06); border-radius: 12px; padding: 12px; }
-    .result-grid b { display: block; font-family: var(--serif); font-size: 28px; color: white; }
-    .fine { font-size: 13px; color: var(--muted); }
-    .result .fine { color: #c9d6ce; }
-    .sources { font-size: 14.5px; color: var(--muted); }
-    .sources li { margin: 8px 0; }
-    footer { border-top: 1px solid var(--line); padding: 22px 0 42px; color: var(--muted); font-size: 14px; }
-    @media (max-width: 860px) {
-      .hero, .facts, .grid-2, .own, .calc, .result-grid, .top-inner { grid-template-columns: 1fr; display: grid; }
-      .top-inner { display: flex; flex-direction: column; align-items: flex-start; padding: 12px 0; }
-      table { display: block; overflow-x: auto; }
-    }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  </style>
-</head>
-<body>
-  <a class="skip" href="#main">Skip to content</a>
-  <header class="top">
-    <div class="wrap top-inner">
-      <a class="brand" href="#top">
-        <small>Green Lifecycle and Operation Workflows</small>
-        <strong>GLOW Ops</strong>
-      </a>
-      <nav aria-label="On this page">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="GLOW Ops — Green Lifecycle and Operation Workflows. The GLOW Op Report reads the fleet already in Intune and calls keep, repair, redeploy, refresh, or recycle — per serial number, with the source on every row." />
+    <link rel="icon" href="data:," />
+    <title>GLOW Ops — Get an IT GLOW Op</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#EDF1E8;
+        --surface:#FFFFFF;
+        --surface-2:#E3E9DC;
+        --ink:#0D130B;
+        --ink-2:#39422F;
+        --muted:#5A6650;
+        --line:#0D130B;
+        --line-soft:#C9D2C0;
+        --lime:#BFF747;
+        --lime-bright:#CFF95E;
+        --lime-deep:#4C7A06;
+        --dark:#0B100A;
+        --dark-2:#131A10;
+        --dark-ink:#EDF4E4;
+        --dark-muted:#9DB08F;
+        --amber:#D98E04;
+        --amber-bg:#FBEED3;
+        --red:#C93A32;
+        --red-bg:#FADFDC;
+        --teal:#0E7C74;
+        --teal-bg:#D9EFEC;
+        --gray-bg:#E7EAE2;
+        --shadow:8px 8px 0 var(--ink);
+        --receipt:#FBFBF6;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#0A0E08;
+          --surface:#141A11;
+          --surface-2:#1A2215;
+          --ink:#EBF3DF;
+          --ink-2:#C3CFB2;
+          --muted:#93A184;
+          --line:#EBF3DF;
+          --line-soft:#2C3626;
+          --lime-deep:#A8D93E;
+          --amber-bg:#3A2C0C;
+          --red-bg:#3D1713;
+          --teal-bg:#0F2E2A;
+          --gray-bg:#232B1E;
+          --shadow:8px 8px 0 rgba(191,247,71,.85);
+          --receipt:#10150D;
+        }
+      }
+      *{ box-sizing:border-box; }
+      html{ scroll-behavior:smooth; }
+      body{
+        margin:0; background:var(--bg); color:var(--ink);
+        font-family:"Archivo", system-ui, sans-serif;
+        font-size:17px; line-height:1.55;
+        -webkit-font-smoothing:antialiased;
+      }
+      ::selection{ background:var(--lime); color:#0D130B; }
+      a{ color:inherit; }
+      .mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; }
+      .serif-i{ font-family:"Newsreader", Georgia, serif; font-style:italic; font-weight:500; }
+
+      /* ---------- top bar ---------- */
+      .topbar{
+        position:sticky; top:0; z-index:50;
+        display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+        padding:.55rem clamp(1rem,4vw,2.5rem);
+        background:var(--bg); border-bottom:2px solid var(--line);
+      }
+      .wordmark{ font-weight:900; letter-spacing:-.02em; font-size:1.15rem; text-transform:uppercase; text-decoration:none; display:flex; align-items:center; gap:.55rem; min-height:36px; }
+      .wordmark .dot{ width:.62em; height:.62em; background:var(--lime); border:2px solid var(--line); display:inline-block; box-shadow:0 0 10px rgba(160,230,40,.8); }
+      .wordmark small{ font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:.58rem; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; }
+      .topbar nav{ display:flex; gap:.15rem; flex-wrap:wrap; margin-left:auto; }
+      .topbar nav a{
+        font-family:"IBM Plex Mono",monospace; font-size:.78rem; letter-spacing:.06em; text-transform:uppercase;
+        text-decoration:none; padding:.5rem .6rem; min-height:36px; display:inline-flex; align-items:center;
+      }
+      .topbar nav a:hover{ background:var(--lime); color:#0D130B; }
+      .topbar .domain{
+        font-family:"IBM Plex Mono",monospace; font-size:.78rem; font-weight:600;
+        border:2px solid var(--line); padding:.45rem .7rem; min-height:36px; display:inline-flex; align-items:center;
+        background:var(--surface); text-decoration:none;
+      }
+      .topbar .domain:hover{ background:var(--ink); color:var(--bg); }
+
+      .wrap{ max-width:1240px; margin:0 auto; padding:0 clamp(1rem,4vw,2.5rem); }
+
+      /* ---------- hero ---------- */
+      .hero{ padding:clamp(2.5rem,7vw,5.5rem) 0 0; position:relative; overflow:hidden; }
+      .hero-kicker{
+        display:flex; align-items:center; gap:.8rem; flex-wrap:wrap;
+        font-family:"IBM Plex Mono",monospace; font-size:.78rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-2);
+      }
+      .hero-kicker .tag{ background:var(--ink); color:var(--lime); padding:.25rem .55rem; letter-spacing:.16em; }
+      h1{
+        margin:.35em 0 .3em; font-weight:900; text-transform:uppercase;
+        font-size:clamp(3rem,10.5vw,8.2rem); line-height:.9; letter-spacing:-.025em;
+      }
+      h1 .glow{
+        background:var(--lime); color:#0D130B; padding:0 .07em; display:inline-block;
+        box-shadow:0 0 44px rgba(166,230,46,.65), 0 0 10px rgba(166,230,46,.8);
+        transform:rotate(-1.2deg);
+      }
+      .hero-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:clamp(1.5rem,4vw,3.5rem); align-items:start; padding-bottom:clamp(2.5rem,6vw,4.5rem); }
+      .hero-lede{ font-size:clamp(1.12rem,2vw,1.35rem); line-height:1.5; max-width:34em; color:var(--ink); }
+      .hero-lede strong{ font-weight:800; }
+      .hero-ctas{ display:flex; gap:.8rem; flex-wrap:wrap; margin-top:1.6rem; }
+      .btn{
+        display:inline-flex; align-items:center; gap:.5rem; min-height:48px;
+        padding:.8rem 1.3rem; font-weight:800; font-size:.98rem; text-decoration:none;
+        border:2px solid var(--line); text-transform:uppercase; letter-spacing:.02em;
+      }
+      .btn-lime{ background:var(--lime); color:#0D130B; box-shadow:5px 5px 0 var(--ink); }
+      .btn-lime:hover{ transform:translate(2px,2px); box-shadow:3px 3px 0 var(--ink); }
+      .btn-ghost{ background:transparent; color:var(--ink); }
+      .btn-ghost:hover{ background:var(--surface); }
+      .hero-note{ margin-top:1.2rem; font-family:"IBM Plex Mono",monospace; font-size:.78rem; color:var(--muted); letter-spacing:.04em; }
+
+      /* sample report card */
+      .report-card{
+        background:var(--surface); border:2px solid var(--line); box-shadow:var(--shadow);
+        padding:1.3rem 1.3rem 1.4rem; position:relative; transform:rotate(1.1deg);
+      }
+      .report-card .rc-head{
+        display:flex; justify-content:space-between; gap:1rem; align-items:baseline;
+        border-bottom:2px solid var(--line); padding-bottom:.6rem;
+        font-family:"IBM Plex Mono",monospace; font-size:.74rem; letter-spacing:.1em; text-transform:uppercase;
+      }
+      .report-card .rc-head b{ font-size:.86rem; }
+      .stamp{
+        position:absolute; top:2.6rem; right:1rem; transform:rotate(7deg);
+        border:3px solid var(--red); color:var(--red); border-radius:4px;
+        font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.82rem; letter-spacing:.18em;
+        padding:.3rem .6rem; text-transform:uppercase; background:transparent;
+      }
+      .rc-device{ font-weight:900; font-size:clamp(1.5rem,3vw,2rem); letter-spacing:-.02em; margin:1rem 0 .15rem; text-transform:uppercase; }
+      .rc-meta{ font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--muted); }
+      .rc-body{ margin:.9rem 0 0; color:var(--ink-2); font-size:.98rem; }
+      .battery{ margin-top:1.1rem; }
+      .battery .b-label{ display:flex; justify-content:space-between; font-family:"IBM Plex Mono",monospace; font-size:.74rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+      .battery .b-track{ height:14px; border:2px solid var(--line); margin-top:.35rem; position:relative; background:var(--surface-2); }
+      .battery .b-fill{ position:absolute; inset:0; width:64%; background:repeating-linear-gradient(-45deg, var(--amber) 0 8px, #c07c03 8px 16px); }
+      .rc-verdict{ display:flex; gap:.9rem; align-items:flex-start; margin-top:1.2rem; border-top:1px dashed var(--line-soft); padding-top:1rem; }
+      .verdict-chip{
+        font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase;
+        padding:.35rem .6rem; border:2px solid var(--line); white-space:nowrap;
+      }
+      .v-repair{ background:var(--amber-bg); color:var(--ink); }
+      .v-keep{ background:var(--lime); color:#0D130B; }
+      .v-redeploy{ background:var(--teal-bg); color:var(--ink); }
+      .v-ghost{ background:var(--red-bg); color:var(--ink); }
+      .v-recycle{ background:var(--gray-bg); color:var(--ink); }
+      .rc-verdict p{ margin:0; font-size:.95rem; }
+      .rc-foot{ margin-top:1rem; font-family:"IBM Plex Mono",monospace; font-size:.7rem; color:var(--muted); letter-spacing:.05em; }
+
+      /* marquee */
+      .marquee{ border-top:2px solid var(--line); border-bottom:2px solid var(--line); background:var(--ink); color:var(--bg); overflow:hidden; }
+      .marquee-track{ display:flex; width:max-content; animation:scroll 30s linear infinite; }
+      .marquee span{
+        font-family:"IBM Plex Mono",monospace; font-size:.85rem; letter-spacing:.22em; text-transform:uppercase;
+        padding:.65rem 0; white-space:nowrap;
+      }
+      .marquee b{ color:var(--lime); font-weight:600; }
+      @keyframes scroll{ to{ transform:translateX(-50%); } }
+      @media (prefers-reduced-motion: reduce){
+        .marquee-track{ animation:none; }
+        html{ scroll-behavior:auto; }
+      }
+
+      /* ---------- evidence ledger ---------- */
+      .ledger{ padding:clamp(2.5rem,6vw,4.5rem) 0; }
+      .ledger-row{
+        display:grid; grid-template-columns:minmax(180px,.9fr) 1.6fr; gap:clamp(1rem,4vw,3rem);
+        padding:1.6rem 0; border-top:2px solid var(--line); align-items:baseline;
+      }
+      .ledger-row:last-of-type{ border-bottom:2px solid var(--line); }
+      .ledger-num{ font-weight:900; font-size:clamp(3rem,7.5vw,5.6rem); line-height:.95; letter-spacing:-.03em; }
+      .ledger-num em{ font-style:normal; color:var(--lime-deep); }
+      .ledger-row p{ margin:0; font-size:clamp(1.02rem,1.6vw,1.2rem); max-width:38em; }
+      .ledger-row p .src{ display:block; margin-top:.45rem; font-family:"IBM Plex Mono",monospace; font-size:.76rem; letter-spacing:.05em; color:var(--muted); text-transform:uppercase; }
+      .ledger-fine{ margin-top:1.1rem; font-size:.92rem; color:var(--muted); max-width:62em; }
+      .ledger-fine .serif-i{ color:var(--ink-2); font-size:1.02rem; }
+
+      /* ---------- sections ---------- */
+      section{ padding:clamp(3rem,7vw,5.5rem) 0; }
+      .sec-head{ margin-bottom:clamp(1.8rem,4vw,3rem); }
+      .sec-index{
+        display:flex; align-items:center; gap:1rem;
+        font-family:"IBM Plex Mono",monospace; font-size:.8rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-2);
+      }
+      .sec-index::after{ content:""; flex:1; border-top:2px solid var(--line); }
+      .sec-index .n{ background:var(--lime); color:#0D130B; border:2px solid var(--line); padding:.15rem .5rem; font-weight:600; }
+      h2{ font-weight:900; text-transform:uppercase; letter-spacing:-.025em; line-height:.95; font-size:clamp(2.2rem,6vw,4.4rem); margin:.45em 0 .35em; }
+      h2 .hl{ background:var(--lime); color:#0D130B; padding:0 .06em; box-decoration-break:clone; -webkit-box-decoration-break:clone; }
+      .sec-lede{ font-size:clamp(1.08rem,1.8vw,1.28rem); max-width:44em; color:var(--ink-2); }
+      .sec-lede strong{ color:var(--ink); }
+
+      .problem-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 clamp(2rem,5vw,4.5rem); }
+      .p-block{ padding:1.7rem 0; border-top:1px solid var(--line-soft); }
+      .p-block .p-num{ font-family:"IBM Plex Mono",monospace; font-size:.78rem; letter-spacing:.14em; color:var(--lime-deep); font-weight:600; }
+      .p-block h3{ font-size:1.35rem; font-weight:800; letter-spacing:-.01em; margin:.4rem 0 .6rem; line-height:1.15; }
+      .p-block p{ margin:0; color:var(--ink-2); }
+      .p-block p + p{ margin-top:.7rem; }
+      .p-block .big-inline{ font-weight:900; font-size:1.6em; letter-spacing:-.02em; color:var(--ink); white-space:nowrap; }
+      .pull{
+        grid-column:1 / -1; padding:2rem 0 .5rem;
+        font-family:"Newsreader", Georgia, serif; font-style:italic; font-weight:500;
+        font-size:clamp(1.6rem,3.6vw,2.6rem); line-height:1.2; letter-spacing:-.01em; max-width:22em;
+      }
+      .pull b{ font-family:"Archivo",sans-serif; font-style:normal; font-weight:900; text-transform:uppercase; font-size:.82em; background:var(--lime); color:#0D130B; padding:0 .12em; }
+
+      /* ---------- report ---------- */
+      .versus{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(1rem,3vw,2rem); align-items:stretch; }
+      .panel{ border:2px solid var(--line); padding:clamp(1.3rem,3vw,2rem); }
+      .panel-public{ background:var(--surface); }
+      .panel-prop{ background:var(--dark); color:var(--dark-ink); box-shadow:var(--shadow); }
+      .panel .p-tag{ font-family:"IBM Plex Mono",monospace; font-size:.76rem; letter-spacing:.16em; text-transform:uppercase; display:inline-block; padding:.3rem .55rem; border:2px solid currentColor; }
+      .panel-public .p-tag{ color:var(--ink); }
+      .panel-prop .p-tag{ color:var(--lime); border-color:var(--lime); }
+      .panel h3{ font-size:1.5rem; font-weight:800; margin:.9rem 0 1rem; letter-spacing:-.01em; line-height:1.15; }
+      .panel ul{ list-style:none; margin:0; padding:0; }
+      .panel li{ padding:.85rem 0 .85rem 1.6rem; position:relative; border-top:1px dashed var(--line-soft); font-size:.99rem; }
+      .panel-prop li{ border-top-color:#33402A; }
+      .panel li::before{ content:""; position:absolute; left:0; top:1.25rem; width:.6rem; height:.6rem; background:var(--lime); border:1.5px solid var(--line); }
+      .panel-prop li::before{ border-color:var(--lime); background:transparent; }
+      .panel li b{ font-weight:800; }
+      .panel-prop li{ color:#C9D6BB; }
+      .panel-prop li b{ color:var(--dark-ink); }
+
+      .sample{ margin-top:clamp(2.2rem,5vw,3.5rem); }
+      .sample-head{ display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+      .sample-head h3{ font-size:1.4rem; font-weight:900; text-transform:uppercase; letter-spacing:-.01em; margin:0; }
+      .sample-head span{ font-family:"IBM Plex Mono",monospace; font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+      table.sample-table{ width:100%; border-collapse:collapse; background:var(--surface); border:2px solid var(--line); }
+      .sample-table th{
+        font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; text-align:left;
+        padding:.8rem 1rem; border-bottom:2px solid var(--line); background:var(--surface-2); color:var(--ink-2);
+      }
+      .sample-table td{ padding:1rem; border-bottom:1px solid var(--line-soft); vertical-align:top; font-size:.95rem; }
+      .sample-table tr:last-child td{ border-bottom:none; }
+      .sample-table .dev{ font-weight:800; }
+      .sample-table .dev small{ display:block; font-family:"IBM Plex Mono",monospace; font-weight:400; font-size:.74rem; color:var(--muted); margin-top:.2rem; letter-spacing:.03em; }
+      .sample-table .conf{ font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--ink-2); }
+      .sample-table .call p{ margin:.45rem 0 0; color:var(--ink-2); font-size:.92rem; }
+      .sample-cap{ margin-top:.9rem; font-size:.9rem; color:var(--muted); max-width:60em; }
+
+      /* ---------- calculator ---------- */
+      .calc-sec{ background:var(--dark); color:var(--dark-ink); }
+      .calc-sec .sec-index{ color:var(--dark-muted); }
+      .calc-sec .sec-index::after{ border-top-color:var(--dark-ink); }
+      .calc-sec .sec-lede{ color:#C9D6BB; }
+      .calc-sec .sec-lede strong{ color:var(--dark-ink); }
+      .calc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(1.5rem,4vw,3rem); align-items:start; }
+      .controls{ display:flex; flex-direction:column; gap:1.35rem; }
+      .ctl label{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; font-family:"IBM Plex Mono",monospace; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--dark-muted); margin-bottom:.5rem; }
+      .ctl .numbox{ display:flex; align-items:center; gap:.4rem; }
+      .ctl input[type="number"]{
+        width:6.2rem; min-height:44px; background:var(--dark-2); color:var(--dark-ink);
+        border:2px solid #3A4733; padding:.45rem .6rem; font-family:"IBM Plex Mono",monospace; font-size:1rem; text-align:right;
+      }
+      .ctl input[type="number"]:focus{ border-color:var(--lime); outline:none; }
+      .ctl .unit{ font-size:.72rem; color:var(--dark-muted); }
+      input[type="range"]{ width:100%; min-height:36px; accent-color:var(--lime); cursor:pointer; }
+      .ctl select{
+        width:100%; min-height:48px; background:var(--dark-2); color:var(--dark-ink);
+        border:2px solid #3A4733; padding:.6rem; font-family:"IBM Plex Mono",monospace; font-size:.92rem;
+      }
+      .ctl select:focus{ border-color:var(--lime); outline:none; }
+      .ctl-row2{ display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+      .receipt{
+        background:var(--receipt); color:var(--ink); border:2px solid var(--line);
+        padding:clamp(1.3rem,3vw,2rem); box-shadow:10px 10px 0 rgba(191,247,71,.9);
+        font-family:"IBM Plex Mono",monospace;
+      }
+      @media (prefers-color-scheme: dark){ .receipt{ color:#EBF3DF; border-color:#3A4733; } }
+      .receipt .r-head{ display:flex; justify-content:space-between; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase; border-bottom:2px dashed var(--line-soft); padding-bottom:.7rem; }
+      .receipt .r-head b{ color:var(--lime-deep); }
+      .receipt .r-narr{ font-family:"Archivo",sans-serif; font-size:1.05rem; line-height:1.5; margin:1.1rem 0 0; }
+      .receipt .r-narr b{ font-weight:900; }
+      .r-stats{ margin-top:1.3rem; border-top:2px solid var(--line); }
+      .r-stat{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; padding:.85rem 0; border-bottom:1px dashed var(--line-soft); }
+      .r-stat .k{ font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); max-width:55%; }
+      .r-stat .v{ font-family:"Archivo",sans-serif; font-weight:900; font-size:clamp(1.7rem,3.4vw,2.4rem); letter-spacing:-.02em; white-space:nowrap; }
+      .r-stat .v.lime{ background:var(--lime); color:#0D130B; padding:0 .15em; }
+      .bars{ margin-top:1.3rem; }
+      .bar-row{ margin-bottom:.8rem; }
+      .bar-row .b-head{ display:flex; justify-content:space-between; font-size:.74rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:.3rem; }
+      .bar-track{ height:16px; border:2px solid var(--line); background:transparent; }
+      .bar-fill{ height:100%; transition:width .35s ease; }
+      .bar-cal{ background:repeating-linear-gradient(-45deg, var(--red) 0 8px, #a52e28 8px 16px); }
+      .bar-glow{ background:var(--lime); }
+      .receipt .r-fine{ margin-top:1.2rem; font-size:.74rem; line-height:1.65; color:var(--muted); }
+
+      /* ---------- method ---------- */
+      .steps{ list-style:none; margin:0; padding:0; counter-reset:step; }
+      .step{
+        display:grid; grid-template-columns:110px 220px 1fr; gap:clamp(1rem,3vw,2.5rem);
+        padding:1.8rem 0; border-top:2px solid var(--line); align-items:start;
+      }
+      .step:last-child{ border-bottom:2px solid var(--line); }
+      .step .s-num{ font-weight:900; font-size:clamp(2.6rem,5vw,4rem); line-height:1; color:transparent; -webkit-text-stroke:2px var(--ink); }
+      .step h3{ margin:.2rem 0 0; font-size:1.45rem; font-weight:900; text-transform:uppercase; letter-spacing:-.01em; }
+      .step h3 .arrow{ color:var(--lime-deep); }
+      .step p{ margin:0; color:var(--ink-2); max-width:44em; }
+      .gap-box{
+        margin-top:clamp(2rem,5vw,3rem); border:2px solid var(--line); background:var(--surface);
+        padding:clamp(1.3rem,3vw,2rem); display:grid; grid-template-columns:1fr 1fr; gap:clamp(1.2rem,3vw,2.5rem);
+      }
+      .gap-box h3{ margin:0 0 .6rem; font-size:1.2rem; font-weight:800; }
+      .gap-box p{ margin:0; color:var(--ink-2); font-size:.98rem; }
+      .gap-box .scope{ border-left:2px dashed var(--line-soft); padding-left:clamp(1.2rem,3vw,2.5rem); }
+      .gap-box .scope .stamp2{
+        display:inline-block; border:2.5px solid var(--red); color:var(--red); border-radius:4px; transform:rotate(-2deg);
+        font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase; padding:.25rem .55rem; margin-bottom:.8rem;
+      }
+
+      /* ---------- builder ---------- */
+      .builder{ background:var(--surface-2); border-top:2px solid var(--line); border-bottom:2px solid var(--line); }
+      .builder-grid{ display:grid; grid-template-columns:1.2fr .8fr; gap:clamp(1.5rem,4vw,3.5rem); align-items:start; }
+      .builder p{ color:var(--ink-2); font-size:1.08rem; max-width:40em; }
+      .builder p strong{ color:var(--ink); }
+      .cred-ledger{ border:2px solid var(--line); background:var(--surface); }
+      .cred-ledger .cr{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; padding:.95rem 1.1rem; border-bottom:1px dashed var(--line-soft); }
+      .cred-ledger .cr:last-child{ border-bottom:none; }
+      .cred-ledger .cr b{ font-weight:900; font-size:1.5rem; letter-spacing:-.02em; white-space:nowrap; }
+      .cred-ledger .cr span{ font-family:"IBM Plex Mono",monospace; font-size:.74rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); text-align:right; }
+      .phase0{
+        margin-top:1.6rem; font-family:"IBM Plex Mono",monospace; font-size:.84rem; line-height:1.7; color:var(--ink-2);
+        border-left:4px solid var(--lime-deep); padding-left:1rem; max-width:46em;
+      }
+
+      /* ---------- sources ---------- */
+      .src-list{ list-style:none; margin:0; padding:0; counter-reset:src; }
+      .src-list li{
+        display:grid; grid-template-columns:64px 1fr; gap:1rem;
+        padding:1.15rem 0; border-top:1px solid var(--line-soft); align-items:baseline;
+      }
+      .src-list li:first-child{ border-top:2px solid var(--line); }
+      .src-list .sn{ font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.9rem; color:var(--lime-deep); }
+      .src-list p{ margin:0; color:var(--ink-2); font-size:.97rem; max-width:62em; }
+      .src-list p b{ color:var(--ink); }
+      .src-list a{
+        font-family:"IBM Plex Mono",monospace; font-size:.8rem; font-weight:600; text-decoration:none;
+        border-bottom:2px solid var(--lime-deep); padding-bottom:1px; display:inline-block; margin-top:.3rem; min-height:32px;
+      }
+      .src-list a:hover{ background:var(--lime); color:#0D130B; }
+
+      /* ---------- footer ---------- */
+      footer{ background:var(--dark); color:var(--dark-ink); padding:clamp(2.5rem,6vw,4rem) 0 2.5rem; }
+      footer .f-big{ font-weight:900; text-transform:uppercase; font-size:clamp(2rem,6vw,4rem); line-height:.95; letter-spacing:-.025em; margin:0 0 1rem; }
+      footer .f-big .glow{ background:var(--lime); color:#0D130B; padding:0 .06em; }
+      footer .f-meta{ font-family:"IBM Plex Mono",monospace; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--dark-muted); }
+      footer .f-fine{ margin-top:1.6rem; font-size:.88rem; color:#A9BCA0; max-width:64em; line-height:1.65; }
+      footer a.mail{
+        display:inline-flex; align-items:center; min-height:48px; margin-top:1.4rem;
+        background:var(--lime); color:#0D130B; font-weight:800; text-transform:uppercase; text-decoration:none;
+        padding:.8rem 1.3rem; border:2px solid var(--lime);
+      }
+      footer a.mail:hover{ background:transparent; color:var(--lime); }
+
+      /* ---------- responsive ---------- */
+      @media (max-width: 900px){
+        .hero-grid, .calc-grid, .builder-grid{ grid-template-columns:1fr; }
+        .report-card{ transform:rotate(.6deg); max-width:560px; }
+        .problem-grid, .versus{ grid-template-columns:1fr; }
+        .step{ grid-template-columns:64px 1fr; }
+        .step p{ grid-column:2; }
+        .gap-box{ grid-template-columns:1fr; }
+        .gap-box .scope{ border-left:none; border-top:2px dashed var(--line-soft); padding-left:0; padding-top:1.2rem; }
+        .ledger-row{ grid-template-columns:1fr; gap:.4rem; }
+        .topbar nav{ order:3; margin-left:0; }
+        .wordmark small{ display:none; }
+        .topbar{ gap:.5rem .8rem; padding:.5rem 1rem; }
+        .topbar nav a{ padding:.45rem .45rem; font-size:.72rem; }
+        .topbar .domain{ margin-left:auto; }
+      }
+      @media (max-width: 760px){
+        .sample-table thead{ display:none; }
+        .sample-table, .sample-table tbody, .sample-table tr, .sample-table td{ display:block; width:100%; }
+        .sample-table tr{ border-bottom:2px solid var(--line); padding:.6rem 0; }
+        .sample-table tr:last-child{ border-bottom:none; }
+        .sample-table td{ border-bottom:none; padding:.45rem 1rem; }
+        .sample-table td::before{
+          content:attr(data-l); display:block; font-family:"IBM Plex Mono",monospace;
+          font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:.25rem;
+        }
+        .ctl-row2{ grid-template-columns:1fr; }
+        .src-list li{ grid-template-columns:44px 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="wordmark" href="#top"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops <small>Green Lifecycle &amp; Operation Workflows</small></a>
+      <nav aria-label="Sections">
         <a href="#problem">The problem</a>
         <a href="#report">The report</a>
         <a href="#calculator">Calculator</a>
         <a href="#method">Method</a>
         <a href="#sources">Sources</a>
       </nav>
-    </div>
-  </header>
+      <a class="domain" href="#calculator">getglowop.com</a>
+    </header>
 
-  <main id="main">
-    <div class="wrap hero" id="top">
-      <div>
-        <p class="eyebrow">getglowop.com</p>
-        <h1>Get an IT GLOW Op.</h1>
-        <p class="expand">Green Lifecycle and Operation Workflows</p>
-        <p class="lede">A <strong>GLOW Op Report</strong> is the document a business actually uses. It looks at the laptops and desktops already in Intune and says which ones get to live, which need a battery, and which are genuinely done. Refresh season can sit down.</p>
-        <div class="actions">
-          <a class="btn btn-primary" href="#calculator">Run the screening math</a>
-          <a class="btn btn-ghost" href="#report">See what’s in the report</a>
-        </div>
-      </div>
-      <article class="stamp" aria-label="Sample GLOW Op Report header">
-        <div class="stamp-top"><span>GLOW Op Report</span><span>Sample · not a tenant</span></div>
-        <div class="stamp-body">
-          <p class="muted" style="margin:0">Harbor Clinic · 4.8 years · battery 64% · warranty expired</p>
-          <h2>EliteBook 840 G6</h2>
-          <p class="muted">Published-style manufacturing factor, about 300 kg CO₂e. Health says the battery is the problem, not the chassis.</p>
-          <div class="call">
-            <span class="pill repair">Repair</span>
-            <p style="margin:8px 0 0">Replace the battery. Do not buy a new laptop to celebrate a calendar.</p>
-          </div>
-        </div>
-      </article>
-    </div>
-
-    <div class="wrap">
-      <div class="facts">
-        <article class="fact">
-          <b>76%</b>
-          <span>of one peer-reviewed laptop footprint was manufacturing. 218.7 of 286.1 kg CO₂e, over four years of ordinary work. Ferreira et al., Sustainability, 2025.</span>
-        </article>
-        <article class="fact">
-          <b>Up to 20×</b>
-          <span>more greenhouse-gas avoidance from reusing a whole device than from the best recycling, according to Gartner’s ITAD market guide as quoted by a vendor in that guide.</span>
-        </article>
-        <article class="fact">
-          <b>4–5 yrs</b>
-          <span>is where Gartner’s public device-sustainability note says most organizations are taking employee laptops, up from a flat three-year refresh. March 2024.</span>
-        </article>
-      </div>
-      <p class="fine">These are published findings, not a GLOW Ops certification. Manufacturer PCFs disagree with each other on purpose. The report shows the source on every device.</p>
-    </div>
-
-    <section id="problem">
-      <div class="wrap">
-        <p class="eyebrow">The actual problem</p>
-        <h2>The calendar is making purchasing decisions.</h2>
-        <p class="intro">Mid-market companies, and the MSPs who run their fleets, replace endpoints because a policy said three or four years. The carbon already happened at the factory. A newer laptop being slightly more efficient rarely pays that factory back.</p>
-        <div class="grid-2">
-          <article class="card">
-            <h3>Manufacturing is the footprint</h3>
-            <p>Germany’s environment agency, with Öko-Institut and Fraunhofer IZM, found production at about 56% of a notebook’s greenhouse gases over five years. In their scenarios, a new notebook that was only 10% more efficient took 33 to 89 years to “earn back” the carbon of being built. You will not keep a laptop for 89 years. You also should not replace a healthy one to feel efficient.</p>
-          </article>
-          <article class="card">
-            <h3>Reuse is the climate action. Recycling is the funeral.</h3>
-            <p>André and colleagues (Waste Management, 2019) studied a real commercial laptop-reuse operation. Getting a used laptop ready to sell again was almost nothing, environmentally, next to the carbon already in the parts. Extending use was the benefit. ADEME’s 2022 refurbishment work, as summarized by Fraunhofer IZM, put a refurbished laptop’s footprint far below a new one.</p>
-          </article>
-          <article class="card">
-            <h3>The data is already in the MSP’s tenant</h3>
-            <p>Intune knows the model, the age, the last check-in, compliance, and — with Advanced Analytics — battery health. It will not tell a client whether that device should be kept. Microsoft’s own sustainability tooling is strong on power policy and, for Surface, on a model emissions estimate. A mixed Dell, HP, and Lenovo fleet still gets a calendar.</p>
-          </article>
-          <article class="card">
-            <h3>Ghost hardware is a security problem that also buys laptops</h3>
-            <p>IT asset firms citing Gartner put the share of hardware that is lost, missing, or still on the books while nobody can find it around 30%. A device you cannot see gets replaced, and the old one is still out there with a disk. The Global E-waste Monitor 2024 is the backdrop: 62 million tonnes of e-waste in 2022, 22.3% formally collected and recycled. Your fleet is the part an MSP can actually touch.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="report">
-      <div class="wrap">
-        <p class="eyebrow">The product</p>
-        <h2>The GLOW Op Report.</h2>
-        <p class="intro">Businesses do not need another maturity model. They need a report they can hand a CFO, a client, or an auditor without inventing a carbon number. Some lines in that report are public. The call — keep, repair, redeploy, refresh, recycle — is ours.</p>
-        <div class="own">
-          <article class="pub">
-            <h3>Public. We cite it. We do not pretend we invented it.</h3>
-            <ul>
-              <li>Manufacturer product carbon footprints, including the open Boavizta compilation of those sheets. Boavizta’s own warning applies: methodologies differ, margins of error are large, use them as orders of magnitude and for same-brand comparisons.</li>
-              <li>The customer’s Intune / Graph inventory: make, model, serial, OS, last check-in, compliance, warranty when the tenant has it.</li>
-              <li>CSV upload when Graph is not available yet. The fleet still gets a report.</li>
-            </ul>
-          </article>
-          <article class="prop">
-            <h3>Proprietary. This is the GLOW Op.</h3>
-            <ul>
-              <li><strong>GLOW Score.</strong> One number from embodied carbon, age, health, warranty, compliance, and how long the device has been quiet. The weights are ours.</li>
-              <li><strong>The call, with a sentence.</strong> Keep and optimize, repair, redeploy, refresh, or certified recycle / remarket. Written for an IT manager, not a life-cycle assessor.</li>
-              <li><strong>Match confidence.</strong> Exact model sheet, same-family estimate, or fallback. A guess is labeled a guess.</li>
-              <li><strong>Calendar versus carbon.</strong> What the current refresh policy would buy, versus what the score says, in kilograms and in purchase dollars.</li>
-              <li><strong>Persona window.</strong> A kiosk, a clinician, and a finance laptop do not share a lifespan. The mapping from the customer’s roles to a keep-window is ours.</li>
-              <li><strong>Ghost flag.</strong> Stale check-in, still assigned, still on the books. Their signal. Our rule for when it shows up in the report.</li>
-              <li><strong>Repair-before-replace.</strong> Battery or disk cost, supplied by the MSP, set next to the avoided purchase. We do not publish their vendor price list.</li>
-              <li><strong>The client page.</strong> White-label PDF and CSV an MSP can put their name on. Scope 3 language that stays inside what the factors support. Not a full GHG Protocol inventory. Not the user’s files. We are not reading anyone’s email to save the climate.</li>
-            </ul>
-          </article>
-        </div>
-
-        <h2 style="margin-top:28px;font-size:32px">A page from a sample report</h2>
-        <table>
-          <thead>
-            <tr><th>Device</th><th>Factor</th><th>Confidence</th><th>GLOW call</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Latitude 5440 · 1.4 yrs · health 96</td>
-              <td>Manufacturing factor on file</td>
-              <td>Exact model, when the PCF exists</td>
-              <td>Keep. Tune power policy. The calendar is early.</td>
-            </tr>
-            <tr>
-              <td>EliteBook 840 G6 · battery 64%</td>
-              <td>About 300 kg, illustrative until the model sheet is matched</td>
-              <td>Family estimate</td>
-              <td>Repair. Battery, not a new laptop.</td>
-            </tr>
-            <tr>
-              <td>OptiPlex, disk failing, CPU fine</td>
-              <td>Desktop-class manufacturing, higher than a laptop</td>
-              <td>Family estimate</td>
-              <td>Redeploy after an SSD. The tower is not the failure.</td>
-            </tr>
-            <tr>
-              <td>Checked in 11 months ago</td>
-              <td>Unknown until someone finds it</td>
-              <td>No factor yet</td>
-              <td>Ghost flag. Find it before you buy its replacement.</td>
-            </tr>
-            <tr>
-              <td>8-year laptop, failed board</td>
-              <td>Manufacturing already spent</td>
-              <td>Exact or family</td>
-              <td>Recycle or remarket. This is the refresh the policy was for.</td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="fine">Sample calls for the walkthrough. A production report names the factor URL, the year of the datasheet, and the confidence on every row.</p>
-      </div>
-    </section>
-
-    <section id="calculator">
-      <div class="wrap">
-        <p class="eyebrow">Screening calculator</p>
-        <h2>How many laptops does the calendar buy that the fleet does not need?</h2>
-        <p class="intro">This is not a certified product carbon footprint. It is the argument, in arithmetic. Over a planning window, a short refresh buys more machines than a longer keep. Each extra machine carries a manufacturing footprint. Change the numbers. They are yours.</p>
-        <div class="calc">
-          <form class="calc-form" id="glow-calc">
-            <label>Endpoints in the fleet
-              <input id="devices" type="number" min="0" step="1" value="150">
-            </label>
-            <label>Current refresh policy, years
-              <input id="cycle" type="number" min="1" max="12" step="0.5" value="3">
-            </label>
-            <label>Keep window for healthy devices, years
-              <input id="keep" type="number" min="1" max="15" step="0.5" value="5">
-            </label>
-            <label>Share healthy enough to extend, percent
-              <input id="share" type="number" min="0" max="100" step="1" value="70">
-            </label>
-            <label>Look ahead, years
-              <input id="horizon" type="number" min="1" max="30" step="1" value="15">
-            </label>
-            <label>Device class for the default factor
-              <select id="klass">
-                <option value="219">Laptop — 219 kg manufacturing (Ferreira et al. 2025)</option>
-                <option value="531">Desktop plus monitor — 531 kg manufacturing (same study)</option>
-                <option value="custom">Custom factor, typed below</option>
-              </select>
-            </label>
-            <label>Or type a manufacturing kg CO₂e per device
-              <input id="kg" type="number" min="1" max="2000" step="1" value="219">
-            </label>
-            <label>What you pay for a new one, USD
-              <input id="price" type="number" min="0" step="50" value="1100">
-            </label>
-          </form>
-          <div class="result" aria-live="polite">
-            <span class="pill" id="result-tag">Screening</span>
-            <h3 id="result-headline">The calendar is shopping.</h3>
-            <p id="result-copy"></p>
-            <div class="result-grid">
-              <div><span>Devices you don’t manufacture</span><b id="out-devices">—</b></div>
-              <div><span>Manufacturing CO₂e avoided</span><b id="out-carbon">—</b></div>
-              <div><span>Purchases the policy skips</span><b id="out-cash">—</b></div>
-              <div><span>Buys on the calendar</span><b id="out-buys">—</b></div>
+    <main id="main">
+      <!-- ================= HERO ================= -->
+      <div class="hero" id="top">
+        <div class="wrap">
+          <p class="hero-kicker"><span class="tag">Phase 0</span><span>Green Lifecycle and Operation Workflows</span><span aria-hidden="true">/</span><span>Est. from a tenant, not a lab</span></p>
+          <h1>Get an IT<br /><span class="glow">Glow</span> Op.</h1>
+          <div class="hero-grid">
+            <div>
+              <p class="hero-lede">A <strong>GLOW Op Report</strong> is the document a business actually uses. It looks at the laptops and desktops already in Intune and says which ones get to live, which need a battery, and which are genuinely done. <span class="serif-i">Refresh season can sit down.</span></p>
+              <div class="hero-ctas">
+                <a class="btn btn-lime" href="#calculator">Run the screening math ↓</a>
+                <a class="btn btn-ghost" href="#report">See what’s in the report</a>
+              </div>
+              <p class="hero-note">NO NEW AGENT · NO POWER-SPY · INTUNE / GRAPH / CSV IN — A DECISION OUT</p>
             </div>
-            <p class="fine" id="result-note"></p>
+
+            <article class="report-card" aria-label="Sample GLOW Op Report excerpt">
+              <div class="rc-head"><b>GLOW Op Report</b><span>Sample · not a tenant</span></div>
+              <div class="stamp" aria-hidden="true">Repair</div>
+              <p class="rc-device">EliteBook 840 G6</p>
+              <p class="rc-meta">Harbor Clinic · 4.8 years · battery 64% · warranty expired</p>
+              <p class="rc-body">Published-style manufacturing factor, about <b>300 kg CO₂e</b>. Health says the battery is the problem, not the chassis.</p>
+              <div class="battery" aria-hidden="true">
+                <div class="b-label"><span>Battery health</span><span>64%</span></div>
+                <div class="b-track"><div class="b-fill"></div></div>
+              </div>
+              <div class="rc-verdict">
+                <span class="verdict-chip v-repair">Repair</span>
+                <p>Replace the battery. Do not buy a new laptop to celebrate a calendar.</p>
+              </div>
+              <p class="rc-foot">FACTOR SOURCE + CONFIDENCE PRINTED ON EVERY ROW OF A REAL REPORT</p>
+            </article>
+          </div>
+        </div>
+        <div class="marquee" aria-hidden="true">
+          <div class="marquee-track">
+            <span>&nbsp;Keep <b>◆</b> Repair <b>◆</b> Redeploy <b>◆</b> Refresh <b>◆</b> Recycle <b>◆</b> Ghost flag <b>◆</b> Keep <b>◆</b> Repair <b>◆</b> Redeploy <b>◆</b> Refresh <b>◆</b> Recycle <b>◆</b> Ghost flag <b>◆</b></span>
+            <span>&nbsp;Keep <b>◆</b> Repair <b>◆</b> Redeploy <b>◆</b> Refresh <b>◆</b> Recycle <b>◆</b> Ghost flag <b>◆</b> Keep <b>◆</b> Repair <b>◆</b> Redeploy <b>◆</b> Refresh <b>◆</b> Recycle <b>◆</b> Ghost flag <b>◆</b></span>
           </div>
         </div>
       </div>
-    </section>
 
-    <section id="method">
+      <!-- ================= EVIDENCE LEDGER ================= -->
       <div class="wrap">
-        <p class="eyebrow">How a real report gets made</p>
-        <h2>Intune in. A decision out. No new silo, no power-spy agent.</h2>
-        <div class="grid-2">
-          <article class="card">
-            <h3>1. Ingest</h3>
-            <p>Microsoft Graph and Intune first, because that is the system MSPs already run. CSV if the tenant is not ready. Nerdio and other RMM exports are later, not a fantasy integration on day one.</p>
-          </article>
-          <article class="card">
-            <h3>2. Enrich</h3>
-            <p>Match the model to a manufacturer PCF or to Boavizta’s open compilation. If the exact sheet does not exist, say so and use a documented fallback. Do not average the internet and call it science.</p>
-          </article>
-          <article class="card">
-            <h3>3. Decide</h3>
-            <p>Rules first. Machine learning only after the rules have been wrong in public often enough to deserve it. Security and a dead motherboard still win. Carbon does not ask you to keep a machine that cannot take the current OS.</p>
-          </article>
-          <article class="card">
-            <h3>4. Report</h3>
-            <p>One GLOW Op Report per client. Portfolio view for the MSP. PDF and CSV. The MSP’s logo, if they want their name on the joke.</p>
-          </article>
+        <div class="ledger" aria-label="Published evidence">
+          <div class="ledger-row">
+            <div class="ledger-num">76<em>%</em></div>
+            <p>of one peer-reviewed laptop footprint was manufacturing. 218.7 of 286.1 kg CO₂e, over four years of ordinary work.
+              <span class="src">Ferreira et al. · Sustainability · 2025</span></p>
+          </div>
+          <div class="ledger-row">
+            <div class="ledger-num">20<em>×</em></div>
+            <p>up to twenty times more greenhouse-gas avoidance from reusing a whole device than from the best recycling.
+              <span class="src">Gartner ITAD market guide · as quoted by a vendor in that guide</span></p>
+          </div>
+          <div class="ledger-row">
+            <div class="ledger-num">4–5<em> yrs</em></div>
+            <p>is where most organizations are taking employee laptops, up from a flat three-year refresh.
+              <span class="src">Gartner · device sustainability note · March 2024</span></p>
+          </div>
+          <p class="ledger-fine">These are published findings, <span class="serif-i">not a GLOW Ops certification.</span> Manufacturer PCFs disagree with each other on purpose. The report shows the source on every device.</p>
         </div>
-        <article class="card" style="margin-top:12px">
-          <h3>What the public code already does, and where it stops</h3>
-          <p>Boavizta’s <a href="https://github.com/Boavizta/environmental-footprint-data">environmental-footprint-data</a> repository is the best open pile of manufacturer PCFs. Their API looks up a model. The Green Software Foundation’s SCI spec is about software, not a laptop fleet. Intune can push a power policy and, on Surface, estimate emissions. Warranty-and-refresh packs for MSPs plan a calendar. None of that writes the keep / repair / redeploy / refresh / recycle page. That gap is the company.</p>
-          <p>Phase 1 does not pick up the truck, install a power agent on every endpoint, score the data center, or replace Watershed. Physical ITAD is a partner. The report decides. Someone else with a certification hauls the dead ones.</p>
-        </article>
-        <article class="card" style="margin-top:12px">
-          <h3>Why an IT person is the one to build it</h3>
-          <p>GLOW Ops is being built by a Go Live Engineer at Nerdio. Five-plus years in Intune, Entra ID, and endpoint security. More than 100 go-lives. More than 300 discovery calls with MSP owners, engineers, and the people who actually sign the refresh. The climate literature says extend the life of the device. The tenant says whether that device can take it. Both have to be in the same report, or the MSP will ignore it and buy the laptops anyway.</p>
-          <p class="fine">Phase 0. No production connector, no paying tenant, no claim that getglowop.com is serving live reports yet. The domain is getglowop.com. The product is the GLOW Op Report.</p>
-        </article>
       </div>
-    </section>
+      <!-- ================= THE PROBLEM ================= -->
+      <section id="problem">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">01</span> The actual problem</p>
+            <h2>The calendar is making <span class="hl">purchasing decisions.</span></h2>
+            <p class="sec-lede">Mid-market companies, and the MSPs who run their fleets, replace endpoints because a policy said three or four years. <strong>The carbon already happened at the factory.</strong> A newer laptop being slightly more efficient rarely pays that factory back.</p>
+          </div>
 
-    <section id="sources">
+          <div class="problem-grid">
+            <div class="p-block">
+              <p class="p-num">A — MANUFACTURING</p>
+              <h3>Manufacturing is the footprint</h3>
+              <p>Germany’s environment agency, with Öko-Institut and Fraunhofer IZM, found production at about <strong>56%</strong> of a notebook’s greenhouse gases over five years. In their scenarios, a new notebook that was only 10% more efficient took <span class="big-inline">33–89 years</span> to “earn back” the carbon of being built.</p>
+              <p>You will not keep a laptop for 89 years. You also should not replace a healthy one to feel efficient.</p>
+            </div>
+            <div class="p-block">
+              <p class="p-num">B — REUSE</p>
+              <h3>Reuse is the climate action</h3>
+              <p>André and colleagues (<i>Waste Management</i>, 2019) studied a real commercial laptop-reuse operation. Getting a used laptop ready to sell again was almost nothing, environmentally, next to the carbon already in the parts. <strong>Extending use was the benefit.</strong></p>
+              <p>ADEME’s 2022 refurbishment work, as summarized by Fraunhofer IZM, put a refurbished laptop’s footprint far below a new one.</p>
+            </div>
+            <p class="pull">Reuse is the climate action. <b>Recycling is the funeral.</b></p>
+            <div class="p-block">
+              <p class="p-num">C — THE DATA</p>
+              <h3>The data is already in the MSP’s tenant</h3>
+              <p>Intune knows the model, the age, the last check-in, compliance, and — with Advanced Analytics — battery health. It will not tell a client whether that device should be kept.</p>
+              <p>Microsoft’s own sustainability tooling is strong on power policy and, for Surface, on a model emissions estimate. <strong>A mixed Dell, HP, and Lenovo fleet still gets a calendar.</strong></p>
+            </div>
+            <div class="p-block">
+              <p class="p-num">D — GHOSTS</p>
+              <h3>Ghost hardware is a security problem that also buys laptops</h3>
+              <p>IT asset firms citing Gartner put the share of hardware that is lost, missing, or still on the books while nobody can find it around <span class="big-inline">≈30%</span>. A device you cannot see gets replaced, and the old one is still out there with a disk.</p>
+              <p>The Global E-waste Monitor 2024 is the backdrop: 62 million tonnes of e-waste in 2022, 22.3% formally collected and recycled. Your fleet is the part an MSP can actually touch.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= THE REPORT ================= -->
+      <section id="report" style="padding-top:0;">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">02</span> The product</p>
+            <h2>The GLOW <span class="hl">Op Report.</span></h2>
+            <p class="sec-lede">Businesses do not need another maturity model. They need a report they can hand a CFO, a client, or an auditor <strong>without inventing a carbon number.</strong> Some lines in that report are public. The call — keep, repair, redeploy, refresh, recycle — is ours.</p>
+          </div>
+
+          <div class="versus">
+            <div class="panel panel-public">
+              <span class="p-tag">Public — we cite it</span>
+              <h3>We do not pretend we invented it.</h3>
+              <ul>
+                <li><b>Manufacturer product carbon footprints,</b> including the open Boavizta compilation of those sheets. Boavizta’s own warning applies: methodologies differ, margins of error are large — use them as orders of magnitude and for same-brand comparisons.</li>
+                <li><b>The customer’s Intune / Graph inventory:</b> make, model, serial, OS, last check-in, compliance, warranty when the tenant has it.</li>
+                <li><b>CSV upload</b> when Graph is not available yet. The fleet still gets a report.</li>
+              </ul>
+            </div>
+            <div class="panel panel-prop">
+              <span class="p-tag">Proprietary — this is the GLOW Op</span>
+              <h3>The judgment layer is the company.</h3>
+              <ul>
+                <li><b>GLOW Score.</b> One number from embodied carbon, age, health, warranty, compliance, and how long the device has been quiet. The weights are ours.</li>
+                <li><b>The call, with a sentence.</b> Keep and optimize, repair, redeploy, refresh, or certified recycle / remarket. Written for an IT manager, not a life-cycle assessor.</li>
+                <li><b>Match confidence.</b> Exact model sheet, same-family estimate, or fallback. A guess is labeled a guess.</li>
+                <li><b>Calendar versus carbon.</b> What the current refresh policy would buy, versus what the score says — in kilograms and in purchase dollars.</li>
+                <li><b>Persona window.</b> A kiosk, a clinician, and a finance laptop do not share a lifespan. The mapping from the customer’s roles to a keep-window is ours.</li>
+                <li><b>Ghost flag.</b> Stale check-in, still assigned, still on the books. Their signal. Our rule for when it shows up in the report.</li>
+                <li><b>Repair-before-replace.</b> Battery or disk cost, supplied by the MSP, set next to the avoided purchase. We do not publish their vendor price list.</li>
+                <li><b>The client page.</b> White-label PDF and CSV an MSP can put their name on. Scope 3 language that stays inside what the factors support. Not a full GHG Protocol inventory. Not the user’s files. We are not reading anyone’s email to save the climate.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="sample">
+            <div class="sample-head">
+              <h3>A page from a sample report</h3>
+              <span>Five devices · five different answers</span>
+            </div>
+            <table class="sample-table">
+              <thead>
+                <tr><th scope="col">Device</th><th scope="col">Factor</th><th scope="col">Confidence</th><th scope="col">GLOW call</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="dev" data-l="Device">Latitude 5440<small>1.4 yrs · health 96</small></td>
+                  <td data-l="Factor">Manufacturing factor on file</td>
+                  <td class="conf" data-l="Confidence">Exact model, when the PCF exists</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-keep">Keep</span><p>Tune power policy. The calendar is early.</p></td>
+                </tr>
+                <tr>
+                  <td class="dev" data-l="Device">EliteBook 840 G6<small>battery 64%</small></td>
+                  <td data-l="Factor">About 300 kg, illustrative until the model sheet is matched</td>
+                  <td class="conf" data-l="Confidence">Family estimate</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-repair">Repair</span><p>Battery, not a new laptop.</p></td>
+                </tr>
+                <tr>
+                  <td class="dev" data-l="Device">OptiPlex desktop<small>disk failing · CPU fine</small></td>
+                  <td data-l="Factor">Desktop-class manufacturing, higher than a laptop</td>
+                  <td class="conf" data-l="Confidence">Family estimate</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-redeploy">Redeploy</span><p>After an SSD. The tower is not the failure.</p></td>
+                </tr>
+                <tr>
+                  <td class="dev" data-l="Device">Unknown device<small>checked in 11 months ago</small></td>
+                  <td data-l="Factor">Unknown until someone finds it</td>
+                  <td class="conf" data-l="Confidence">No factor yet</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-ghost">Ghost flag</span><p>Find it before you buy its replacement.</p></td>
+                </tr>
+                <tr>
+                  <td class="dev" data-l="Device">8-year laptop<small>failed board</small></td>
+                  <td data-l="Factor">Manufacturing already spent</td>
+                  <td class="conf" data-l="Confidence">Exact or family</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-recycle">Recycle</span><p>Or remarket. This is the refresh the policy was for.</p></td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="sample-cap">Sample calls for the walkthrough. A production report names the factor URL, the year of the datasheet, and the confidence on every row.</p>
+          </div>
+        </div>
+      </section>
+      <!-- ================= CALCULATOR ================= -->
+      <section class="calc-sec" id="calculator">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">03</span> Screening calculator</p>
+            <h2>How many laptops does the calendar buy that the fleet <span class="hl">does not need?</span></h2>
+            <p class="sec-lede">This is not a certified product carbon footprint. <strong>It is the argument, in arithmetic.</strong> Over a planning window, a short refresh buys more machines than a longer keep. Each extra machine carries a manufacturing footprint. Change the numbers. They are yours.</p>
+          </div>
+
+          <div class="calc-grid">
+            <form class="controls" id="calcForm" aria-label="Screening calculator inputs">
+              <div class="ctl">
+                <label for="fleetNum">Endpoints in the fleet
+                  <span class="numbox"><input type="number" id="fleetNum" min="1" max="100000" step="1" value="150" /><span class="unit">devices</span></span>
+                </label>
+                <input type="range" id="fleetRange" min="10" max="2000" step="10" value="150" aria-label="Endpoints in the fleet (slider)" />
+              </div>
+              <div class="ctl-row2">
+                <div class="ctl">
+                  <label for="policyNum">Current refresh policy
+                    <span class="numbox"><input type="number" id="policyNum" min="1" max="10" step="0.5" value="3" /><span class="unit">yrs</span></span>
+                  </label>
+                </div>
+                <div class="ctl">
+                  <label for="keepNum">Keep window, healthy devices
+                    <span class="numbox"><input type="number" id="keepNum" min="1" max="12" step="0.5" value="5" /><span class="unit">yrs</span></span>
+                  </label>
+                </div>
+              </div>
+              <div class="ctl">
+                <label for="healthyNum">Share healthy enough to extend
+                  <span class="numbox"><input type="number" id="healthyNum" min="0" max="100" step="1" value="70" /><span class="unit">%</span></span>
+                </label>
+                <input type="range" id="healthyRange" min="0" max="100" step="1" value="70" aria-label="Share healthy enough to extend (slider)" />
+              </div>
+              <div class="ctl-row2">
+                <div class="ctl">
+                  <label for="horizonNum">Look ahead
+                    <span class="numbox"><input type="number" id="horizonNum" min="1" max="40" step="1" value="15" /><span class="unit">yrs</span></span>
+                  </label>
+                </div>
+                <div class="ctl">
+                  <label for="priceNum">Price of a new one
+                    <span class="numbox"><input type="number" id="priceNum" min="0" max="100000" step="50" value="1100" /><span class="unit">USD</span></span>
+                  </label>
+                </div>
+              </div>
+              <div class="ctl">
+                <label for="classSel">Device class for the default factor</label>
+                <select id="classSel">
+                  <option value="219" selected>Laptop — 219 kg manufacturing (Ferreira et al. 2025)</option>
+                  <option value="531">Desktop + monitor — 531 kg manufacturing (Ferreira et al. 2025)</option>
+                </select>
+              </div>
+              <div class="ctl">
+                <label for="kgNum">Or type a manufacturing factor per device
+                  <span class="numbox"><input type="number" id="kgNum" min="0" max="5000" step="1" value="219" /><span class="unit">kg CO₂e</span></span>
+                </label>
+              </div>
+            </form>
+
+            <div class="receipt" aria-live="polite">
+              <div class="r-head"><span>Screening result</span><b>Not a GLOW Op Report</b></div>
+              <p class="r-narr" id="rNarr">The calendar was about to go shopping.</p>
+              <div class="r-stats">
+                <div class="r-stat"><span class="k">Devices you don’t manufacture</span><span class="v lime" id="rAvoided">210</span></div>
+                <div class="r-stat"><span class="k">Manufacturing CO₂e avoided</span><span class="v" id="rCo2">46.0 t</span></div>
+                <div class="r-stat"><span class="k">Purchases the policy skips</span><span class="v" id="rDollars">$231,000</span></div>
+              </div>
+              <div class="bars">
+                <div class="bar-row">
+                  <div class="b-head"><span>Buys on the calendar</span><span id="rCalLabel">750</span></div>
+                  <div class="bar-track"><div class="bar-fill bar-cal" id="barCal" style="width:100%"></div></div>
+                </div>
+                <div class="bar-row">
+                  <div class="b-head"><span>Buys on the GLOW call</span><span id="rGlowLabel">540</span></div>
+                  <div class="bar-track"><div class="bar-fill bar-glow" id="barGlow" style="width:72%"></div></div>
+                </div>
+              </div>
+              <p class="r-fine">Avoided devices × <span id="rKgEcho">219</span> kg manufacturing CO₂e. Laptop default is 219 kg from Ferreira et al. 2025 (218.7 kg, rounded). Desktop-plus-monitor default is 531 kg from the same paper (113 + 400 + keyboard and mouse). Future machines may be cleaner or dirtier. This does not subtract use-phase energy, and it does not add repair carbon, which published reuse studies find is small next to a new device. A GLOW Op Report does this per serial number.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= METHOD ================= -->
+      <section id="method">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">04</span> How a real report gets made</p>
+            <h2>Intune in. <span class="hl">A decision out.</span></h2>
+            <p class="sec-lede">No new silo, no power-spy agent. Four steps, in order, with the honest limits printed on each one.</p>
+          </div>
+
+          <ol class="steps">
+            <li class="step">
+              <span class="s-num" aria-hidden="true">1</span>
+              <h3>Ingest <span class="arrow">→</span></h3>
+              <p>Microsoft Graph and Intune first, because that is the system MSPs already run. CSV if the tenant is not ready. Nerdio and other RMM exports are later — not a fantasy integration on day one.</p>
+            </li>
+            <li class="step">
+              <span class="s-num" aria-hidden="true">2</span>
+              <h3>Enrich <span class="arrow">→</span></h3>
+              <p>Match the model to a manufacturer PCF or to Boavizta’s open compilation. If the exact sheet does not exist, say so and use a documented fallback. Do not average the internet and call it science.</p>
+            </li>
+            <li class="step">
+              <span class="s-num" aria-hidden="true">3</span>
+              <h3>Decide <span class="arrow">→</span></h3>
+              <p>Rules first. Machine learning only after the rules have been wrong in public often enough to deserve it. Security and a dead motherboard still win. Carbon does not ask you to keep a machine that cannot take the current OS.</p>
+            </li>
+            <li class="step">
+              <span class="s-num" aria-hidden="true">4</span>
+              <h3>Report <span class="arrow">✓</span></h3>
+              <p>One GLOW Op Report per client. Portfolio view for the MSP. PDF and CSV. The MSP’s logo, if they want their name on the joke.</p>
+            </li>
+          </ol>
+
+          <div class="gap-box">
+            <div>
+              <h3>What the public code already does — and where it stops</h3>
+              <p>Boavizta’s environmental-footprint-data repository is the best open pile of manufacturer PCFs; their API looks up a model. The Green Software Foundation’s SCI spec is about software, not a laptop fleet. Intune can push a power policy and, on Surface, estimate emissions. Warranty-and-refresh packs for MSPs plan a calendar. <strong>None of that writes the keep / repair / redeploy / refresh / recycle page. That gap is the company.</strong></p>
+            </div>
+            <div class="scope">
+              <span class="stamp2">Out of scope — Phase 1</span>
+              <p>Phase 1 does not pick up the truck, install a power agent on every endpoint, score the data center, or replace Watershed. Physical ITAD is a partner. <strong>The report decides.</strong> Someone else with a certification hauls the dead ones.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BUILDER ================= -->
+      <section class="builder" id="builder" style="padding-top:clamp(3rem,7vw,5.5rem);">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">05</span> The builder</p>
+            <h2>Why an IT person is the one to <span class="hl">build it</span></h2>
+          </div>
+          <div class="builder-grid">
+            <div>
+              <p>GLOW Ops is being built by a <strong>Go Live Engineer at Nerdio</strong>. Five-plus years in Intune, Entra ID, and endpoint security. More than 100 go-lives. More than 300 discovery calls with MSP owners, engineers, and the people who actually sign the refresh.</p>
+              <p>The climate literature says extend the life of the device. The tenant says whether that device can take it. <strong>Both have to be in the same report</strong>, or the MSP will ignore it and buy the laptops anyway.</p>
+              <p class="phase0">PHASE 0 — No production connector, no paying tenant, no claim that getglowop.com is serving live reports yet. The domain is getglowop.com. The product is the GLOW Op Report.</p>
+            </div>
+            <div class="cred-ledger" aria-label="Builder background">
+              <div class="cr"><b>5+ yrs</b><span>Intune · Entra ID · endpoint security</span></div>
+              <div class="cr"><b>100+</b><span>Go-live engagements at Nerdio</span></div>
+              <div class="cr"><b>300+</b><span>Discovery calls with MSPs</span></div>
+              <div class="cr"><b>1</b><span>Report that makes the call</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SOURCES ================= -->
+      <section id="sources">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">06</span> Sources</p>
+            <h2>So the jokes have <span class="hl">footnotes</span></h2>
+            <p class="sec-lede">Read these. Then argue with the calculator.</p>
+          </div>
+          <ol class="src-list">
+            <li>
+              <span class="sn">[01]</span>
+              <p><b>Ferreira, M., Domingos, I., Santos, L., Barreto, A., and coauthors.</b> Environmental and Economic Assessment of Desktop vs. Laptop Computers: A Life Cycle Approach. <i>Sustainability</i> 2025, 17(10), 4455. Laptop total 286.1 kg CO₂e over four years; main-unit production 218.7 kg; use 59.4 kg. Desktop system 679.1 kg, of which the display alone was about 400 kg.<br />
+              <a href="https://www.mdpi.com/2071-1050/17/10/4455" target="_blank" rel="noopener">mdpi.com/2071-1050/17/10/4455 ↗</a></p>
+            </li>
+            <li>
+              <span class="sn">[02]</span>
+              <p><b>German Environment Agency (Umweltbundesamt)</b>, with Öko-Institut and Fraunhofer IZM. Timely replacement of a notebook under consideration of environmental aspects. Production about 56% of life-cycle greenhouse gases in the studied notebook scenario (about 214 kg CO₂e total over five years). A 10% efficiency gain did not pay back manufacturing on a realistic replacement cycle; amortisation ran about 33 to 89 years across scenarios. UBA publication 4317.</p>
+            </li>
+            <li>
+              <span class="sn">[03]</span>
+              <p><b>André, H., Ljunggren Söderman, M., and Nordelöf, A.</b> Resource and environmental impacts of using second-hand laptop computers: A case study of commercial reuse. <i>Waste Management</i> 2019. Preparation for reuse was negligible next to the benefit of extending use.<br />
+              <a href="https://doi.org/10.1016/j.wasman.2019.03.050" target="_blank" rel="noopener">doi.org/10.1016/j.wasman.2019.03.050 ↗</a></p>
+            </li>
+            <li>
+              <span class="sn">[04]</span>
+              <p><b>ADEME</b>, 2022 assessment of refurbished equipment, as summarized by Fraunhofer IZM (November 2022): on a cut-off basis, using a refurbished laptop was estimated about 77% lower in greenhouse gases than using a new one (24 kg CO₂e versus 178 kg, on ADEME’s lifespans). Fraunhofer IZM summary.</p>
+            </li>
+            <li>
+              <span class="sn">[05]</span>
+              <p><b>Circular and Fair ICT Pact.</b> Practical Strategies for Carbon-Conscious ICT Procurement, 2025. Cites an “around 80% before use” figure to an Open University briefing, and cites Sutton-Parker and Procter, <i>Procedia Computer Science</i>, 2023, for up to a 37.5% emissions cut from keeping computers an extra two years. CFIT mini guide.</p>
+            </li>
+            <li>
+              <span class="sn">[06]</span>
+              <p><b>ITU and UNITAR.</b> Global E-waste Monitor 2024. 62 billion kg of e-waste generated in 2022; 22.3% documented as formally collected and recycled.<br />
+              <a href="https://ewastemonitor.info/" target="_blank" rel="noopener">ewastemonitor.info ↗</a></p>
+            </li>
+            <li>
+              <span class="sn">[07]</span>
+              <p><b>Gartner.</b> Best Practices for Device Sustainability in End-User Computing, 13 March 2024 — public summary: most organizations are moving employee laptops toward four- and five-year refresh. And: Extend Hardware Budgets By Giving PCs a Second Life, 3 December 2025 — pressure to go to five years and beyond, usually with a midlife refurbishment.<br />
+              <a href="https://www.gartner.com/en/documents/5274363" target="_blank" rel="noopener">gartner.com/en/documents/5274363 ↗</a>
+              <a href="https://www.gartner.com/en/documents/7238830" target="_blank" rel="noopener">gartner.com/en/documents/7238830 ↗</a></p>
+            </li>
+            <li>
+              <span class="sn">[08]</span>
+              <p><b>Reuse versus recycling, up to 20×:</b> stated in public by Sims Lifecycle Services as a finding of Gartner’s Market Guide for IT Asset Disposition. The guide itself is paid. Treat the multiple as Gartner’s, via that quotation, not as a GLOW Ops measurement. Sims note on the 2024 guide.</p>
+            </li>
+            <li>
+              <span class="sn">[09]</span>
+              <p><b>About 30% of IT hardware lost, missing, or ghosted:</b> repeated by ITAM and ITAD firms (including Juriba and Iron Mountain) as a Gartner finding. Secondary citations. The report’s ghost flag uses the tenant’s own check-in data, not this percentage.</p>
+            </li>
+            <li>
+              <span class="sn">[10]</span>
+              <p><b>Boavizta</b>, environmental footprint data. Open compilation of manufacturer PCF sheets. Not a fleet decision engine.<br />
+              <a href="https://github.com/Boavizta/environmental-footprint-data" target="_blank" rel="noopener">github.com/Boavizta/environmental-footprint-data ↗</a></p>
+            </li>
+            <li>
+              <span class="sn">[11]</span>
+              <p><b>Microsoft.</b> Smarter IT, lower emissions: Sustainability with Windows, Microsoft Intune, and Universal Print. Power policy, battery health, and Surface emissions estimates. Not a mixed-fleet keep-or-replace report. Windows IT Pro Blog.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer>
       <div class="wrap">
-        <p class="eyebrow">Sources, so the jokes have footnotes</p>
-        <h2>Read these. Then argue with the calculator.</h2>
-        <ol class="sources">
-          <li>Ferreira, M., Domingos, I., Santos, L., Barreto, A., and coauthors. Environmental and Economic Assessment of Desktop vs. Laptop Computers: A Life Cycle Approach. <em>Sustainability</em> 2025, 17(10), 4455. Laptop total 286.1 kg CO₂e over four years; main-unit production 218.7 kg; use 59.4 kg. Desktop system 679.1 kg, of which the display alone was about 400 kg. <a href="https://www.mdpi.com/2071-1050/17/10/4455">mdpi.com/2071-1050/17/10/4455</a></li>
-          <li>German Environment Agency (Umweltbundesamt), with Öko-Institut and Fraunhofer IZM. Timely replacement of a notebook under consideration of environmental aspects. Production about 56% of life-cycle greenhouse gases in the studied notebook scenario (about 214 kg CO₂e total over five years). A 10% efficiency gain did not pay back manufacturing on a realistic replacement cycle; amortisation ran about 33 to 89 years across scenarios. <a href="https://www.umweltbundesamt.de/system/files/medien/461/publikationen/4317.pdf">UBA publication 4317</a></li>
-          <li>André, H., Ljunggren Söderman, M., and Nordelöf, A. Resource and environmental impacts of using second-hand laptop computers: A case study of commercial reuse. <em>Waste Management</em> 2019. Preparation for reuse was negligible next to the benefit of extending use. <a href="https://doi.org/10.1016/j.wasman.2019.03.050">doi.org/10.1016/j.wasman.2019.03.050</a></li>
-          <li>ADEME, 2022 assessment of refurbished equipment, as summarized by Fraunhofer IZM (November 2022): on a cut-off basis, using a refurbished laptop was estimated about 77% lower in greenhouse gases than using a new one (24 kg CO₂e versus 178 kg, on ADEME’s lifespans). <a href="https://www.izm.fraunhofer.de/content/dam/izm/de/documents/Abteilungen/Environmental_Reliability_Engineering/Projekte/Carbon%20savings%20reuse%20of%20ICT%20equipment%20November_2022.pdf">Fraunhofer IZM summary</a></li>
-          <li>Circular and Fair ICT Pact. Practical Strategies for Carbon-Conscious ICT Procurement, 2025. Cites an “around 80% before use” figure to an Open University briefing, and cites Sutton-Parker and Procter, Procedia Computer Science, 2023, for up to a 37.5% emissions cut from keeping computers an extra two years. <a href="https://circularandfairictpact.com/publish/library/295/2025-cfit-mini-guide-carbon-concious-ict-procurement-v1-2-1.pdf">CFIT mini guide</a></li>
-          <li>ITU and UNITAR. Global E-waste Monitor 2024. 62 billion kg of e-waste generated in 2022; 22.3% documented as formally collected and recycled. <a href="https://ewastemonitor.info/the-global-e-waste-monitor-2024/">ewastemonitor.info</a></li>
-          <li>Gartner, Best Practices for Device Sustainability in End-User Computing, 13 March 2024. Public summary: most organizations are moving employee laptops toward four- and five-year refresh. <a href="https://www.gartner.com/en/documents/5274363">gartner.com/en/documents/5274363</a>. Gartner, Extend Hardware Budgets By Giving PCs a Second Life, 3 December 2025: pressure to go to five years and beyond, usually with a midlife refurbishment. <a href="https://www.gartner.com/en/documents/7238830">gartner.com/en/documents/7238830</a></li>
-          <li>Reuse versus recycling, up to 20×: stated in public by Sims Lifecycle Services as a finding of Gartner’s Market Guide for IT Asset Disposition. The guide itself is paid. Treat the multiple as Gartner’s, via that quotation, not as a GLOW Ops measurement. <a href="https://materialsindustry.com/4202933-2/">Sims note on the 2024 guide</a></li>
-          <li>About 30% of IT hardware lost, missing, or ghosted: repeated by ITAM and ITAD firms (including Juriba and Iron Mountain) as a Gartner finding. Secondary citations. The report’s ghost flag uses the tenant’s own check-in data, not this percentage.</li>
-          <li>Boavizta, environmental footprint data. Open compilation of manufacturer PCF sheets. Not a fleet decision engine. <a href="https://github.com/Boavizta/environmental-footprint-data">github.com/Boavizta/environmental-footprint-data</a></li>
-          <li>Microsoft. Smarter IT, lower emissions: Sustainability with Windows, Microsoft Intune, and Universal Print. Power policy, battery health, and Surface emissions estimates. Not a mixed-fleet keep-or-replace report. <a href="https://techcommunity.microsoft.com/blog/windows-itpro-blog/smarter-it-lower-emissions-sustainability-with-windows-microsoft-intune-and-mode/4469468">Windows IT Pro Blog</a></li>
-        </ol>
+        <p class="f-big">The report is<br />the <span class="glow">product.</span></p>
+        <p class="f-meta">GLOW Ops · Green Lifecycle and Operation Workflows · getglowop.com</p>
+        <a class="mail" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20—%20early%20access">Ask about early access →</a>
+        <p class="f-fine">The GLOW Op Report is the product. This page is the Phase 0 brand site. The calculator is a screening tool with the assumptions printed on it. It is not an assurance opinion, a GHG inventory, or a reason to skip a security patch.</p>
       </div>
-    </section>
-  </main>
+    </footer>
 
-  <footer>
-    <div class="wrap">
-      <div>GLOW Ops · Green Lifecycle and Operation Workflows · getglowop.com</div>
-      <p>The GLOW Op Report is the product. This page is the Phase 0 brand site. The calculator is a screening tool with the assumptions printed on it. It is not an assurance opinion, a GHG inventory, or a reason to skip a security patch.</p>
-    </div>
-  </footer>
+    <script>
+      (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var fleetNum = $('fleetNum'), fleetRange = $('fleetRange');
+        var policyNum = $('policyNum'), keepNum = $('keepNum');
+        var healthyNum = $('healthyNum'), healthyRange = $('healthyRange');
+        var horizonNum = $('horizonNum'), priceNum = $('priceNum');
+        var classSel = $('classSel'), kgNum = $('kgNum');
+        var narr = $('rNarr'), rAvoided = $('rAvoided'), rCo2 = $('rCo2'),
+            rDollars = $('rDollars'), rCalLabel = $('rCalLabel'), rGlowLabel = $('rGlowLabel'),
+            barCal = $('barCal'), barGlow = $('barGlow'), rKgEcho = $('rKgEcho');
 
-  <script>
-    const devices = document.querySelector("#devices");
-    const cycle = document.querySelector("#cycle");
-    const keep = document.querySelector("#keep");
-    const share = document.querySelector("#share");
-    const horizon = document.querySelector("#horizon");
-    const klass = document.querySelector("#klass");
-    const kg = document.querySelector("#kg");
-    const price = document.querySelector("#price");
+        function val(el, fallback) {
+          var v = parseFloat(el.value);
+          return isFinite(v) ? v : fallback;
+        }
+        function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
 
-    function num(el, fallback) {
-      const value = Number(el.value);
-      return Number.isFinite(value) ? value : fallback;
-    }
+        function calc() {
+          var N = Math.max(0, val(fleetNum, 150));
+          var P = Math.max(0.5, val(policyNum, 3));
+          var K = Math.max(0.5, val(keepNum, 5));
+          var s = Math.min(100, Math.max(0, val(healthyNum, 70))) / 100;
+          var H = Math.max(0, val(horizonNum, 15));
+          var kg = Math.max(0, val(kgNum, 219));
+          var price = Math.max(0, val(priceNum, 1100));
 
-    function money(value) {
-      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
-    }
+          var calBuys = N * (H / P);
+          var glowBuys = N * ((1 - s) * (H / P) + s * (H / K));
+          var avoided = Math.max(0, calBuys - glowBuys);
+          var co2t = avoided * kg / 1000;
+          var dollars = avoided * price;
 
-    function render() {
-      const n = Math.max(0, num(devices, 0));
-      const shortYears = Math.max(1, num(cycle, 3));
-      const longYears = Math.max(1, num(keep, 5));
-      const portion = Math.min(100, Math.max(0, num(share, 0))) / 100;
-      const years = Math.max(1, num(horizon, 15));
-      const factor = Math.max(1, num(kg, 219));
-      const each = Math.max(0, num(price, 0));
-      const tag = document.querySelector("#result-tag");
-      const headline = document.querySelector("#result-headline");
-      const copy = document.querySelector("#result-copy");
-      const note = document.querySelector("#result-note");
+          narr.innerHTML = 'Over <b>' + fmt(H) + ' years</b>, a <b>' + P + '-year refresh</b> of ' +
+            fmt(N) + ' devices buys about <b>' + fmt(calBuys) + ' machines</b>. Keeping the healthy <b>' +
+            Math.round(s * 100) + '%</b> for <b>' + K + ' years</b> buys about <b>' + fmt(glowBuys) +
+            '</b>. The difference is manufacturing you skip.';
+          rAvoided.textContent = fmt(avoided);
+          rCo2.textContent = (co2t >= 1000 ? fmt(co2t) : co2t.toFixed(1)) + ' t';
+          rDollars.textContent = '$' + fmt(dollars);
+          rCalLabel.textContent = fmt(calBuys);
+          rGlowLabel.textContent = fmt(glowBuys);
+          var max = Math.max(calBuys, glowBuys, 1);
+          barCal.style.width = (calBuys / max * 100) + '%';
+          barGlow.style.width = (glowBuys / max * 100) + '%';
+          rKgEcho.textContent = fmt(kg);
+        }
 
-      if (n === 0) {
-        tag.textContent = "Empty fleet";
-        headline.textContent = "Carbon neutral. Also unemployed.";
-        copy.textContent = "Add a few endpoints. A GLOW Op Report with no devices is a diary.";
-        document.querySelector("#out-devices").textContent = "0";
-        document.querySelector("#out-carbon").textContent = "0 t";
-        document.querySelector("#out-cash").textContent = money(0);
-        document.querySelector("#out-buys").textContent = "0";
-        note.textContent = "";
-        return;
-      }
-
-      if (longYears <= shortYears) {
-        tag.textContent = "Not an extension";
-        headline.textContent = "That keep window is the same policy in a hat.";
-        copy.textContent = "Set the keep window longer than the refresh policy. Otherwise the calendar still wins, and the report would send this back.";
-        document.querySelector("#out-devices").textContent = "0";
-        document.querySelector("#out-carbon").textContent = "0 t";
-        document.querySelector("#out-cash").textContent = money(0);
-        document.querySelector("#out-buys").textContent = Math.round(n * years / shortYears).toLocaleString("en-US");
-        note.textContent = "Formula still runs. Avoided purchases are zero when the keep window is not actually longer.";
-        return;
-      }
-
-      const extendable = n * portion;
-      const stuck = n - extendable;
-      const buysCalendar = n * (years / shortYears);
-      const buysGlow = extendable * (years / longYears) + stuck * (years / shortYears);
-      const avoided = Math.max(0, buysCalendar - buysGlow);
-      const tonnes = avoided * factor / 1000;
-
-      tag.textContent = "Screening";
-      headline.textContent = avoided < 1 ? "Almost nothing to avoid." : "The calendar was about to go shopping.";
-      copy.textContent = "Over " + years + " years, a " + shortYears + "-year refresh of " + n.toLocaleString("en-US") + " devices buys about " + Math.round(buysCalendar).toLocaleString("en-US") + " machines. Keeping the healthy " + Math.round(portion * 100) + "% for " + longYears + " years buys about " + Math.round(buysGlow).toLocaleString("en-US") + ". The difference is manufacturing you skip.";
-      document.querySelector("#out-devices").textContent = Math.round(avoided).toLocaleString("en-US");
-      document.querySelector("#out-carbon").textContent = tonnes.toFixed(1) + " t";
-      document.querySelector("#out-cash").textContent = money(avoided * each);
-      document.querySelector("#out-buys").textContent = Math.round(buysCalendar).toLocaleString("en-US");
-      note.textContent = "Avoided devices × " + factor + " kg manufacturing CO₂e. Laptop default is 219 kg from Ferreira et al. 2025 (218.7 kg, rounded). Desktop-plus-monitor default is 531 kg from the same paper (113 + 400 + keyboard and mouse). Future machines may be cleaner or dirtier. This does not subtract use-phase energy, and it does not add repair carbon, which published reuse studies find is small next to a new device. Not a GLOW Op Report. A GLOW Op Report does this per serial number.";
-    }
-
-    klass.addEventListener("change", () => {
-      if (klass.value !== "custom") kg.value = klass.value;
-      render();
-    });
-    [devices, cycle, keep, share, horizon, kg, price].forEach((el) => {
-      el.addEventListener("input", render);
-    });
-    kg.addEventListener("input", () => {
-      klass.value = (kg.value === "219" || kg.value === "531") ? kg.value : "custom";
-    });
-    render();
-  </script>
-</body>
+        function syncPair(num, range) {
+          num.addEventListener('input', function () { range.value = num.value; calc(); });
+          range.addEventListener('input', function () { num.value = range.value; calc(); });
+        }
+        syncPair(fleetNum, fleetRange);
+        syncPair(healthyNum, healthyRange);
+        [policyNum, keepNum, horizonNum, priceNum, kgNum].forEach(function (el) {
+          el.addEventListener('input', calc);
+        });
+        classSel.addEventListener('change', function () {
+          kgNum.value = classSel.value;
+          calc();
+        });
+        $('calcForm').addEventListener('submit', function (e) { e.preventDefault(); });
+        calc();
+      })();
+    </script>
+  </body>
 </html>
