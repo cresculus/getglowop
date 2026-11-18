@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light dark"/>
+<title>Intune Fleet Dashboard &amp; GLOW Op Report Sample | GLOW Ops</title>
+<meta name="description" content="Interactive sample: score an Intune laptop and desktop fleet for keep, repair, redeploy, refresh, or recycle. See avoided purchases, manufacturing CO₂e, ghost devices, and a white-label client GLOW Op Report."/>
+<meta name="robots" content="index,follow,max-image-preview:large"/>
+<meta name="keywords" content="Intune laptop refresh, device sustainability report, MSP fleet report, repair before replace laptop, extend laptop life enterprise, ghost devices Intune, ITAD keep recycle, Scope 3 IT hardware, laptop battery replace vs refresh, Microsoft Graph Intune inventory"/>
+<link rel="canonical" href="https://getglowop.com/dashboard.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="GLOW Ops"/>
+<meta property="og:url" content="https://getglowop.com/dashboard.html"/>
+<meta property="og:title" content="Intune Fleet Dashboard &amp; Sample GLOW Op Report"/>
+<meta property="og:description" content="Workable sample dashboard and client report: keep/repair/redeploy/refresh/recycle from Intune inventory, with carbon factors and sources on every row."/>
+<meta property="og:locale" content="en_US"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Intune Fleet Dashboard &amp; Sample GLOW Op Report"/>
+<meta name="twitter:description" content="Score the fleet already in Intune. Skip calendar refreshes that buy machines you do not need."/>
+<link rel="icon" href="data:,"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebPage","@id":"https://getglowop.com/dashboard.html#webpage","url":"https://getglowop.com/dashboard.html","name":"Intune Fleet Dashboard & GLOW Op Report Sample","description":"Interactive sample MSP dashboard and white-label client report for keep, repair, redeploy, refresh, or recycle decisions from Microsoft Intune inventory.","isPartOf":{"@id":"https://getglowop.com/#website"},"about":{"@id":"https://getglowop.com/#software"}},
+{"@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"GLOW Ops","item":"https://getglowop.com/"},
+{"@type":"ListItem","position":2,"name":"Dashboard & Report","item":"https://getglowop.com/dashboard.html"}
+]}
+]}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0E4; --bg2:#E3E8D3; --surface:#FFFFFF; --surface2:#F7F8F0; --ink:#131713; --muted:#5B665C; --line:#D8DDCB; --line2:#131713;
+  --lime:#D7DF23; --lime-ink:#1A1E05; --green:#0E9A68; --green-bg:#E6F6EF; --amber:#B77900; --amber-bg:#FFF3D6; --red:#C33A3A; --red-bg:#FDECEC; --blue:#147A96; --blue-bg:#E6F3F7; --violet:#5B4CAD;
+  --shadow: 6px 6px 0 #131713; --radius:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0F120F; --bg2:#141814; --surface:#181D18; --surface2:#1E241E; --ink:#EFF3E6; --muted:#A3AEA4; --line:#2B332B; --line2:#EFF3E6; --green-bg:#12291F; --amber-bg:#2E2306; --red-bg:#2E1414; --blue-bg:#0F2630; --shadow:6px 6px 0 #000; }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Public Sans",system-ui,sans-serif;line-height:1.5}
+a{color:inherit}
+button,[role="button"]{min-height:44px}
+.mono{font-family:"IBM Plex Mono",monospace}
+.display{font-family:"Archivo",sans-serif;letter-spacing:-.02em}
+
+/* Top bar */
+.topbar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:2px solid var(--line2);padding:12px 16px}
+.topbar-inner{max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:44px;height:44px;background:var(--lime);border:2px solid var(--line2);border-radius:10px;display:grid;place-items:center;font-family:"Archivo";font-weight:900;font-size:22px;color:#111;box-shadow:3px 3px 0 var(--line2)}
+.brand b{font-family:"Archivo";font-size:20px;letter-spacing:-.03em;line-height:1}
+.brand span{display:block;font-family:"IBM Plex Mono";font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.toggle{display:flex;background:var(--surface);border:2px solid var(--line2);border-radius:999px;padding:4px;gap:4px}
+.toggle button{border:0;background:transparent;padding:10px 18px;border-radius:999px;font-weight:700;font-size:14px;cursor:pointer;color:var(--muted)}
+.toggle button.active{background:var(--ink);color:var(--bg)}
+.pill{font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--line2);padding:7px 10px;border-radius:999px;background:var(--surface)}
+.pill.lime{background:var(--lime);color:#111}
+
+/* Layout */
+.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 48px}
+.view{display:none}
+.view.active{display:block}
+
+/* Dashboard header */
+.dash-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;margin:8px 0 18px}
+.dash-head h1{font-family:"Archivo";font-size:clamp(32px,5vw,54px);line-height:.95;margin:6px 0 8px;letter-spacing:-.04em}
+.dash-head h1 em{font-style:normal;background:var(--lime);color:#111;padding:0 8px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.dash-head p{color:var(--muted);max-width:620px;margin:0}
+.eyebrow{font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.14em;text-transform:uppercase;display:flex;gap:8px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 0 4px var(--green-bg)}
+.meta-card{background:var(--surface);border:2px solid var(--line2);border-radius:14px;padding:14px 16px;min-width:260px;box-shadow:var(--shadow)}
+.meta-card dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:13px}
+.meta-card dt{color:var(--muted);font-family:"IBM Plex Mono";font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.meta-card dd{margin:0;font-weight:600;text-align:right}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--surface);border:2px solid var(--line2);border-radius:16px;padding:18px}
+.kpi label{font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block}
+.kpi strong{font-family:"Archivo";font-size:38px;line-height:1;display:block;margin:8px 0 4px;letter-spacing:-.03em}
+.kpi p{margin:0;font-size:13px;color:var(--muted)}
+.kpi.lime{background:var(--lime);color:#111}
+.kpi.lime p,.kpi.lime label{color:#3A4006}
+.kpi.dark{background:var(--ink);color:var(--bg)}
+.kpi.dark p,.kpi.dark label{color:#B9C2B0}
+
+/* Grid panels */
+.grid3{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:980px){.grid3{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:2px solid var(--line2);border-radius:16px;padding:18px}
+.panel h3{font-family:"Archivo";font-size:18px;margin:0 0 4px;letter-spacing:-.02em}
+.panel .sub{font-size:13px;color:var(--muted);margin:0 0 14px}
+.legend{display:grid;gap:8px;margin-top:12px}
+.legend div{display:flex;justify-content:space-between;font-size:13px;border-top:1px dashed var(--line);padding-top:8px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:8px}
+.bars{display:grid;gap:12px}
+.bar-row{font-size:13px}
+.bar-row header{display:flex;justify-content:space-between;margin-bottom:5px}
+.track{height:12px;background:var(--surface2);border:1.5px solid var(--line2);border-radius:999px;overflow:hidden}
+.fill{height:100%}
+.compare{margin-top:6px}
+.compare-row{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-top:1px dashed var(--line)}
+.compare-row b{font-family:"Archivo";font-size:26px}
+.alert{border:2px solid var(--line2);border-radius:14px;padding:14px 16px;display:flex;gap:12px;background:var(--amber-bg)}
+.alert.red{background:var(--red-bg)}
+.alert b{font-family:"Archivo"}
+
+/* Table controls */
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:20px 0 12px}
+.controls h2{font-family:"Archivo";font-size:24px;margin:0;margin-right:auto;letter-spacing:-.02em}
+.search{flex:1;min-width:200px;max-width:340px;padding:12px 14px;border-radius:999px;border:2px solid var(--line2);background:var(--surface);font-size:14px;color:var(--ink)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+.chip{border:2px solid var(--line2);background:var(--surface);padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer;min-height:40px}
+.chip.active{background:var(--lime);color:#111}
+.table-wrap{background:var(--surface);border:2px solid var(--line2);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:12px 14px;background:var(--surface2);border-bottom:2px solid var(--line2);color:var(--muted)}
+td{padding:14px;border-top:1px solid var(--line);vertical-align:top}
+tr:hover td{background:var(--surface2)}
+.verdict{font-family:"IBM Plex Mono";font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 8px;border-radius:999px;border:1.5px solid var(--line2);display:inline-block;white-space:nowrap}
+.v-keep{background:var(--green-bg);color:var(--green)} .v-repair{background:#FFF0B8;color:#7A5200} .v-redeploy{background:var(--blue-bg);color:var(--blue)} .v-refresh{background:#FFE1C2;color:#8A4A00} .v-recycle{background:#EDE9FF;color:#4A3F8A} .v-ghost{background:var(--red-bg);color:var(--red)}
+.score{font-family:"Archivo";font-weight:800;font-size:18px}
+.battery{width:90px;height:10px;border:1.5px solid var(--line2);border-radius:999px;overflow:hidden;background:var(--surface2)}
+.battery i{display:block;height:100%}
+@media(max-width:760px){
+  table,thead,tbody,tr,td{display:block;width:100%}
+  thead{display:none}
+  tr{border-top:2px solid var(--line2);padding:8px 0}
+  td{border:0;padding:8px 14px}
+  td::before{content:attr(data-l);font-family:"IBM Plex Mono";font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
+}
+
+/* REPORT */
+.report-toolbar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.report-toolbar p{color:var(--muted);margin:4px 0 0;font-size:14px;max-width:640px}
+.sheet{background:#fff;color:#141614;max-width:860px;margin:0 auto;border:2px solid #141614;box-shadow:8px 8px 0 #141614;border-radius:4px;overflow:hidden}
+@media(prefers-color-scheme:dark){.sheet{box-shadow:8px 8px 0 #000}}
+.sheet-head{background:#141614;color:#fff;padding:28px 28px 22px;position:relative;overflow:hidden}
+.sheet-head::after{content:"GLOW OP";position:absolute;right:-10px;top:6px;font-family:"Archivo";font-weight:900;font-size:92px;opacity:.08;letter-spacing:-.05em}
+.sheet-head .kicker{font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#D7DF23}
+.sheet-head h2{font-family:"Archivo";font-size:clamp(34px,6vw,52px);line-height:.95;margin:10px 0 8px;letter-spacing:-.04em}
+.sheet-head h2 span{background:#D7DF23;color:#111;padding:0 8px}
+.sheet-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.sheet-meta span{border:1px solid #3A403A;padding:7px 10px;border-radius:999px;font-family:"IBM Plex Mono";font-size:11px}
+.sheet-body{padding:28px}
+@media(max-width:600px){.sheet-body,.sheet-head{padding:20px}}
+.sheet-body h3{font-family:"Archivo";font-size:22px;margin:26px 0 8px;letter-spacing:-.02em;border-top:2px solid #141614;padding-top:18px}
+.sheet-body h3:first-child{border:0;padding:0;margin-top:0}
+.sheet-body p{color:#3E463E}
+.verdict-box{border:2px solid #141614;background:#F4F7E8;padding:18px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+@media(max-width:600px){.verdict-box{grid-template-columns:1fr}}
+.stamp{border:3px solid #C33A3A;color:#C33A3A;font-family:"Archivo";font-weight:900;letter-spacing:.08em;padding:10px 14px;transform:rotate(-6deg);text-align:center;border-radius:6px;font-size:20px;line-height:1}
+.spotlight{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;border:2px solid #141614;padding:18px;margin-top:12px}
+@media(max-width:640px){.spotlight{grid-template-columns:1fr}}
+.gauge{height:18px;border:2px solid #141614;border-radius:999px;overflow:hidden;background:#EEF0E6}
+.gauge i{display:block;height:100%;background:#E8A317;width:64%}
+.report-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.report-table th{background:#141614;color:#fff;text-align:left;padding:10px;font-family:"IBM Plex Mono";font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.report-table td{padding:11px 10px;border-bottom:1px solid #DDE2D2;vertical-align:top;color:#222}
+@media(max-width:700px){.report-table thead{display:none}.report-table tr{display:block;border:1px solid #141614;margin-bottom:10px;padding:6px}.report-table td{display:block;border:0;padding:6px 8px}}
+.math{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+@media(max-width:640px){.math{grid-template-columns:1fr}}
+.math div{border:1.5px solid #141614;padding:14px;background:#fff}
+.math b{font-family:"Archivo";font-size:28px;display:block;line-height:1}
+.math span{font-family:"IBM Plex Mono";font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#666}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:700px){.steps{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.steps{grid-template-columns:1fr}}
+.steps div{border:1px solid #D8DDCB;padding:12px}
+.steps b{font-family:"Archivo";display:block}
+.sources{font-size:12px;color:#5B665C;line-height:1.6}
+.sheet-foot{background:#F7F8F0;border-top:2px solid #141614;padding:16px 28px;font-size:12px;color:#5B665C;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.foot{max-width:1240px;margin:22px auto 0;padding:0 4px;color:var(--muted);font-size:12px;line-height:1.6}
+@media print{ .topbar,.report-toolbar,.foot{display:none!important} body{background:#fff} .wrap{padding:0} .sheet{box-shadow:none;border:0;max-width:none} }
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner">
+  <a class="brand" href="/" style="text-decoration:none;color:inherit"><div class="mark">G</div><div><b>GLOW Ops</b><span>Green Lifecycle &amp; Operations Workflows</span></div></a>
+  <nav class="toggle" aria-label="View toggle">
+    <button id="btnDash" class="active" onclick="showView('dash')">◈ Dashboard</button>
+    <button id="btnReport" onclick="showView('report')">▤ GLOW Op Report</button>
+    <a href="/" style="align-self:center;font-size:13px;font-weight:700;padding:0 8px">Site</a>
+  </nav>
+  <div style="display:flex;gap:8px"><span class="pill lime">Sample · Harbor Clinic</span><span class="pill">Phase 0</span></div>
+</div></header>
+
+<main class="wrap">
+<!-- ============ DASHBOARD ============ -->
+<section id="view-dash" class="view active">
+  <div class="dash-head">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> MSP Portfolio · Live design mock · Intune-synced sample</div>
+      <h1>The calendar was<br>about to go <em>shopping.</em></h1>
+      <p>One fleet, every device scored. Keep what’s healthy, repair what’s cheap to fix, and only refresh what’s genuinely done — with the carbon factor and its source on every row.</p>
+    </div>
+    <aside class="meta-card"><dl>
+      <dt>Client</dt><dd>Harbor Clinic</dd>
+      <dt>Source</dt><dd>Intune / Microsoft Graph</dd>
+      <dt>Devices</dt><dd>148 endpoints</dd>
+      <dt>Last sync</dt><dd>Sample — not a live tenant</dd>
+      <dt>Report</dt><dd>GLOW Op #2026-014</dd>
+    </dl></aside>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi lime"><label>Due on the calendar — saved</label><strong>58 devices</strong><p>Due for calendar refresh this cycle, but the score says keep, repair or redeploy instead of replace.</p></div>
+    <div class="kpi"><label>Manufacturing CO₂e avoided</label><strong>12.7 t</strong><p>58 × ~219 kg laptop factor (Ferreira et al. 2025). Order of magnitude, sourced per device in the report.</p></div>
+    <div class="kpi dark"><label>Purchases skipped</label><strong>$63,800</strong><p>58 × $1,100 average new device. Repair costs are shown separately — never hidden.</p></div>
+    <div class="kpi"><label>Needs action now</label><strong>12 devices</strong><p>5 ghost flags + 7 end-of-life. Everything else can wait for its window.</p></div>
+  </div>
+
+  <div class="grid3">
+    <div class="panel">
+      <h3>Verdict mix</h3><p class="sub">148 devices · GLOW Score applied</p>
+      <div style="display:flex;justify-content:center;padding:6px 0">
+        <svg width="168" height="168" viewBox="0 0 42 42" role="img" aria-label="Donut chart: Keep 46 percent, Repair 21 percent, Redeploy 12 percent, Refresh 13 percent, Recycle 5 percent, Ghost 3 percent">
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#E6E9DC" stroke-width="7"/>
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#0E9A68" stroke-width="7" stroke-dasharray="46 54" stroke-dashoffset="25"/>
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#E8A317" stroke-width="7" stroke-dasharray="21 79" stroke-dashoffset="-21"/>
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#147A96" stroke-width="7" stroke-dasharray="12 88" stroke-dashoffset="-42"/>
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#E07A2C" stroke-width="7" stroke-dasharray="13 87" stroke-dashoffset="-54"/>
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#8B7FD4" stroke-width="7" stroke-dasharray="5 95" stroke-dashoffset="-67"/>
+          <circle cx="21" cy="21" r="15.9" fill="none" stroke="#C33A3A" stroke-width="7" stroke-dasharray="3 97" stroke-dashoffset="-72"/>
+          <text x="21" y="20" text-anchor="middle" font-family="Archivo" font-weight="800" font-size="7">68</text>
+          <text x="21" y="26" text-anchor="middle" font-size="3.2" fill="#5B665C">KEEP</text>
+        </svg>
+      </div>
+      <div class="legend">
+        <div><span><i style="background:#0E9A68"></i>Keep &amp; optimise</span><b>68</b></div>
+        <div><span><i style="background:#E8A317"></i>Repair</span><b>31</b></div>
+        <div><span><i style="background:#147A96"></i>Redeploy</span><b>18</b></div>
+        <div><span><i style="background:#E07A2C"></i>Refresh</span><b>19</b></div>
+        <div><span><i style="background:#8B7FD4"></i>Recycle / remarket</span><b>7</b></div>
+        <div><span><i style="background:#C33A3A"></i>Ghost flag</span><b>5</b></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Age is not the verdict</h3><p class="sub">Fleet by age — health decides inside each bucket</p>
+      <div class="bars">
+        <div class="bar-row"><header><span>0–2 years</span><b>34 devices</b></header><div class="track"><div class="fill" style="width:38%;background:var(--green)"></div></div></div>
+        <div class="bar-row"><header><span>2–4 years</span><b>52 devices</b></header><div class="track"><div class="fill" style="width:58%;background:var(--green)"></div></div></div>
+        <div class="bar-row"><header><span>4–6 years</span><b>41 devices</b></header><div class="track"><div class="fill" style="width:46%;background:#E8A317"></div></div></div>
+        <div class="bar-row"><header><span>6+ years</span><b>21 devices</b></header><div class="track"><div class="fill" style="width:24%;background:#E07A2C"></div></div></div>
+      </div>
+      <div class="alert" style="margin-top:16px"><div>⚑</div><div><b>Persona windows matter.</b><br><span style="font-size:13px;color:var(--muted)">A kiosk, a clinician and a finance laptop don’t share a lifespan. The dashboard groups by role, not just birthday.</span></div></div>
+      <p style="font-size:13px;color:var(--muted);margin-top:14px">Gartner’s public note (Mar 2024): most orgs are already moving laptops to 4–5 years, up from a flat 3-year refresh.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Calendar vs. carbon</h3><p class="sub">15-year screening view · 150-device example from the method</p>
+      <div class="compare">
+        <div class="compare-row"><span>Buys on a 3-yr calendar</span><b>750</b></div>
+        <div class="compare-row"><span>Buys keeping healthy 70% for 5 yrs</span><b>540</b></div>
+        <div class="compare-row"><span>Devices not manufactured</span><b style="color:var(--green)">210</b></div>
+      </div>
+      <div style="background:var(--surface2);border:1.5px dashed var(--line2);border-radius:12px;padding:12px;margin-top:14px">
+        <div class="mono" style="font-size:11px;letter-spacing:.08em;text-transform:uppercase">Screening result</div>
+        <div style="font-family:Archivo;font-size:22px;font-weight:800;margin:4px 0">46.0 t CO₂e · $231,000</div>
+        <div style="font-size:12px;color:var(--muted)">210 × 219 kg · 210 × $1,100. Screening only — a real GLOW Op does this per serial number.</div>
+      </div>
+      <button onclick="showView('report')" style="width:100%;margin-top:12px;background:var(--ink);color:var(--bg);border:2px solid var(--line2);border-radius:999px;padding:12px;font-weight:800;cursor:pointer">Open the client report →</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" class="alerts-grid">
+    <div class="alert red"><div style="font-size:20px">◎</div><div><b>5 ghost devices — find them before you replace them.</b><br><span style="font-size:13px">Still assigned, still on the books, no check-in in 90+ days. One hasn’t checked in for 11 months. That’s a security problem that also buys laptops.</span></div></div>
+    <div class="alert"><div style="font-size:20px">↺</div><div><b>Repair beats replace on 31 devices.</b><br><span style="font-size:13px">Battery or SSD in almost every case. Chassis, CPU and board are fine — the calendar was the only thing expiring.</span></div></div>
+  </div>
+  <style>@media(max-width:700px){.alerts-grid{grid-template-columns:1fr!important}}</style>
+
+  <div class="controls">
+    <h2>Fleet ledger</h2>
+    <input id="q" class="search" type="search" placeholder="Search model, serial, user, role…" oninput="renderTable()"/>
+  </div>
+  <div class="chips" id="chips">
+    <button class="chip active" data-f="all" onclick="setFilter(this)">All · 148</button>
+    <button class="chip" data-f="Keep" onclick="setFilter(this)">Keep</button>
+    <button class="chip" data-f="Repair" onclick="setFilter(this)">Repair</button>
+    <button class="chip" data-f="Redeploy" onclick="setFilter(this)">Redeploy</button>
+    <button class="chip" data-f="Refresh" onclick="setFilter(this)">Refresh</button>
+    <button class="chip" data-f="Recycle" onclick="setFilter(this)">Recycle</button>
+    <button class="chip" data-f="Ghost" onclick="setFilter(this)">Ghost flag</button>
+  </div>
+  <p class="mono" style="font-size:11px;color:var(--muted);margin:10px 2px">SHOWING SAMPLE ROWS FROM THE REPORT — PRODUCTION SHOWS ALL 148 WITH FACTOR URL + DATASHEET YEAR PER ROW</p>
+  <div class="table-wrap"><table><thead><tr><th>Device</th><th>Age / Health</th><th>GLOW Score</th><th>Factor &amp; confidence</th><th>Call</th></tr></thead><tbody id="tbody"></tbody></table></div>
+  <p id="empty" style="display:none;text-align:center;padding:20px;color:var(--muted)">No sample devices match that filter.</p>
+</section>
+
+<!-- ============ REPORT ============ -->
+<section id="view-report" class="view">
+  <div class="report-toolbar">
+    <div><div class="eyebrow">Client-facing document · White-label ready</div><h1 class="display" style="font-size:clamp(28px,4vw,40px);margin:6px 0 0;letter-spacing:-.03em">The GLOW Op Report design</h1><p>This is the page an MSP hands a CFO, a client, or an auditor. Every number carries its source. A guess is labelled a guess.</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="showView('dash')" style="padding:12px 16px;border-radius:999px;border:2px solid var(--line2);background:var(--surface);font-weight:700;cursor:pointer">← Back to dashboard</button><span class="pill lime" style="display:inline-flex;align-items:center">PDF + CSV in production</span></div>
+  </div>
+
+  <article class="sheet" aria-label="Sample GLOW Op Report">
+    <header class="sheet-head">
+      <div class="kicker">GLOW Ops · Green Lifecycle and Operation Workflows</div>
+      <h2>GLOW Op <span>Report</span></h2>
+      <p style="color:#CBD3C2;max-width:560px;margin:0">Which devices get to live, which need a battery, and which are genuinely done. Refresh season can sit down.</p>
+      <div class="sheet-meta"><span>CLIENT — HARBOR CLINIC</span><span>REPORT — #2026-014</span><span>SAMPLE · NOT A TENANT</span><span>SOURCE — INTUNE / GRAPH</span></div>
+    </header>
+    <div class="sheet-body">
+      <h3>Executive verdict</h3>
+      <div class="verdict-box">
+        <div><strong style="font-family:Archivo;font-size:20px">Do not refresh this fleet on the calendar.</strong><p style="margin:6px 0 0">Of 148 devices, 117 should stay in service this cycle — 68 as-is, 31 after a repair, 18 redeployed to a lighter role. Only 26 need to leave, and 5 need to be found first.</p></div>
+        <div class="stamp">REPAIR<br><span style="font-size:11px;letter-spacing:.02em">NOT REPLACE</span></div>
+      </div>
+
+      <div class="math">
+        <div><span>Devices kept in service</span><b>117 / 148</b><small>79% of the fleet</small></div>
+        <div><span>Manufacturing avoided</span><b>12.7 t CO₂e</b><small>Screening, per-device factors inside</small></div>
+        <div><span>Purchases deferred</span><b>$63,800</b><small>Before repair costs, shown per row</small></div>
+      </div>
+
+      <h3>Spotlight — the device that explains the whole report</h3>
+      <div class="spotlight">
+        <div>
+          <div class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#777">HP EliteBook 840 G6 · 4.8 years · Warranty expired</div>
+          <div style="font-family:Archivo;font-size:24px;font-weight:800;margin:6px 0">The battery is the problem.<br>Not the chassis.</div>
+          <p>Published-style manufacturing factor, about <b>300 kg CO₂e</b>. Health says replace the battery — do not buy a new laptop to celebrate a calendar. Ferreira et al. (2025) found manufacturing was 76% of one peer-reviewed laptop footprint: 218.7 of 286.1 kg CO₂e over four years.</p>
+          <p class="mono" style="font-size:12px">CALL — REPAIR · CONFIDENCE — FAMILY ESTIMATE · FACTOR SOURCE NAMED IN PRODUCTION ROW</p>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span>Battery health</span><b>64%</b></div>
+          <div class="gauge"><i></i></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+            <div style="border:1px solid #D8DDCB;padding:10px"><span class="mono" style="font-size:10px;text-transform:uppercase;color:#777">Battery swap</span><b style="display:block;font-family:Archivo;font-size:20px">MSP price</b><small>Supplied by MSP, per row</small></div>
+            <div style="border:1px solid #141614;padding:10px;background:#D7DF23"><span class="mono" style="font-size:10px;text-transform:uppercase">New laptop</span><b style="display:block;font-family:Archivo;font-size:20px">$1,100</b><small>+ ~300 kg CO₂e made</small></div>
+          </div>
+          <div style="margin-top:12px;font-family:Archivo;font-weight:800;font-size:28px">GLOW Score 61 <span style="font-size:13px;font-weight:600;color:#666">/ 100 — repairable</span></div>
+        </div>
+      </div>
+
+      <h3>A page from the fleet table</h3>
+      <table class="report-table"><thead><tr><th>Device</th><th>Factor</th><th>Confidence</th><th>GLOW call</th></tr></thead><tbody>
+        <tr><td><b>Latitude 5440</b> · 1.4 yrs · health 96</td><td>Manufacturing factor on file</td><td>Exact model, when the PCF exists</td><td><b>Keep.</b> Tune power policy. The calendar is early.</td></tr>
+        <tr><td><b>EliteBook 840 G6</b> · battery 64%</td><td>About 300 kg, illustrative until the model sheet is matched</td><td>Family estimate</td><td><b>Repair.</b> Battery, not a new laptop.</td></tr>
+        <tr><td><b>OptiPlex</b> · disk failing, CPU fine</td><td>Desktop-class manufacturing, higher than a laptop</td><td>Family estimate</td><td><b>Redeploy</b> after an SSD. The tower is not the failure.</td></tr>
+        <tr><td><b>Checked in 11 months ago</b></td><td>Unknown until someone finds it</td><td>No factor yet</td><td><b>Ghost flag.</b> Find it before you buy its replacement.</td></tr>
+        <tr><td><b>8-year laptop</b> · failed board</td><td>Manufacturing already spent</td><td>Exact or family</td><td><b>Recycle or remarket.</b> This is the refresh the policy was for.</td></tr>
+      </tbody></table>
+      <p style="font-size:12px;color:#777">Sample calls for the walkthrough. A production report names the factor URL, the year of the datasheet, and the confidence on every row.</p>
+
+      <h3>Calendar versus carbon — the screening math</h3>
+      <p>Over 15 years, a 3-year refresh of 150 devices buys about <b>750 machines</b>. Keeping the healthy 70% for 5 years buys about <b>540</b>. The difference is manufacturing you skip: <b>210 devices · 46.0 t CO₂e · $231,000</b> at 219 kg and $1,100 per device. This is screening arithmetic with its assumptions printed on it — not a certified footprint. The report above does it per serial number.</p>
+
+      <h3>How this report was made</h3>
+      <div class="steps">
+        <div><b>1 · Ingest</b><span style="font-size:13px;color:#555">Graph / Intune first. CSV if the tenant isn’t ready.</span></div>
+        <div><b>2 · Enrich</b><span style="font-size:13px;color:#555">Match to a manufacturer PCF or Boavizta’s open compilation. Fallbacks are labelled.</span></div>
+        <div><b>3 · Decide</b><span style="font-size:13px;color:#555">Rules first. Security and a dead board still win over carbon.</span></div>
+        <div><b>4 · Report</b><span style="font-size:13px;color:#555">One report per client. Portfolio view for the MSP. PDF + CSV, white-label.</span></div>
+      </div>
+      <p style="font-size:13px"><b>Public vs. proprietary, plainly:</b> Manufacturer PCFs, Boavizta’s compilation, and the client’s own Intune inventory are public / client data — cited, not claimed. The GLOW Score weights, the call, match confidence, persona windows, ghost rule, and calendar-vs-carbon comparison are the GLOW Op.</p>
+
+      <h3>Scope — what this is not</h3>
+      <p style="font-size:13px">Not a full GHG Protocol inventory. Not an assurance opinion. Not a reason to skip a security patch. Scope 3 language stays inside what the factors support. Phase 0: no production connector and no paying tenant yet — this is a sample report design, not a live tenant export.</p>
+
+      <div class="sources">
+        <b style="color:#141614">Sources on this page</b> · Ferreira et al., <i>Sustainability</i> 2025, 17(10), 4455 — laptop 286.1 kg CO₂e total, 218.7 kg manufacturing · German Environment Agency / Öko-Institut / Fraunhofer IZM — production ~56% of notebook GHG, 33–89 yr payback for a 10% efficiency gain · André et al., <i>Waste Management</i> 2019 — reuse prep negligible vs. extending use · Gartner, Best Practices for Device Sustainability, 13 Mar 2024 · Boavizta environmental-footprint-data (open PCF compilation) · ITU/UNITAR Global E-waste Monitor 2024 — 62 Mt in 2022, 22.3% formally recycled.
+      </div>
+    </div>
+    <footer class="sheet-foot"><span>GLOW Ops · Green Lifecycle and Operation Workflows · getglowop.com</span><span class="mono">MSP WHITE-LABEL AREA — YOUR LOGO HERE IN PRODUCTION</span></footer>
+  </article>
+</section>
+
+<p class="foot">GLOW Ops is Phase 0 — pre-revenue, no paying tenant, no production connector yet. Both designs above use the Harbor Clinic sample fleet from the GLOW Op walkthrough. Dashboard numbers are the sample’s internal screening math; the report’s per-device factors are labelled by confidence (exact model / family estimate / no factor yet) exactly as a production report would label them. Full source list lives on the <a href="/#sources">GLOW Ops site</a>.</p>
+</main>
+
+<script>
+var devices=[
+ {model:"Latitude 5440",detail:"Dell · Front desk · SN …5440-A",age:"1.4 yrs",health:96,score:92,factor:"Manufacturing factor on file",conf:"Exact model",verdict:"Keep",note:"Tune power policy. The calendar is early."},
+ {model:"EliteBook 840 G6",detail:"HP · Clinician · SN …840-G6",age:"4.8 yrs",health:64,score:61,factor:"~300 kg CO₂e · illustrative",conf:"Family estimate",verdict:"Repair",note:"Battery, not a new laptop."},
+ {model:"OptiPlex 7010",detail:"Dell · Back office · SN …7010-C",age:"5.2 yrs",health:71,score:58,factor:"Desktop-class, higher than laptop",conf:"Family estimate",verdict:"Redeploy",note:"SSD, then redeploy. The tower is not the failure."},
+ {model:"ThinkPad T14 Gen 2",detail:"Lenovo · Finance · SN …T14-22",age:"3.1 yrs",health:88,score:84,factor:"Manufacturing factor on file",conf:"Exact model",verdict:"Keep",note:"Healthy. Extend to the 5-year window."},
+ {model:"ProBook 450 G8",detail:"HP · Nurse station · SN …450-G8",age:"4.1 yrs",health:59,score:54,factor:"Family factor on file",conf:"Family estimate",verdict:"Repair",note:"Battery at 59% + 16 GB RAM. One visit, two more years."},
+ {model:"Unknown — last seen Ward 3",detail:"Assigned · No check-in 11 mo · SN …GH-05",age:"—",health:null,score:12,factor:"Unknown until found",conf:"No factor yet",verdict:"Ghost",note:"Find it before you buy its replacement."},
+ {model:"Latitude 7280",detail:"Dell · Former staff · SN …7280-Z",age:"8.0 yrs",health:22,score:18,factor:"Manufacturing already spent",conf:"Exact or family",verdict:"Recycle",note:"Failed board. Certified recycle / remarket."},
+ {model:"Surface Laptop 5",detail:"Microsoft · Exec · SN …SL5-01",age:"2.6 yrs",health:91,score:79,factor:"Surface estimate via Intune",conf:"Exact model",verdict:"Refresh",note:"Only refresh in this sample: role window + warranty end align. All others wait."}
+];
+var filter="all";
+function vClass(v){return "v-"+v.toLowerCase()}
+function renderTable(){
+  var q=(document.getElementById("q").value||"").toLowerCase();
+  var rows=devices.filter(function(d){
+    var okF = filter==="all" || d.verdict===filter || (filter==="Ghost" && d.verdict==="Ghost");
+    var okQ = !q || (d.model+" "+d.detail+" "+d.verdict+" "+d.note).toLowerCase().indexOf(q)>-1;
+    return okF && okQ;
+  });
+  document.getElementById("empty").style.display = rows.length? "none":"block";
+  document.getElementById("tbody").innerHTML = rows.map(function(d){
+    var batt = d.health===null ? '<span class="mono" style="font-size:12px;color:var(--red)">No signal</span>' : '<div style="display:flex;align-items:center;gap:8px"><div class="battery"><i style="width:'+d.health+'%;background:'+(d.health<65?"#E8A317":"#0E9A68")+'"></i></div><b>'+d.health+'%</b></div>';
+    return '<tr><td data-l="Device"><b>'+d.model+'</b><br><span style="color:var(--muted);font-size:12px">'+d.detail+'</span><br><span style="font-size:13px">'+d.note+'</span></td><td data-l="Age / Health">'+d.age+'<br>'+batt+'</td><td data-l="GLOW Score"><span class="score">'+d.score+'</span><span style="color:var(--muted)"> /100</span></td><td data-l="Factor">'+d.factor+'<br><span class="mono" style="font-size:11px;color:var(--muted)">'+d.conf.toUpperCase()+'</span></td><td data-l="Call"><span class="verdict '+vClass(d.verdict)+'">'+(d.verdict==="Ghost"?"Ghost flag":d.verdict)+'</span></td></tr>';
+  }).join("");
+}
+function setFilter(btn){
+  filter=btn.getAttribute("data-f");
+  var chips=document.querySelectorAll(".chip"); for(var i=0;i<chips.length;i++) chips[i].classList.remove("active");
+  btn.classList.add("active"); renderTable();
+}
+function showView(v, push){
+  document.getElementById("view-dash").classList.toggle("active", v==="dash");
+  document.getElementById("view-report").classList.toggle("active", v==="report");
+  document.getElementById("btnDash").classList.toggle("active", v==="dash");
+  document.getElementById("btnReport").classList.toggle("active", v==="report");
+  if (push !== false) {
+    var hash = v === "report" ? "#report" : "#dashboard";
+    if (location.hash !== hash) history.replaceState(null, "", hash);
+  }
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function routeHash(){
+  var h = (location.hash || "").toLowerCase();
+  showView(h.indexOf("report") >= 0 ? "report" : "dash", false);
+}
+window.addEventListener("hashchange", routeHash);
+renderTable();
+routeHash();
+</script>
+</body>
+</html>

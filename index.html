@@ -4,9 +4,110 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="description" content="GLOW Ops — Green Lifecycle and Operation Workflows. The GLOW Op Report reads the fleet already in Intune and calls keep, repair, redeploy, refresh, or recycle — per serial number, with the source on every row." />
+    <title>GLOW Ops — Intune Laptop Refresh Report | Keep, Repair, or Recycle</title>
+    <meta name="description" content="GLOW Op Report for MSPs and IT: read the Intune / Microsoft Graph fleet and decide keep, repair, redeploy, refresh, or recycle per serial — with manufacturing CO₂e sources, ghost-device flags, and a white-label client PDF." />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
+    <meta name="keywords" content="Intune laptop refresh policy, extend laptop life enterprise, device sustainability MSP, repair before replace laptop, ghost devices Intune, IT asset disposition report, Scope 3 IT hardware, laptop refresh calendar vs carbon, Microsoft Graph Intune inventory, Boavizta PCF fleet" />
+    <meta name="author" content="GLOW Ops" />
+    <link rel="canonical" href="https://getglowop.com/" />
+    <link rel="alternate" href="https://getglowop.com/dashboard.html" title="Sample dashboard and GLOW Op Report" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GLOW Ops" />
+    <meta property="og:url" content="https://getglowop.com/" />
+    <meta property="og:title" content="GLOW Ops — Stop refreshing healthy Intune laptops on a calendar" />
+    <meta property="og:description" content="The GLOW Op Report turns Intune inventory into keep / repair / redeploy / refresh / recycle calls — per device, with the carbon factor and source on every row." />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GLOW Ops — Intune fleet keep / repair / recycle report" />
+    <meta name="twitter:description" content="Score the fleet already in Intune. Skip calendar refreshes that buy machines you do not need." />
     <link rel="icon" href="data:," />
-    <title>GLOW Ops — Get an IT GLOW Op</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://getglowop.com/#org",
+          "name": "GLOW Ops",
+          "legalName": "Green Lifecycle and Operation Workflows",
+          "url": "https://getglowop.com/",
+          "email": "hello@getglowop.com",
+          "description": "GLOW Ops builds the GLOW Op Report: keep, repair, redeploy, refresh, or recycle decisions for endpoint fleets already managed in Microsoft Intune."
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://getglowop.com/#website",
+          "url": "https://getglowop.com/",
+          "name": "GLOW Ops",
+          "publisher": { "@id": "https://getglowop.com/#org" },
+          "inLanguage": "en-US"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://getglowop.com/#software",
+          "name": "GLOW Op Report",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "url": "https://getglowop.com/",
+          "description": "Reads Microsoft Intune / Graph (or CSV) endpoint inventory and produces a per-serial keep, repair, redeploy, refresh, or recycle report with manufacturer product-carbon-footprint sources and ghost-device flags for MSPs and IT.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/PreOrder",
+            "description": "Phase 0 brand site and sample report; production connector not yet shipping."
+          },
+          "featureList": [
+            "Intune and Microsoft Graph fleet ingest",
+            "CSV upload when Graph is not ready",
+            "Keep, repair, redeploy, refresh, recycle calls",
+            "Manufacturer PCF and Boavizta enrichment",
+            "Ghost-device flags from stale check-ins",
+            "White-label client PDF and CSV"
+          ],
+          "provider": { "@id": "https://getglowop.com/#org" }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://getglowop.com/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How do I decide whether to refresh or repair an Intune laptop?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A GLOW Op Report scores each device from Intune inventory (age, health, warranty, compliance, check-in) against a manufacturing carbon factor. Prefer repair (battery or disk) or keep when the chassis is healthy; refresh only when the device cannot take the required OS or has failed. The call and the factor source appear on every row."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is a ghost device in an Intune fleet?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A ghost device is still assigned and on the books but has not checked in for a long time. Replacing it without finding it leaves a security risk and buys a duplicate. GLOW Ops flags stale check-ins before a calendar refresh purchases a replacement."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Does extending laptop life reduce Scope 3 emissions?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Peer-reviewed life-cycle studies show most of a laptop’s greenhouse-gas footprint is manufacturing, not use. Extending healthy devices and repairing batteries avoids buying new machines and the embodied carbon that comes with them. GLOW Ops cites manufacturer PCFs and published studies on each row; it is a screening report, not a full GHG Protocol inventory."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is GLOW Ops only for MSPs?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "GLOW Ops is built for MSPs and mid-market IT teams that already run Microsoft Intune. The client-facing GLOW Op Report is white-label ready so an MSP can put their name on the PDF and CSV they hand a CFO or auditor."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
@@ -404,11 +505,12 @@
       <nav aria-label="Sections">
         <a href="#problem">The problem</a>
         <a href="#report">The report</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/dashboard.html#report">Sample report</a>
         <a href="#calculator">Calculator</a>
-        <a href="#method">Method</a>
         <a href="#sources">Sources</a>
       </nav>
-      <a class="domain" href="#calculator">getglowop.com</a>
+      <a class="domain" href="/dashboard.html">Open sample →</a>
     </header>
 
     <main id="main">
@@ -421,9 +523,10 @@
             <div>
               <p class="hero-lede">A <strong>GLOW Op Report</strong> is the document a business actually uses. It looks at the laptops and desktops already in Intune and says which ones get to live, which need a battery, and which are genuinely done. <span class="serif-i">Refresh season can sit down.</span></p>
               <div class="hero-ctas">
-                <a class="btn btn-lime" href="#calculator">Run the screening math ↓</a>
-                <a class="btn btn-ghost" href="#report">See what’s in the report</a>
+                <a class="btn btn-lime" href="/dashboard.html">Open the sample dashboard</a>
+                <a class="btn btn-ghost" href="/dashboard.html#report">See the sample report</a>
               </div>
+              <p class="hero-note" style="margin-top:.75rem"><a href="#calculator" style="text-decoration:underline">Or run the screening calculator ↓</a></p>
               <p class="hero-note">NO NEW AGENT · NO POWER-SPY · INTUNE / GRAPH / CSV IN — A DECISION OUT</p>
             </div>
 
