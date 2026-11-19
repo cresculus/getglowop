@@ -4,24 +4,24 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="color-scheme" content="light only"/>
-<title>Intune Fleet Dashboard &amp; GLOW Op Report Sample | GLOW Ops</title>
-<meta name="description" content="Interactive sample: score an Intune laptop and desktop fleet for keep, repair, redeploy, refresh, or recycle. See avoided purchases, manufacturing CO₂e, ghost devices, and a white-label client GLOW Op Report."/>
+<title>Fleet Dashboard &amp; GLOW Op Report Sample | GLOW Ops</title>
+<meta name="description" content="Interactive sample: score a laptop and desktop fleet from Intune, RMM, or agent inventory for keep, repair, redeploy, refresh, or recycle. See avoided purchases, manufacturing CO₂e, ghost devices, and a white-label client GLOW Op Report."/>
 <meta name="robots" content="index,follow,max-image-preview:large"/>
-<meta name="keywords" content="Intune laptop refresh, device sustainability report, MSP fleet report, repair before replace laptop, extend laptop life enterprise, ghost devices Intune, ITAD keep recycle, Scope 3 IT hardware, laptop battery replace vs refresh, Microsoft Graph Intune inventory"/>
+<meta name="keywords" content="Intune laptop refresh, RMM fleet report, endpoint agent inventory, SCCM ConfigMgr, device sustainability report, MSP fleet report, repair before replace laptop, ghost devices, ITAD keep recycle, Scope 3 IT hardware"/>
 <link rel="canonical" href="https://getglowop.com/dashboard.html"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="GLOW Ops"/>
 <meta property="og:url" content="https://getglowop.com/dashboard.html"/>
-<meta property="og:title" content="Intune Fleet Dashboard &amp; Sample GLOW Op Report"/>
-<meta property="og:description" content="Workable sample dashboard and client report: keep/repair/redeploy/refresh/recycle from Intune inventory, with carbon factors and sources on every row."/>
+<meta property="og:title" content="Fleet Dashboard &amp; Sample GLOW Op Report"/>
+<meta property="og:description" content="Workable sample dashboard and client report: keep/repair/redeploy/refresh/recycle from Intune, RMM, or agent inventory, with carbon factors and sources on every row."/>
 <meta property="og:locale" content="en_US"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="Intune Fleet Dashboard &amp; Sample GLOW Op Report"/>
-<meta name="twitter:description" content="Score the fleet already in Intune. Skip calendar refreshes that buy machines you do not need."/>
+<meta name="twitter:title" content="Fleet Dashboard &amp; Sample GLOW Op Report"/>
+<meta name="twitter:description" content="Score the fleet from Intune, RMM, or a thin agent. Intune- or SCCM-heavy? We meet you there too."/>
 <link rel="icon" href="data:,"/>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
-{"@type":"WebPage","@id":"https://getglowop.com/dashboard.html#webpage","url":"https://getglowop.com/dashboard.html","name":"Intune Fleet Dashboard & GLOW Op Report Sample","description":"Interactive sample MSP dashboard and white-label client report for keep, repair, redeploy, refresh, or recycle decisions from Microsoft Intune inventory.","isPartOf":{"@id":"https://getglowop.com/#website"},"about":{"@id":"https://getglowop.com/#software"}},
+{"@type":"WebPage","@id":"https://getglowop.com/dashboard.html#webpage","url":"https://getglowop.com/dashboard.html","name":"Fleet Dashboard & GLOW Op Report Sample","description":"Interactive sample MSP dashboard and white-label client report for keep, repair, redeploy, refresh, or recycle decisions from Intune, RMM, or agent inventory.","isPartOf":{"@id":"https://getglowop.com/#website"},"about":{"@id":"https://getglowop.com/#software"}},
 {"@type":"BreadcrumbList","itemListElement":[
 {"@type":"ListItem","position":1,"name":"GLOW Ops","item":"https://getglowop.com/"},
 {"@type":"ListItem","position":2,"name":"Dashboard & Report","item":"https://getglowop.com/dashboard.html"}
@@ -194,13 +194,13 @@ tr:hover td{background:var(--surface2)}
 <section id="view-dash" class="view active">
   <div class="dash-head">
     <div>
-      <div class="eyebrow"><span class="dot"></span> MSP Portfolio · Live design mock · Intune-synced sample</div>
+      <div class="eyebrow"><span class="dot"></span> MSP Portfolio · Live design mock · Intune / RMM / agent sample</div>
       <h1>The calendar was<br>about to go <em>shopping.</em></h1>
       <p>One fleet, every device scored. Keep what’s healthy, repair what’s cheap to fix, and only refresh what’s genuinely done — with the carbon factor and its source on every row.</p>
     </div>
     <aside class="meta-card"><dl>
       <dt>Client</dt><dd>Harbor Clinic</dd>
-      <dt>Source</dt><dd>Intune / Microsoft Graph</dd>
+      <dt>Source</dt><dd>Intune · RMM · Agent</dd>
       <dt>Devices</dt><dd>148 endpoints</dd>
       <dt>Last sync</dt><dd>Sample — not a live tenant</dd>
       <dt>Report</dt><dd>GLOW Op #2026-014</dd>
@@ -353,12 +353,12 @@ tr:hover td{background:var(--surface2)}
 
       <h3>How this report was made</h3>
       <div class="steps">
-        <div><b>1 · Ingest</b><span style="font-size:13px;color:#555">Graph / Intune first. CSV if the tenant isn’t ready.</span></div>
+        <div><b>1 · Ingest</b><span style="font-size:13px;color:#555">Intune, RMM, or thin agent. SCCM-friendly when you need it. CSV for pilots.</span></div>
         <div><b>2 · Enrich</b><span style="font-size:13px;color:#555">Match to a manufacturer PCF or Boavizta’s open compilation. Fallbacks are labelled.</span></div>
         <div><b>3 · Decide</b><span style="font-size:13px;color:#555">Rules first. Security and a dead board still win over carbon.</span></div>
         <div><b>4 · Report</b><span style="font-size:13px;color:#555">One report per client. Portfolio view for the MSP. PDF + CSV, white-label.</span></div>
       </div>
-      <p style="font-size:13px"><b>Public vs. proprietary, plainly:</b> Manufacturer PCFs, Boavizta’s compilation, and the client’s own Intune inventory are public / client data — cited, not claimed. The GLOW Score weights, the call, match confidence, persona windows, ghost rule, and calendar-vs-carbon comparison are the GLOW Op.</p>
+      <p style="font-size:13px"><b>Public vs. proprietary, plainly:</b> Manufacturer PCFs, Boavizta’s compilation, and the client’s own Intune / RMM / agent inventory are public / client data — cited, not claimed. The GLOW Score weights, the call, match confidence, persona windows, ghost rule, and calendar-vs-carbon comparison are the GLOW Op.</p>
 
       <h3>Scope — what this is not</h3>
       <p style="font-size:13px">Not a full GHG Protocol inventory. Not an assurance opinion. Not a reason to skip a security patch. Scope 3 language stays inside what the factors support. Phase 0: no production connector and no paying tenant yet — this is a sample report design, not a live tenant export.</p>

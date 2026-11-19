@@ -4,10 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light only" />
-    <title>GLOW Ops — Intune Laptop Refresh Report | Keep, Repair, or Recycle</title>
-    <meta name="description" content="GLOW Op Report for MSPs and IT: read the Intune / Microsoft Graph fleet and decide keep, repair, redeploy, refresh, or recycle per serial — with manufacturing CO₂e sources, ghost-device flags, and a white-label client PDF." />
+    <title>GLOW Ops — Fleet Refresh Report via Intune, RMM, or Agent | Keep, Repair, or Recycle</title>
+    <meta name="description" content="GLOW Op Report for MSPs and IT: ingest from Intune, RMM, or a thin agent — or lean on Intune/SCCM when that is already the system of record. Keep, repair, redeploy, refresh, or recycle per serial with CO₂e sources and a white-label client PDF." />
     <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
-    <meta name="keywords" content="Intune laptop refresh policy, extend laptop life enterprise, device sustainability MSP, repair before replace laptop, ghost devices Intune, IT asset disposition report, Scope 3 IT hardware, laptop refresh calendar vs carbon, Microsoft Graph Intune inventory, Boavizta PCF fleet" />
+    <meta name="keywords" content="Intune laptop refresh policy, RMM fleet inventory, endpoint agent inventory, SCCM ConfigMgr refresh, extend laptop life enterprise, device sustainability MSP, repair before replace laptop, ghost devices Intune, IT asset disposition report, Scope 3 IT hardware, Boavizta PCF fleet" />
     <meta name="author" content="GLOW Ops" />
     <link rel="canonical" href="https://getglowop.com/" />
     <link rel="alternate" href="https://getglowop.com/dashboard.html" title="Sample dashboard and GLOW Op Report" />
@@ -15,12 +15,12 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="GLOW Ops" />
     <meta property="og:url" content="https://getglowop.com/" />
-    <meta property="og:title" content="GLOW Ops — Stop refreshing healthy Intune laptops on a calendar" />
-    <meta property="og:description" content="The GLOW Op Report turns Intune inventory into keep / repair / redeploy / refresh / recycle calls — per device, with the carbon factor and source on every row." />
+    <meta property="og:title" content="GLOW Ops — Stop refreshing healthy laptops on a calendar" />
+    <meta property="og:description" content="The GLOW Op Report turns Intune, RMM, or agent inventory into keep / repair / redeploy / refresh / recycle calls — per device, with the carbon factor and source on every row." />
     <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="GLOW Ops — Intune fleet keep / repair / recycle report" />
-    <meta name="twitter:description" content="Score the fleet already in Intune. Skip calendar refreshes that buy machines you do not need." />
+    <meta name="twitter:title" content="GLOW Ops — Intune, RMM, or agent fleet keep / repair / recycle report" />
+    <meta name="twitter:description" content="Score the fleet from Intune, RMM, or a thin agent. Intune- or SCCM-heavy? We meet you there too." />
     <link rel="icon" href="data:," />
     <script type="application/ld+json">
     {
@@ -33,7 +33,7 @@
           "legalName": "Green Lifecycle and Operation Workflows",
           "url": "https://getglowop.com/",
           "email": "hello@getglowop.com",
-          "description": "GLOW Ops builds the GLOW Op Report: keep, repair, redeploy, refresh, or recycle decisions for endpoint fleets already managed in Microsoft Intune."
+          "description": "GLOW Ops builds the GLOW Op Report: keep, repair, redeploy, refresh, or recycle decisions for endpoint fleets from Intune, RMM, agent inventory, or SCCM/ConfigMgr-heavy environments."
         },
         {
           "@type": "WebSite",
@@ -50,7 +50,7 @@
           "applicationCategory": "BusinessApplication",
           "operatingSystem": "Web",
           "url": "https://getglowop.com/",
-          "description": "Reads Microsoft Intune / Graph (or CSV) endpoint inventory and produces a per-serial keep, repair, redeploy, refresh, or recycle report with manufacturer product-carbon-footprint sources and ghost-device flags for MSPs and IT.",
+          "description": "Ingests endpoint inventory from Microsoft Intune / Graph, RMM exports, a thin GlowOps agent, CSV, or SCCM/ConfigMgr-oriented paths and produces a per-serial keep, repair, redeploy, refresh, or recycle report with manufacturer PCF sources and ghost-device flags for MSPs and IT.",
           "offers": {
             "@type": "Offer",
             "price": "0",
@@ -60,10 +60,12 @@
           },
           "featureList": [
             "Intune and Microsoft Graph fleet ingest",
-            "Optional agent for fleets without MDM",
+            "RMM inventory and scripted deploy per company",
+            "Thin agent for fleets without MDM",
+            "SCCM / ConfigMgr-friendly paths for Intune- or SCCM-heavy shops",
             "TLS ingest with per-business enrollment keys",
             "Tenant isolation and assigned-user dashboards",
-            "CSV upload when Graph is not ready",
+            "CSV upload when APIs are not ready",
             "Keep, repair, redeploy, refresh, recycle calls",
             "Manufacturer PCF and Boavizta enrichment",
             "Ghost-device flags from stale check-ins",
@@ -78,15 +80,23 @@
           "mainEntity": [
             {
               "@type": "Question",
-              "name": "How do I decide whether to refresh or repair an Intune laptop?",
+              "name": "How do I decide whether to refresh or repair a fleet laptop?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "A GLOW Op Report scores each device from Intune inventory (age, health, warranty, compliance, check-in) against a manufacturing carbon factor. Prefer repair (battery or disk) or keep when the chassis is healthy; refresh only when the device cannot take the required OS or has failed. The call and the factor source appear on every row."
+                "text": "A GLOW Op Report scores each device from Intune, RMM, or agent inventory (age, health, warranty, compliance, check-in) against a manufacturing carbon factor. Prefer repair (battery or disk) or keep when the chassis is healthy; refresh only when the device cannot take the required OS or has failed. The call and the factor source appear on every row."
               }
             },
             {
               "@type": "Question",
-              "name": "What is a ghost device in an Intune fleet?",
+              "name": "Do I need Intune for GLOW Ops?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Intune and Microsoft Graph are a strong path when you already have them. RMM exports and a thin inventory agent cover fleets without MDM. If you are Intune-heavy or still on SCCM/ConfigMgr, GLOW Ops meets you there too — many ingest options, one report."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is a ghost device in a managed fleet?",
               "acceptedAnswer": {
                 "@type": "Answer",
                 "text": "A ghost device is still assigned and on the books but has not checked in for a long time. Replacing it without finding it leaves a security risk and buys a duplicate. GLOW Ops flags stale check-ins before a calendar refresh purchases a replacement."
@@ -105,7 +115,7 @@
               "name": "Is GLOW Ops only for MSPs?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "GLOW Ops is built for MSPs and mid-market IT teams that already run Microsoft Intune. The client-facing GLOW Op Report is white-label ready so an MSP can put their name on the PDF and CSV they hand a CFO or auditor."
+                "text": "GLOW Ops is built for MSPs and mid-market IT teams — whether they run Intune, an RMM, a thin agent, or still lean on SCCM. The client-facing GLOW Op Report is white-label ready so an MSP can put their name on the PDF and CSV they hand a CFO or auditor."
               }
             },
             {
@@ -536,13 +546,13 @@
           <h1>Get an IT<br /><span class="glow">Glow</span> Op.</h1>
           <div class="hero-grid">
             <div>
-              <p class="hero-lede">A <strong>GLOW Op Report</strong> is the document a business actually uses. It looks at the laptops and desktops already in Intune and says which ones get to live, which need a battery, and which are genuinely done. <span class="serif-i">Refresh season can sit down.</span></p>
+              <p class="hero-lede">A <strong>GLOW Op Report</strong> is the document a business actually uses. It looks at the laptops and desktops already in your fleet — from <strong>Intune</strong>, an <strong>RMM</strong>, or a <strong>thin agent</strong> — and says which ones get to live, which need a battery, and which are genuinely done. Intune-heavy or still on <strong>SCCM</strong>? We meet you there too. <span class="serif-i">Many paths in. One call out. Refresh season can sit down.</span></p>
               <div class="hero-ctas">
                 <a class="btn btn-lime" href="/dashboard.html">Open the sample dashboard</a>
                 <a class="btn btn-ghost" href="/dashboard.html#report">See the sample report</a>
               </div>
               <p class="hero-note" style="margin-top:.75rem"><a href="#calculator" style="text-decoration:underline">Or run the screening calculator ↓</a></p>
-              <p class="hero-note">INTUNE WHEN YOU HAVE IT · THIN AGENT WHEN YOU DON’T · TLS IN · ASSIGNED EYES ONLY</p>
+              <p class="hero-note">INTUNE · RMM · AGENT · SCCM-FRIENDLY · TLS IN · ASSIGNED EYES ONLY</p>
             </div>
 
             <article class="report-card" aria-label="Sample GLOW Op Report excerpt">
@@ -617,9 +627,9 @@
             <p class="pull">Reuse is the climate action. <b>Recycling is the funeral.</b></p>
             <div class="p-block">
               <p class="p-num">C — THE DATA</p>
-              <h3>The data is already in the MSP’s tenant</h3>
-              <p>Intune knows the model, the age, the last check-in, compliance, and — with Advanced Analytics — battery health. It will not tell a client whether that device should be kept.</p>
-              <p>Microsoft’s own sustainability tooling is strong on power policy and, for Surface, on a model emissions estimate. <strong>A mixed Dell, HP, and Lenovo fleet still gets a calendar.</strong></p>
+              <h3>The data is already somewhere — Intune, RMM, or nowhere yet</h3>
+              <p><strong>Intune</strong> knows model, age, last check-in, compliance, and — with Advanced Analytics — battery health. An <strong>RMM</strong> already watches half the mid-market. A <strong>thin agent</strong> covers sites with no MDM. None of those tools write the keep / repair / refresh sentence.</p>
+              <p>Intune-heavy or still on <strong>SCCM / ConfigMgr</strong>? Bring that inventory too. Microsoft’s own sustainability tooling is strong on power policy and, for Surface, on a model emissions estimate. <strong>A mixed Dell, HP, and Lenovo fleet still gets a calendar</strong> until the GLOW Op Report shows up.</p>
             </div>
             <div class="p-block">
               <p class="p-num">D — GHOSTS</p>
@@ -646,8 +656,8 @@
               <h3>We do not pretend we invented it.</h3>
               <ul>
                 <li><b>Manufacturer product carbon footprints,</b> including the open Boavizta compilation of those sheets. Boavizta’s own warning applies: methodologies differ, margins of error are large — use them as orders of magnitude and for same-brand comparisons.</li>
-                <li><b>The customer’s Intune / Graph inventory:</b> make, model, serial, OS, last check-in, compliance, warranty when the tenant has it.</li>
-                <li><b>CSV upload</b> when Graph is not available yet. The fleet still gets a report.</li>
+                <li><b>Intune / Graph, RMM export, thin agent, or SCCM-oriented inventory:</b> make, model, serial, OS, last check-in, compliance, warranty when the source has it.</li>
+                <li><b>CSV upload</b> when an API is not ready yet. The fleet still gets a report.</li>
               </ul>
             </div>
             <div class="panel panel-prop">
@@ -802,15 +812,15 @@
         <div class="wrap">
           <div class="sec-head">
             <p class="sec-index"><span class="n">04</span> How a real report gets made</p>
-            <h2>Intune in. <span class="hl">A decision out.</span></h2>
-            <p class="sec-lede">No new silo and no power-spy. Intune/Graph when the fleet has it; a thin inventory agent when it does not. Four steps, with the honest limits printed on each one.</p>
+            <h2>Many ways in. <span class="hl">A decision out.</span></h2>
+            <p class="sec-lede">No new silo and no power-spy. <strong>Intune, RMM, and agent-based ingest are all available.</strong> Intune-heavy or SCCM-heavy shops get a path that respects what they already run. Four steps, with the honest limits printed on each one.</p>
           </div>
 
           <ol class="steps">
             <li class="step">
               <span class="s-num" aria-hidden="true">1</span>
               <h3>Ingest <span class="arrow">→</span></h3>
-              <p>Microsoft Graph and Intune first. CSV if the tenant is not ready. Optional GlowOps collector/agent for sites with no MDM — inventory only, posted over HTTPS with a per-business enrollment key. Deploy that kit via Intune, RMM, or Nerdio for <strong>that company only</strong>.</p>
+              <p><strong>Intune / Graph</strong> when that is the system of record. <strong>RMM</strong> export or scripted pull when ConnectWise, Ninja, Datto, or similar already owns the box. <strong>Thin GlowOps agent</strong> when there is no MDM — inventory only, HTTPS, per-business enrollment key. <strong>SCCM / ConfigMgr</strong>-friendly feeds when the estate is still ConfigMgr-first. CSV if you just need a pilot. Deploy kits via Intune, RMM, or Nerdio for <strong>that company only</strong>.</p>
             </li>
             <li class="step">
               <span class="s-num" aria-hidden="true">2</span>
