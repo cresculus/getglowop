@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="light only" />
     <title>GLOW Ops — Intune Laptop Refresh Report | Keep, Repair, or Recycle</title>
     <meta name="description" content="GLOW Op Report for MSPs and IT: read the Intune / Microsoft Graph fleet and decide keep, repair, redeploy, refresh, or recycle per serial — with manufacturing CO₂e sources, ghost-device flags, and a white-label client PDF." />
     <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
@@ -145,10 +145,6 @@
         --lime:#BFF747;
         --lime-bright:#CFF95E;
         --lime-deep:#4C7A06;
-        --dark:#0B100A;
-        --dark-2:#131A10;
-        --dark-ink:#EDF4E4;
-        --dark-muted:#9DB08F;
         --amber:#D98E04;
         --amber-bg:#FBEED3;
         --red:#C93A32;
@@ -159,27 +155,8 @@
         --shadow:8px 8px 0 var(--ink);
         --receipt:#FBFBF6;
       }
-      @media (prefers-color-scheme: dark){
-        :root{
-          --bg:#0A0E08;
-          --surface:#141A11;
-          --surface-2:#1A2215;
-          --ink:#EBF3DF;
-          --ink-2:#C3CFB2;
-          --muted:#93A184;
-          --line:#EBF3DF;
-          --line-soft:#2C3626;
-          --lime-deep:#A8D93E;
-          --amber-bg:#3A2C0C;
-          --red-bg:#3D1713;
-          --teal-bg:#0F2E2A;
-          --gray-bg:#232B1E;
-          --shadow:8px 8px 0 rgba(191,247,71,.85);
-          --receipt:#10150D;
-        }
-      }
       *{ box-sizing:border-box; }
-      html{ scroll-behavior:smooth; }
+      html{ scroll-behavior:smooth; color-scheme: light only; }
       body{
         margin:0; background:var(--bg); color:var(--ink);
         font-family:"Archivo", system-ui, sans-serif;
@@ -344,19 +321,18 @@
       .versus{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(1rem,3vw,2rem); align-items:stretch; }
       .panel{ border:2px solid var(--line); padding:clamp(1.3rem,3vw,2rem); }
       .panel-public{ background:var(--surface); }
-      .panel-prop{ background:var(--dark); color:var(--dark-ink); box-shadow:var(--shadow); }
+      .panel-prop{ background:var(--surface-2); color:var(--ink); box-shadow:var(--shadow); }
       .panel .p-tag{ font-family:"IBM Plex Mono",monospace; font-size:.76rem; letter-spacing:.16em; text-transform:uppercase; display:inline-block; padding:.3rem .55rem; border:2px solid currentColor; }
       .panel-public .p-tag{ color:var(--ink); }
-      .panel-prop .p-tag{ color:var(--lime); border-color:var(--lime); }
+      .panel-prop .p-tag{ color:var(--lime-deep); border-color:var(--lime-deep); background:var(--lime); }
       .panel h3{ font-size:1.5rem; font-weight:800; margin:.9rem 0 1rem; letter-spacing:-.01em; line-height:1.15; }
       .panel ul{ list-style:none; margin:0; padding:0; }
       .panel li{ padding:.85rem 0 .85rem 1.6rem; position:relative; border-top:1px dashed var(--line-soft); font-size:.99rem; }
-      .panel-prop li{ border-top-color:#33402A; }
+      .panel-prop li{ border-top-color:var(--line-soft); color:var(--ink-2); }
       .panel li::before{ content:""; position:absolute; left:0; top:1.25rem; width:.6rem; height:.6rem; background:var(--lime); border:1.5px solid var(--line); }
-      .panel-prop li::before{ border-color:var(--lime); background:transparent; }
+      .panel-prop li::before{ border-color:var(--line); background:var(--lime); }
       .panel li b{ font-weight:800; }
-      .panel-prop li{ color:#C9D6BB; }
-      .panel-prop li b{ color:var(--dark-ink); }
+      .panel-prop li b{ color:var(--ink); }
 
       .sample{ margin-top:clamp(2.2rem,5vw,3.5rem); }
       .sample-head{ display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
@@ -376,34 +352,33 @@
       .sample-cap{ margin-top:.9rem; font-size:.9rem; color:var(--muted); max-width:60em; }
 
       /* ---------- calculator ---------- */
-      .calc-sec{ background:var(--dark); color:var(--dark-ink); }
-      .calc-sec .sec-index{ color:var(--dark-muted); }
-      .calc-sec .sec-index::after{ border-top-color:var(--dark-ink); }
-      .calc-sec .sec-lede{ color:#C9D6BB; }
-      .calc-sec .sec-lede strong{ color:var(--dark-ink); }
+      .calc-sec{ background:var(--surface-2); color:var(--ink); border-top:2px solid var(--line); border-bottom:2px solid var(--line); }
+      .calc-sec .sec-index{ color:var(--lime-deep); }
+      .calc-sec .sec-index::after{ border-top-color:var(--line); }
+      .calc-sec .sec-lede{ color:var(--ink-2); }
+      .calc-sec .sec-lede strong{ color:var(--ink); }
       .calc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(1.5rem,4vw,3rem); align-items:start; }
       .controls{ display:flex; flex-direction:column; gap:1.35rem; }
-      .ctl label{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; font-family:"IBM Plex Mono",monospace; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--dark-muted); margin-bottom:.5rem; }
+      .ctl label{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; font-family:"IBM Plex Mono",monospace; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:.5rem; }
       .ctl .numbox{ display:flex; align-items:center; gap:.4rem; }
       .ctl input[type="number"]{
-        width:6.2rem; min-height:44px; background:var(--dark-2); color:var(--dark-ink);
-        border:2px solid #3A4733; padding:.45rem .6rem; font-family:"IBM Plex Mono",monospace; font-size:1rem; text-align:right;
+        width:6.2rem; min-height:44px; background:var(--surface); color:var(--ink);
+        border:2px solid var(--line); padding:.45rem .6rem; font-family:"IBM Plex Mono",monospace; font-size:1rem; text-align:right;
       }
-      .ctl input[type="number"]:focus{ border-color:var(--lime); outline:none; }
-      .ctl .unit{ font-size:.72rem; color:var(--dark-muted); }
-      input[type="range"]{ width:100%; min-height:36px; accent-color:var(--lime); cursor:pointer; }
+      .ctl input[type="number"]:focus{ border-color:var(--lime-deep); outline:none; }
+      .ctl .unit{ font-size:.72rem; color:var(--muted); }
+      input[type="range"]{ width:100%; min-height:36px; accent-color:var(--lime-deep); cursor:pointer; }
       .ctl select{
-        width:100%; min-height:48px; background:var(--dark-2); color:var(--dark-ink);
-        border:2px solid #3A4733; padding:.6rem; font-family:"IBM Plex Mono",monospace; font-size:.92rem;
+        width:100%; min-height:48px; background:var(--surface); color:var(--ink);
+        border:2px solid var(--line); padding:.6rem; font-family:"IBM Plex Mono",monospace; font-size:.92rem;
       }
-      .ctl select:focus{ border-color:var(--lime); outline:none; }
+      .ctl select:focus{ border-color:var(--lime-deep); outline:none; }
       .ctl-row2{ display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
       .receipt{
         background:var(--receipt); color:var(--ink); border:2px solid var(--line);
         padding:clamp(1.3rem,3vw,2rem); box-shadow:10px 10px 0 rgba(191,247,71,.9);
         font-family:"IBM Plex Mono",monospace;
       }
-      @media (prefers-color-scheme: dark){ .receipt{ color:#EBF3DF; border-color:#3A4733; } }
       .receipt .r-head{ display:flex; justify-content:space-between; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase; border-bottom:2px dashed var(--line-soft); padding-bottom:.7rem; }
       .receipt .r-head b{ color:var(--lime-deep); }
       .receipt .r-narr{ font-family:"Archivo",sans-serif; font-size:1.05rem; line-height:1.5; margin:1.1rem 0 0; }
@@ -495,17 +470,17 @@
       .src-list a:hover{ background:var(--lime); color:#0D130B; }
 
       /* ---------- footer ---------- */
-      footer{ background:var(--dark); color:var(--dark-ink); padding:clamp(2.5rem,6vw,4rem) 0 2.5rem; }
+      footer{ background:var(--surface); color:var(--ink); padding:clamp(2.5rem,6vw,4rem) 0 2.5rem; border-top:2px solid var(--line); }
       footer .f-big{ font-weight:900; text-transform:uppercase; font-size:clamp(2rem,6vw,4rem); line-height:.95; letter-spacing:-.025em; margin:0 0 1rem; }
       footer .f-big .glow{ background:var(--lime); color:#0D130B; padding:0 .06em; }
-      footer .f-meta{ font-family:"IBM Plex Mono",monospace; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--dark-muted); }
-      footer .f-fine{ margin-top:1.6rem; font-size:.88rem; color:#A9BCA0; max-width:64em; line-height:1.65; }
+      footer .f-meta{ font-family:"IBM Plex Mono",monospace; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+      footer .f-fine{ margin-top:1.6rem; font-size:.88rem; color:var(--ink-2); max-width:64em; line-height:1.65; }
       footer a.mail{
         display:inline-flex; align-items:center; min-height:48px; margin-top:1.4rem;
         background:var(--lime); color:#0D130B; font-weight:800; text-transform:uppercase; text-decoration:none;
-        padding:.8rem 1.3rem; border:2px solid var(--lime);
+        padding:.8rem 1.3rem; border:2px solid var(--ink);
       }
-      footer a.mail:hover{ background:transparent; color:var(--lime); }
+      footer a.mail:hover{ background:var(--ink); color:var(--lime); }
 
       /* ---------- responsive ---------- */
       @media (max-width: 900px){
@@ -998,7 +973,7 @@
         <p class="f-big">The report is<br />the <span class="glow">product.</span></p>
         <p class="f-meta">GLOW Ops · Green Lifecycle and Operation Workflows · getglowop.com</p>
         <a class="mail" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20—%20early%20access">Ask about early access →</a>
-        <p class="f-fine">The GLOW Op Report is the product. This page is the Phase 0 brand site. The calculator is a screening tool with the assumptions printed on it. It is not an assurance opinion, a GHG inventory, or a reason to skip a security patch. <a href="/security.html" style="color:var(--lime);text-decoration:underline">Security &amp; tenancy →</a></p>
+        <p class="f-fine">The GLOW Op Report is the product. This page is the Phase 0 brand site. The calculator is a screening tool with the assumptions printed on it. It is not an assurance opinion, a GHG inventory, or a reason to skip a security patch. <a href="/security.html" style="color:var(--lime-deep);text-decoration:underline;font-weight:700">Security &amp; tenancy →</a></p>
       </div>
     </footer>
 
