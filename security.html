@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Security &amp; Tenant Isolation | GLOW Ops</title>
+    <meta name="description" content="How GLOW Ops protects fleet inventory: TLS from the device, encryption at rest, ConnectWise-style business IDs, enrollment keys, and dashboards only visible to assigned users. Designed for SOC 2 controls." />
+    <meta name="robots" content="index,follow,max-snippet:-1" />
+    <link rel="canonical" href="https://getglowop.com/security.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GLOW Ops" />
+    <meta property="og:url" content="https://getglowop.com/security.html" />
+    <meta property="og:title" content="Security &amp; Tenant Isolation — GLOW Ops" />
+    <meta property="og:description" content="Encrypted leaving the device. Encrypted at rest. Each business only visible to people assigned to it." />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GLOW Ops security — TLS, tenancy, assignment" />
+    <meta name="twitter:description" content="Designed for SOC 2: TLS ingest, encrypted storage, business-scoped dashboards." />
+    <link rel="icon" href="data:," />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://getglowop.com/security.html#webpage",
+          "url": "https://getglowop.com/security.html",
+          "name": "Security & Tenant Isolation",
+          "description": "GLOW Ops security model: TLS from endpoints, encryption at rest, per-business enrollment, and RBAC so only assigned users see a tenant.",
+          "isPartOf": { "@id": "https://getglowop.com/#website" },
+          "about": { "@id": "https://getglowop.com/#software" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "GLOW Ops", "item": "https://getglowop.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Security", "item": "https://getglowop.com/security.html" }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Is fleet data encrypted when it leaves the device?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Inventory posts to ingest over HTTPS only (TLS 1.2+). The enrollment key is sent in the Authorization header, never in the URL."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can one customer see another customer's devices?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Each business has its own business ID and enrollment key. Dashboards load only the businesses a user is assigned to. Device keys write inventory; they cannot read the dashboard."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is GLOW Ops SOC 2 certified?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The product architecture is designed for SOC 2 controls (encryption in transit and at rest, tenant isolation, audit logging, access reviews). Certification is a program outcome after production controls are live — this page describes the model, not a completed Type II report."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#EDF1E8; --surface:#FFFFFF; --surface-2:#E3E9DC; --ink:#0D130B; --ink-2:#39422F;
+        --muted:#6A7460; --line:#0D130B; --line-soft:#C5CDB8; --lime:#D7DF23; --lime-deep:#6F7A12;
+        --dark:#0D130B; --dark-ink:#EDF1E8; --dark-muted:#8A9680; --red:#B8322C;
+      }
+      *{box-sizing:border-box}
+      html{scroll-behavior:smooth}
+      body{margin:0;background:var(--bg);color:var(--ink);font-family:"Archivo",system-ui,sans-serif;line-height:1.5}
+      a{color:inherit}
+      .wrap{max-width:1100px;margin:0 auto;padding:0 clamp(1rem,3vw,1.6rem)}
+      .topbar{
+        position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;
+        background:var(--bg);border-bottom:2px solid var(--line);padding:.65rem clamp(1rem,3vw,1.6rem);
+      }
+      .wordmark{display:flex;align-items:baseline;gap:.55rem;text-decoration:none;font-weight:900;letter-spacing:-.02em}
+      .wordmark .dot{width:.65rem;height:.65rem;background:var(--lime);border:2px solid var(--ink);display:inline-block}
+      .wordmark small{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+      .topbar nav{display:flex;gap:.15rem;flex-wrap:wrap;margin-left:auto}
+      .topbar nav a{
+        text-decoration:none;font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:600;
+        letter-spacing:.06em;text-transform:uppercase;padding:.45rem .55rem;min-height:40px;display:inline-flex;align-items:center;
+      }
+      .topbar nav a:hover{background:var(--lime);color:#0D130B}
+      .topbar .domain{
+        margin-left:.4rem;background:var(--ink);color:var(--bg);text-decoration:none;font-weight:800;font-size:.78rem;
+        text-transform:uppercase;padding:.55rem .9rem;border:2px solid var(--ink);min-height:40px;display:inline-flex;align-items:center;
+      }
+      .topbar .domain:hover{background:var(--lime);color:#0D130B}
+      .hero{padding:clamp(2.5rem,7vw,4.5rem) 0 clamp(2rem,5vw,3rem);border-bottom:2px solid var(--line)}
+      .hero-kicker{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 1rem}
+      .tag{background:var(--lime);color:#0D130B;border:2px solid var(--ink);padding:.2rem .45rem;font-weight:700}
+      h1{margin:0 0 1rem;font-size:clamp(2.4rem,7vw,4.4rem);line-height:.95;letter-spacing:-.035em;text-transform:uppercase;font-weight:900}
+      h1 .glow{background:var(--lime);color:#0D130B;padding:0 .08em}
+      .lede{max-width:40em;font-size:clamp(1.05rem,2.2vw,1.25rem);color:var(--ink-2);margin:0}
+      .lede strong{color:var(--ink)}
+      .serif-i{font-family:"Newsreader",Georgia,serif;font-style:italic;font-weight:500}
+      section{padding:clamp(2.5rem,6vw,4rem) 0}
+      .sec-index{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--lime-deep);margin:0 0 .6rem}
+      .sec-index .n{font-weight:700}
+      h2{margin:0 0 .8rem;font-size:clamp(1.7rem,4vw,2.6rem);line-height:1.05;letter-spacing:-.025em;text-transform:uppercase;font-weight:900}
+      h2 .hl{background:var(--lime);padding:0 .08em}
+      .sec-lede{margin:0 0 1.6rem;max-width:44em;color:var(--ink-2);font-size:1.05rem}
+      .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+      @media (max-width:760px){.grid{grid-template-columns:1fr}}
+      .card{
+        background:var(--surface);border:2px solid var(--line);padding:1.25rem 1.3rem;
+      }
+      .card h3{margin:0 0 .55rem;font-size:1.15rem;font-weight:900;text-transform:uppercase;letter-spacing:-.01em}
+      .card p{margin:0;color:var(--ink-2);font-size:.98rem}
+      .card .mono-label{
+        font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+        color:var(--lime-deep);margin:0 0 .5rem;font-weight:600;
+      }
+      .flow{
+        margin:1.5rem 0 0;border:2px solid var(--line);background:var(--surface-2);padding:1.2rem 1.3rem;
+        font-family:"IBM Plex Mono",monospace;font-size:.82rem;line-height:1.7;overflow-x:auto;
+      }
+      .roles{list-style:none;margin:0;padding:0}
+      .roles li{
+        display:grid;grid-template-columns:160px 1fr;gap:1rem;padding:1rem 0;border-top:1px solid var(--line-soft);align-items:baseline;
+      }
+      .roles li:first-child{border-top:2px solid var(--line)}
+      .roles b{font-weight:900;text-transform:uppercase;font-size:.95rem}
+      .roles span{color:var(--ink-2)}
+      .callout{
+        margin-top:1.5rem;border-left:4px solid var(--lime-deep);background:var(--surface);border:2px solid var(--line);
+        border-left-width:6px;padding:1.1rem 1.2rem;max-width:52em;
+      }
+      .callout p{margin:0;color:var(--ink-2)}
+      .callout strong{color:var(--ink)}
+      .honest{
+        margin-top:1.2rem;font-family:"IBM Plex Mono",monospace;font-size:.84rem;line-height:1.7;color:var(--ink-2);
+        border:2px dashed var(--line);padding:1rem 1.1rem;max-width:52em;
+      }
+      .cta-row{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.6rem}
+      .btn{
+        display:inline-flex;align-items:center;min-height:48px;padding:.75rem 1.2rem;font-weight:800;text-transform:uppercase;
+        text-decoration:none;border:2px solid var(--ink);
+      }
+      .btn-lime{background:var(--lime);color:#0D130B}
+      .btn-lime:hover{background:var(--ink);color:var(--lime)}
+      .btn-ghost{background:transparent}
+      .btn-ghost:hover{background:var(--lime)}
+      footer{background:var(--dark);color:var(--dark-ink);padding:clamp(2.5rem,6vw,4rem) 0 2.5rem}
+      footer .f-big{font-weight:900;text-transform:uppercase;font-size:clamp(1.8rem,5vw,3.2rem);line-height:.95;letter-spacing:-.025em;margin:0 0 1rem}
+      footer .f-big .glow{background:var(--lime);color:#0D130B;padding:0 .06em}
+      footer .f-meta{font-family:"IBM Plex Mono",monospace;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dark-muted)}
+      footer .f-fine{margin-top:1.4rem;font-size:.88rem;color:#A9BCA0;max-width:58em;line-height:1.65}
+      footer a.mail{
+        display:inline-flex;align-items:center;min-height:48px;margin-top:1.4rem;background:var(--lime);color:#0D130B;
+        font-weight:800;text-transform:uppercase;text-decoration:none;padding:.8rem 1.3rem;border:2px solid var(--lime);
+      }
+      footer a.mail:hover{background:transparent;color:var(--lime)}
+      @media (max-width:760px){
+        .roles li{grid-template-columns:1fr}
+        .topbar nav{order:3;margin-left:0}
+        .wordmark small{display:none}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="wordmark" href="/"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops <small>Security</small></a>
+      <nav aria-label="Site">
+        <a href="/">Home</a>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/#security">Security summary</a>
+        <a href="/security.html" aria-current="page">This page</a>
+      </nav>
+      <a class="domain" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20security">Ask →</a>
+    </header>
+
+    <main>
+      <div class="hero">
+        <div class="wrap">
+          <p class="hero-kicker"><span class="tag">Security</span><span>Designed for SOC 2 controls</span><span aria-hidden="true">/</span><span>Not a Type II report yet</span></p>
+          <h1>Encrypted leaving<br />the device.<br /><span class="glow">Assigned eyes only.</span></h1>
+          <p class="lede">Fleet inventory is confidential customer data. GLOW Ops treats it that way: <strong>TLS from the endpoint</strong>, <strong>encryption at rest</strong>, <strong>one business ID per customer</strong>, and a dashboard that only loads businesses <span class="serif-i">you are assigned to</span>.</p>
+        </div>
+      </div>
+
+      <section id="transit">
+        <div class="wrap">
+          <p class="sec-index"><span class="n">01</span> In transit</p>
+          <h2>Data leaves the PC on <span class="hl">HTTPS only</span></h2>
+          <p class="sec-lede">Collector and agent post inventory to ingest over TLS 1.2+. No cleartext upload path in production.</p>
+          <div class="grid">
+            <article class="card">
+              <p class="mono-label">Transport</p>
+              <h3>TLS to ingest</h3>
+              <p>Inventory posts to <strong>https://ingest…</strong> only. HTTP is rejected. Modern ciphers; HSTS on the edge.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Auth</p>
+              <h3>Enrollment key in the header</h3>
+              <p>Bearer token proves which business may receive the device. The key never goes in the query string.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Least privilege</p>
+              <h3>Inventory only</h3>
+              <p>No keylogging, no mailbox scrape, no “power spy.” Hardware and health signals for the GLOW Op Report — that is the scope.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Local hardening</p>
+              <h3>Spool ACLs</h3>
+              <p>On-disk spool and config under ProgramData are locked to SYSTEM and Administrators while waiting for a successful upload.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="rest" style="background:var(--surface-2);border-top:2px solid var(--line);border-bottom:2px solid var(--line)">
+        <div class="wrap">
+          <p class="sec-index"><span class="n">02</span> At rest</p>
+          <h2>Stored encrypted for <span class="hl">the business partition</span></h2>
+          <p class="sec-lede">Production stores inventory in a tenant-scoped database and encrypted object storage — not a shared pile of files.</p>
+          <div class="grid">
+            <article class="card">
+              <p class="mono-label">Database</p>
+              <h3>Encrypted disks + CMK path</h3>
+              <p>Primary store on encrypted volumes. Customer-managed keys (KMS / Key Vault) when the contract requires it. Backups follow the same policy.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Objects</p>
+              <h3>Raw JSON and reports</h3>
+              <p>Raw payloads and white-label PDFs live in encrypted buckets with public access blocked.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Secrets</p>
+              <h3>Enrollment keys hashed</h3>
+              <p>Mint once, show once. At rest we store a hash or a KMS-wrapped secret — not a plaintext kit in git.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Retention</p>
+              <h3>Delete means purge</h3>
+              <p>Offboarding a business includes deleting that partition’s rows and objects — not just hiding them in the UI.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="tenancy">
+        <div class="wrap">
+          <p class="sec-index"><span class="n">03</span> Tenancy</p>
+          <h2>ConnectWise-style <span class="hl">business IDs</span></h2>
+          <p class="sec-lede">Same agent binary for every customer. Different business ID and enrollment key. Ingest trusts the key — not a forged claim in the JSON.</p>
+          <div class="flow" aria-label="Tenancy flow">
+Device  --Bearer enrollment key-->  Ingest<br />
+Ingest  --resolves-->  businessId / dashboard / DB partition<br />
+Mismatch between claimed business and key  -->  403
+          </div>
+          <div class="grid" style="margin-top:1.2rem">
+            <article class="card">
+              <p class="mono-label">businessId</p>
+              <h3>Company</h3>
+              <p>Like a ConnectWise Company ID. Every device and report row belongs to one business.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">siteId</p>
+              <h3>Optional site</h3>
+              <p>HQ, warehouse, clinic — optional location under that business.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">enrollmentKey</p>
+              <h3>Install secret</h3>
+              <p>Routes the device into that business’s database. Acme’s kit never goes on Beta’s PCs.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">deviceKey</p>
+              <h3>Stable device id</h3>
+              <p>Hash of manufacturer + serial (or machine GUID fallback). Upserts cleanly inside the business.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="rbac" style="background:var(--surface-2);border-top:2px solid var(--line);border-bottom:2px solid var(--line)">
+        <div class="wrap">
+          <p class="sec-index"><span class="n">04</span> Who can see what</p>
+          <h2>The database is only visible to <span class="hl">who is assigned</span></h2>
+          <p class="sec-lede">Humans log in with an identity provider. The API loads their business assignments before any query runs.</p>
+          <ul class="roles">
+            <li><b>MSP admin</b><span>All businesses under that MSP org.</span></li>
+            <li><b>MSP technician</b><span>Only the businesses they are assigned to — not the whole book of business by default.</span></li>
+            <li><b>Customer admin / viewer</b><span>Their business only. Viewer is read-only.</span></li>
+            <li><b>Device / enrollment</b><span>Write inventory to ingest. Cannot open the dashboard.</span></li>
+            <li><b>Platform break-glass</b><span>GlowOps staff only, audited, time-bound.</span></li>
+          </ul>
+          <div class="callout">
+            <p>Defense in depth: application filters <strong>and</strong> database row-level security on <strong>business_id</strong>. A buggy report query still cannot leak another tenant.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="deploy">
+        <div class="wrap">
+          <p class="sec-index"><span class="n">05</span> Deploy without mixing tenants</p>
+          <h2>Intune, RMM, or <span class="hl">Nerdio</span> — per company</h2>
+          <p class="sec-lede">White-glove mints one client kit per business. Push that kit through the management plane that company already uses.</p>
+          <div class="grid">
+            <article class="card">
+              <p class="mono-label">Intune</p>
+              <h3>Win32 in their tenant</h3>
+              <p>Package the kit, assign to that customer’s device groups only. Detection checks the business ID on disk.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">RMM</p>
+              <h3>Client script library</h3>
+              <p>Paste the self-contained installer into <strong>that client’s</strong> script — never a global script shared across companies.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Nerdio</p>
+              <h3>Scripted Action</h3>
+              <p>Scope the action to that Nerdio customer or host pool. AVD hosts get the same enrollment binding.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Intune-first fleets</p>
+              <h3>Graph connector</h3>
+              <p>When Intune already has the inventory, prefer the cloud connector — no resident agent required.</p>
+            </article>
+          </div>
+          <div class="cta-row">
+            <a class="btn btn-lime" href="/dashboard.html">Open sample dashboard</a>
+            <a class="btn btn-ghost" href="/#security">Back to homepage summary</a>
+          </div>
+          <p class="honest">Honest limit: getglowop.com is still the Phase 0 brand site. The security model above is the production architecture we build to. We do not claim a completed SOC 2 Type I or Type II report on this page.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <p class="f-big">Assigned access.<br /><span class="glow">Encrypted path.</span></p>
+        <p class="f-meta">GLOW Ops · Security · getglowop.com/security.html</p>
+        <a class="mail" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20security">Talk security →</a>
+        <p class="f-fine">Designed for SOC 2-relevant controls: encryption in transit and at rest, tenant isolation, RBAC, audit logging, and access reviews. Certification is evidence over time — not a homepage badge.</p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -11,6 +11,7 @@
     <meta name="author" content="GLOW Ops" />
     <link rel="canonical" href="https://getglowop.com/" />
     <link rel="alternate" href="https://getglowop.com/dashboard.html" title="Sample dashboard and GLOW Op Report" />
+    <link rel="alternate" href="https://getglowop.com/security.html" title="Security and tenant isolation" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="GLOW Ops" />
     <meta property="og:url" content="https://getglowop.com/" />
@@ -59,11 +60,15 @@
           },
           "featureList": [
             "Intune and Microsoft Graph fleet ingest",
+            "Optional agent for fleets without MDM",
+            "TLS ingest with per-business enrollment keys",
+            "Tenant isolation and assigned-user dashboards",
             "CSV upload when Graph is not ready",
             "Keep, repair, redeploy, refresh, recycle calls",
             "Manufacturer PCF and Boavizta enrichment",
             "Ghost-device flags from stale check-ins",
-            "White-label client PDF and CSV"
+            "White-label client PDF and CSV",
+            "Deploy via Intune, RMM, or Nerdio per company"
           ],
           "provider": { "@id": "https://getglowop.com/#org" }
         },
@@ -101,6 +106,22 @@
               "acceptedAnswer": {
                 "@type": "Answer",
                 "text": "GLOW Ops is built for MSPs and mid-market IT teams that already run Microsoft Intune. The client-facing GLOW Op Report is white-label ready so an MSP can put their name on the PDF and CSV they hand a CFO or auditor."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How does GLOW Ops keep each customer's fleet data separate?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Each business gets a business ID and enrollment key, like a ConnectWise company ID. Devices upload over HTTPS with that key. Dashboards only show businesses a user is assigned to. Device credentials cannot read the dashboard."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is inventory encrypted when it leaves the device?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Collectors and agents post to ingest over HTTPS only (TLS 1.2+). Production stores data encrypted at rest in a tenant-scoped database. The architecture is designed for SOC 2 controls; see getglowop.com/security.html."
               }
             }
           ]
@@ -439,6 +460,24 @@
         border-left:4px solid var(--lime-deep); padding-left:1rem; max-width:46em;
       }
 
+      /* ---------- security ---------- */
+      .sec-grid{
+        display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:1rem; margin-top:.4rem;
+      }
+      .sec-card{
+        background:var(--surface); border:2px solid var(--line); padding:1.2rem 1.25rem;
+      }
+      .sec-card .mono-label{
+        font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+        color:var(--lime-deep); margin:0 0 .45rem; font-weight:600;
+      }
+      .sec-card h3{ margin:0 0 .45rem; font-size:1.15rem; font-weight:900; text-transform:uppercase; letter-spacing:-.01em; }
+      .sec-card p{ margin:0; color:var(--ink-2); font-size:.97rem; }
+      .sec-band{ background:var(--surface-2); border-top:2px solid var(--line); border-bottom:2px solid var(--line); }
+      .sec-linkrow{ display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1.5rem; }
+      @media (max-width:760px){ .sec-grid{ grid-template-columns:1fr; } }
+
       /* ---------- sources ---------- */
       .src-list{ list-style:none; margin:0; padding:0; counter-reset:src; }
       .src-list li{
@@ -506,7 +545,8 @@
         <a href="#problem">The problem</a>
         <a href="#report">The report</a>
         <a href="/dashboard.html">Dashboard</a>
-        <a href="/dashboard.html#report">Sample report</a>
+        <a href="#security">Security</a>
+        <a href="/security.html">Security detail</a>
         <a href="#calculator">Calculator</a>
         <a href="#sources">Sources</a>
       </nav>
@@ -527,7 +567,7 @@
                 <a class="btn btn-ghost" href="/dashboard.html#report">See the sample report</a>
               </div>
               <p class="hero-note" style="margin-top:.75rem"><a href="#calculator" style="text-decoration:underline">Or run the screening calculator ↓</a></p>
-              <p class="hero-note">NO NEW AGENT · NO POWER-SPY · INTUNE / GRAPH / CSV IN — A DECISION OUT</p>
+              <p class="hero-note">INTUNE WHEN YOU HAVE IT · THIN AGENT WHEN YOU DON’T · TLS IN · ASSIGNED EYES ONLY</p>
             </div>
 
             <article class="report-card" aria-label="Sample GLOW Op Report excerpt">
@@ -788,14 +828,14 @@
           <div class="sec-head">
             <p class="sec-index"><span class="n">04</span> How a real report gets made</p>
             <h2>Intune in. <span class="hl">A decision out.</span></h2>
-            <p class="sec-lede">No new silo, no power-spy agent. Four steps, in order, with the honest limits printed on each one.</p>
+            <p class="sec-lede">No new silo and no power-spy. Intune/Graph when the fleet has it; a thin inventory agent when it does not. Four steps, with the honest limits printed on each one.</p>
           </div>
 
           <ol class="steps">
             <li class="step">
               <span class="s-num" aria-hidden="true">1</span>
               <h3>Ingest <span class="arrow">→</span></h3>
-              <p>Microsoft Graph and Intune first, because that is the system MSPs already run. CSV if the tenant is not ready. Nerdio and other RMM exports are later — not a fantasy integration on day one.</p>
+              <p>Microsoft Graph and Intune first. CSV if the tenant is not ready. Optional GlowOps collector/agent for sites with no MDM — inventory only, posted over HTTPS with a per-business enrollment key. Deploy that kit via Intune, RMM, or Nerdio for <strong>that company only</strong>.</p>
             </li>
             <li class="step">
               <span class="s-num" aria-hidden="true">2</span>
@@ -827,11 +867,49 @@
         </div>
       </section>
 
+      <!-- ================= SECURITY ================= -->
+      <section class="sec-band" id="security">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">05</span> Security</p>
+            <h2>Encrypted leaving the device. <span class="hl">Visible only if assigned.</span></h2>
+            <p class="sec-lede">Fleet inventory is customer data. GLOW Ops is built so it travels on TLS, sits encrypted at rest, and only shows up for people assigned to that business — ConnectWise-style company IDs, not a shared pile.</p>
+          </div>
+          <div class="sec-grid">
+            <article class="sec-card">
+              <p class="mono-label">In transit</p>
+              <h3>HTTPS only</h3>
+              <p>Collector and agent post to ingest over TLS 1.2+. Enrollment key in the Authorization header — never in the URL.</p>
+            </article>
+            <article class="sec-card">
+              <p class="mono-label">At rest</p>
+              <h3>Encrypted store</h3>
+              <p>Tenant-scoped database and encrypted object storage for raw JSON and reports. Enrollment secrets hashed or KMS-wrapped.</p>
+            </article>
+            <article class="sec-card">
+              <p class="mono-label">Tenancy</p>
+              <h3>Business ID + key</h3>
+              <p>Each company gets a business ID and enrollment key. Ingest trusts the key. Acme’s kit never belongs on Beta’s devices.</p>
+            </article>
+            <article class="sec-card">
+              <p class="mono-label">Access</p>
+              <h3>Assigned users only</h3>
+              <p>Dashboards load only the businesses a user is assigned to. Device credentials write inventory; they cannot open the report UI.</p>
+            </article>
+          </div>
+          <div class="sec-linkrow">
+            <a class="btn btn-lime" href="/security.html">Full security page →</a>
+            <a class="btn btn-ghost" href="/dashboard.html">Sample dashboard</a>
+          </div>
+          <p class="phase0" style="margin-top:1.4rem">Designed for SOC 2 controls (encryption, isolation, RBAC, audit). This site does not claim a completed SOC 2 Type I or Type II report.</p>
+        </div>
+      </section>
+
       <!-- ================= BUILDER ================= -->
       <section class="builder" id="builder" style="padding-top:clamp(3rem,7vw,5.5rem);">
         <div class="wrap">
           <div class="sec-head">
-            <p class="sec-index"><span class="n">05</span> The builder</p>
+            <p class="sec-index"><span class="n">06</span> The builder</p>
             <h2>Why an IT person is the one to <span class="hl">build it</span></h2>
           </div>
           <div class="builder-grid">
@@ -854,7 +932,7 @@
       <section id="sources">
         <div class="wrap">
           <div class="sec-head">
-            <p class="sec-index"><span class="n">06</span> Sources</p>
+            <p class="sec-index"><span class="n">07</span> Sources</p>
             <h2>So the jokes have <span class="hl">footnotes</span></h2>
             <p class="sec-lede">Read these. Then argue with the calculator.</p>
           </div>
@@ -920,7 +998,7 @@
         <p class="f-big">The report is<br />the <span class="glow">product.</span></p>
         <p class="f-meta">GLOW Ops · Green Lifecycle and Operation Workflows · getglowop.com</p>
         <a class="mail" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20—%20early%20access">Ask about early access →</a>
-        <p class="f-fine">The GLOW Op Report is the product. This page is the Phase 0 brand site. The calculator is a screening tool with the assumptions printed on it. It is not an assurance opinion, a GHG inventory, or a reason to skip a security patch.</p>
+        <p class="f-fine">The GLOW Op Report is the product. This page is the Phase 0 brand site. The calculator is a screening tool with the assumptions printed on it. It is not an assurance opinion, a GHG inventory, or a reason to skip a security patch. <a href="/security.html" style="color:var(--lime);text-decoration:underline">Security &amp; tenancy →</a></p>
       </div>
     </footer>
 
