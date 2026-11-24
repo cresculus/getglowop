@@ -2,6 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "npm start"
-healthcheckPath = "/"
+startCommand = "python live/server.py"
+healthcheckPath = "/api/health"
 healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"

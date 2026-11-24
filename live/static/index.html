@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light only" />
+  <title>GlowOps — Live fleet dashboard</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">
+      <span class="mark">G</span>
+      <div>
+        <strong>GLOW Ops</strong>
+        <span class="sub">Live dashboard · no login</span>
+      </div>
+    </a>
+    <div class="actions">
+      <label class="tenant">
+        Tenant
+        <input id="tenant" value="demo" />
+      </label>
+      <button type="button" id="refresh">Refresh</button>
+      <a class="btn" href="/download/agent.zip">Download agent</a>
+      <a class="btn ghost" id="exportCsv" href="/api/export.csv?tenant=demo">Export CSV</a>
+      <a class="btn ghost" href="/dashboard.html">Sample UI</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-strip">
+      <p class="eyebrow">Demo mode · auth deferred</p>
+      <h1>Find <em>ghosts</em>. Repair before replace.</h1>
+      <p class="lede">Live inventory scored with the Go Live Device Lifecycle Advisor rules — keep / repair / redeploy / refresh / recycle / ghost. Paste Graph managedDevices JSON or push via the agent.</p>
+    </section>
+
+    <section class="kpis" id="kpis">
+      <article><span class="label">Devices</span><strong id="kpi-count">—</strong></article>
+      <article><span class="label">Avg GLOW</span><strong id="kpi-glow">—</strong></article>
+      <article><span class="label">Ghosts</span><strong id="kpi-ghost">—</strong></article>
+      <article><span class="label">Repair first</span><strong id="kpi-repair">—</strong></article>
+      <article><span class="label">Mfg kg on books</span><strong id="kpi-kg">—</strong></article>
+      <article><span class="label">Avoidable buys</span><strong id="kpi-avoid">—</strong></article>
+    </section>
+
+    <section class="calls" id="calls"></section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Fleet</h2>
+        <p id="status">Loading…</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Model</th>
+              <th>Call</th>
+              <th>GLOW</th>
+              <th>Age</th>
+              <th>Check-in</th>
+              <th>Compliance</th>
+              <th>Rationale</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel ingest">
+      <div class="panel-head">
+        <h2>Ingest Graph / Intune JSON</h2>
+        <p>Paste managedDevices <code>value</code> array or full Graph response → <code>POST /api/ingest</code></p>
+      </div>
+      <textarea id="ingestJson" rows="8" placeholder='{"value":[{"deviceName":"…","serialNumber":"…","lastSyncDateTime":"…","enrolledDateTime":"…","complianceState":"compliant"}]}'></textarea>
+      <div class="row">
+        <button type="button" id="ingestBtn">Ingest into tenant</button>
+        <span id="ingestStatus"></span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>GlowOps schema 0.1 · auth deferred</span>
+    <a href="/api/health">/api/health</a>
+  </footer>
+
+  <script src="/app/app.js"></script>
+</body>
+</html>

@@ -1,9 +1,10 @@
 {
   "name": "getglowop",
   "private": true,
-  "description": "GLOW Ops brand site. Green Lifecycle and Operation Workflows.",
+  "description": "GLOW Ops brand site + live fleet dashboard (no auth demo).",
   "scripts": {
-    "start": "serve . -l tcp://0.0.0.0:${PORT:-3000}"
+    "start": "python live/server.py",
+    "start:static": "serve . -l tcp://0.0.0.0:${PORT:-3000}"
   },
   "dependencies": {
     "serve": "14.2.5"
