@@ -1,9 +1,8 @@
 {
   "name": "getglowop",
   "private": true,
-  "description": "GLOW Ops brand site + live fleet dashboard (no auth demo).",
+  "description": "GLOW Ops brand site + live fleet dashboard (no auth demo). Runtime is Dockerfile → python live/server.py.",
   "scripts": {
-    "start": "python live/server.py",
     "start:static": "serve . -l tcp://0.0.0.0:${PORT:-3000}"
   },
   "dependencies": {
