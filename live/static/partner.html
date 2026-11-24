@@ -42,8 +42,25 @@
     </section>
 
     <section id="dashView" class="partner-dash" hidden>
-      <aside class="side-nav" id="partnerNav" aria-label="Partner settings">
-        <button type="button" class="side-link" data-pview="settings" aria-selected="false">Settings</button>
+      <aside class="side-nav" id="partnerNav" aria-label="Quick navigation">
+        <p class="nav-kicker">Dashboard</p>
+        <a class="side-link" id="navFleet" href="/app/">Fleet report</a>
+        <a class="side-link" id="navIngest" href="/app/?view=ingest">Ingest JSON</a>
+        <a class="side-link" id="navCsv" href="/api/export.csv?tenant=demo">Export CSV</a>
+        <a class="side-link" href="/download/GlowOpsAgent.exe">Agent EXE</a>
+
+        <p class="nav-kicker">Calls</p>
+        <a class="side-link side-call" data-call="repair" href="/app/?call=repair">Repair</a>
+        <a class="side-link side-call" data-call="ghost" href="/app/?call=ghost">Ghosts</a>
+        <a class="side-link side-call" data-call="recycle" href="/app/?call=recycle">Recycle</a>
+        <a class="side-link side-call" data-call="refresh" href="/app/?call=refresh">Refresh</a>
+        <a class="side-link side-call" data-call="redeploy" href="/app/?call=redeploy">Redeploy</a>
+        <a class="side-link side-call" data-call="keep" href="/app/?call=keep">Keep</a>
+
+        <p class="nav-kicker">Partner</p>
+        <button type="button" class="side-link" data-pview="settings" aria-selected="false">Settings · MCP</button>
+        <a class="side-link" href="/">getglowop.com</a>
+
         <div class="nav-foot">
           <div><span>Businesses</span><strong id="bizCount">—</strong></div>
           <div><span>MCP keys</span><strong id="keyCount">—</strong></div>

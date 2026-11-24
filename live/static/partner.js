@@ -4,6 +4,25 @@
   const dashView = $("dashView");
   let businessesCache = [];
 
+  function primaryTenant() {
+    return businessesCache[0]?.business_id || "demo";
+  }
+
+  function syncDashLinks() {
+    const t = primaryTenant();
+    const q = `tenant=${encodeURIComponent(t)}`;
+    const fleet = $("navFleet");
+    const ingest = $("navIngest");
+    const csv = $("navCsv");
+    if (fleet) fleet.href = `/app/?${q}`;
+    if (ingest) ingest.href = `/app/?${q}&view=ingest`;
+    if (csv) csv.href = `/api/export.csv?${q}`;
+    document.querySelectorAll(".side-call[data-call]").forEach((a) => {
+      const call = a.getAttribute("data-call");
+      a.href = `/app/?${q}&call=${encodeURIComponent(call)}`;
+    });
+  }
+
   function mcpBase() {
     return `${window.location.origin}/mcp`;
   }
@@ -132,6 +151,7 @@
       api("/api/partner/enrollment-keys"),
     ]);
     businessesCache = biz.businesses || [];
+    syncDashLinks();
     $("bizCount").textContent = businessesCache.length;
     const bizSelect = $("enrollBiz");
     if (bizSelect) {

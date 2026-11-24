@@ -248,5 +248,14 @@
     }
   });
 
-  load();
+  const params = new URLSearchParams(window.location.search);
+  const tenantParam = params.get("tenant");
+  if (tenantParam) tenantEl.value = tenantParam;
+  const callParam = (params.get("call") || "").toLowerCase();
+  if (CALLS.includes(callParam)) activeCall = callParam;
+  const viewParam = (params.get("view") || "").toLowerCase();
+
+  load().then(() => {
+    if (viewParam === "ingest") setView("ingest");
+  });
 })();
