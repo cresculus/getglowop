@@ -1,16 +1,70 @@
-"""Map Microsoft Graph / Intune managedDevice shapes → GlowOps inventory rows.
-
-Aligned with Go Live GraphDeviceCollectionService + ManagedDeviceMapper patterns:
-deviceName, manufacturer, model, serialNumber, operatingSystem, osVersion,
-complianceState, enrolledDateTime, lastSyncDateTime, azureADDeviceId, id, userPrincipalName.
-"""
+"""Map Microsoft Graph / Intune / GlowOps collector shapes → inventory rows."""
 from __future__ import annotations
 
 from typing import Any
 
 
+def map_glowops_inventory(doc: dict[str, Any]) -> dict[str, Any]:
+    """Map glowops-inventory.json (collector/agent) into a scored device row."""
+    device = doc.get("device") or {}
+    system = doc.get("system") or {}
+    battery = doc.get("battery") or {}
+    signals = doc.get("signals") or {}
+    storage = doc.get("storage") or []
+    volumes = doc.get("volumes") or []
+
+    notes: list[str] = []
+    for n in (signals.get("notes") or []):
+        if n:
+            notes.append(str(n))
+
+    battery_health = battery.get("healthPercent")
+    chassis = (device.get("chassis") or "").lower()
+    if "laptop" in chassis or "notebook" in chassis or "portable" in chassis:
+        device_class = "laptop"
+    elif "desktop" in chassis or "tower" in chassis:
+        device_class = "desktop"
+    else:
+        device_class = None
+
+    bitlocker = signals.get("bitlockerEnabled")
+    compliance = "noncompliant" if bitlocker is False else "compliant"
+
+    return {
+        "id": doc.get("deviceKey") or device.get("serialNumber") or device.get("hostname"),
+        "deviceName": device.get("hostname") or device.get("deviceName"),
+        "manufacturer": device.get("manufacturer"),
+        "model": device.get("model"),
+        "serialNumber": device.get("serialNumber"),
+        "operatingSystem": system.get("osCaption") or "Windows",
+        "osVersion": system.get("osVersion") or system.get("osBuild"),
+        "complianceState": compliance,
+        "enrolledDateTime": system.get("osInstallDate"),
+        "lastSyncDateTime": doc.get("collectedAt"),
+        "batteryHealthPercent": battery_health,
+        "userPrincipalName": system.get("lastInteractiveUser"),
+        "deviceClass": device_class,
+        "healthNotes": " ".join(notes) if notes else None,
+        "glowopsInventory": doc,
+        "storage": storage,
+        "volumes": volumes,
+        "signals": signals,
+    }
+
+
 def map_managed_device(raw: dict[str, Any]) -> dict[str, Any]:
-    """Normalize one Graph managedDevice (or CSV-shaped) object."""
+    """Normalize one Graph managedDevice, collector doc, or CSV-shaped object."""
+    if raw.get("schemaVersion") and isinstance(raw.get("device"), dict):
+        return map_glowops_inventory(raw)
+    if isinstance(raw.get("glowopsInventory"), dict):
+        mapped = map_glowops_inventory(raw["glowopsInventory"])
+        # Prefer explicit health notes from agent row if present
+        if raw.get("healthNotes"):
+            mapped["healthNotes"] = raw.get("healthNotes")
+        if raw.get("batteryHealthPercent") is not None:
+            mapped["batteryHealthPercent"] = raw.get("batteryHealthPercent")
+        return mapped
+
     return {
         "id": raw.get("id") or raw.get("intuneDeviceId") or raw.get("managedDeviceId"),
         "intuneDeviceId": raw.get("id") or raw.get("intuneDeviceId"),
@@ -34,9 +88,11 @@ def map_managed_device(raw: dict[str, Any]) -> dict[str, Any]:
 
 
 def map_managed_devices(payload: Any) -> list[dict[str, Any]]:
-    """Accept list, Graph {value:[...]}, or {devices:[...]}."""
+    """Accept list, Graph {value:[...]}, collector doc, or {devices:[...]}."""
     if payload is None:
         return []
+    if isinstance(payload, dict) and payload.get("schemaVersion") and isinstance(payload.get("device"), dict):
+        return [map_glowops_inventory(payload)]
     if isinstance(payload, list):
         items = payload
     elif isinstance(payload, dict):
