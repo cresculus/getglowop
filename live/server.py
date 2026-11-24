@@ -15,6 +15,7 @@ import csv
 import io
 import json
 import os
+import shutil
 import sys
 import zipfile
 from http.cookies import SimpleCookie
@@ -63,6 +64,8 @@ STATIC_DIR = ROOT / "static"
 AGENT_DIR = ROOT / "agent"
 HOST = os.environ.get("GLOWOPS_HOST", "0.0.0.0")
 PORT = int(os.environ.get("PORT") or os.environ.get("GLOWOPS_PORT") or "8787")
+# Lab snapshot shipped with the image — used when runtime volume/tmp is empty.
+BOOTSTRAP_DB = ROOT / "data" / "glowops.db"
 
 _marketing_env = os.environ.get("GLOWOPS_MARKETING_ROOT")
 if _marketing_env:
@@ -74,7 +77,18 @@ elif (ROOT / "index.html").is_file() and ROOT.name != "static":
 else:
     MARKETING_ROOT = None
 
-CONN = connect(DB_PATH)
+
+def _prepare_db() -> Path:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    if DB_PATH.is_file() and DB_PATH.stat().st_size > 0:
+        return DB_PATH
+    if BOOTSTRAP_DB.is_file() and BOOTSTRAP_DB.resolve() != DB_PATH.resolve():
+        shutil.copy2(BOOTSTRAP_DB, DB_PATH)
+        print(f"bootstrapped inventory from {BOOTSTRAP_DB} -> {DB_PATH}", flush=True)
+    return DB_PATH
+
+
+CONN = connect(_prepare_db())
 seed_if_empty(CONN, "demo")
 DEMO_PARTNER = seed_demo_partner(CONN)
 
