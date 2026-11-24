@@ -49,15 +49,22 @@
   }
 
   function showDash(me) {
+    if (!me) {
+      showLogin();
+      return;
+    }
     loginView.hidden = true;
     dashView.hidden = false;
     $("logoutBtn").hidden = false;
     $("partnerViews").hidden = false;
     $("partnerHello").hidden = false;
-    $("partnerHello").textContent = me.email;
+    $("partnerHello").textContent = me.email || me.name || "";
     renderConfig();
     setPView("keys");
-    refresh();
+    refresh().catch((err) => {
+      console.error(err);
+      $("loginErr").textContent = String(err.message || err);
+    });
   }
 
   function showLogin() {
@@ -112,70 +119,99 @@
     tab.addEventListener("click", () => setPView(tab.getAttribute("data-pview")));
   });
 
-  $("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    $("loginErr").textContent = "";
-    try {
-      const me = await api("/api/partner/login", {
-        method: "POST",
-        body: JSON.stringify({ email: $("email").value, password: $("password").value }),
-      });
-      showDash(me.partner);
-    } catch (err) {
-      $("loginErr").textContent = String(err.message || err);
-    }
-  });
+  const loginForm = $("loginForm");
+  const loginBtn = loginForm ? loginForm.querySelector('button[type="submit"]') : null;
 
-  $("logoutBtn").addEventListener("click", async () => {
-    try {
-      await api("/api/partner/logout", { method: "POST", body: "{}" });
-    } catch (_) {}
-    showLogin();
-  });
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      $("loginErr").textContent = "";
+      if (loginBtn) {
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Signing in…";
+      }
+      try {
+        const me = await api("/api/partner/login", {
+          method: "POST",
+          body: JSON.stringify({ email: $("email").value, password: $("password").value }),
+        });
+        showDash(me.partner);
+      } catch (err) {
+        $("loginErr").textContent = String(err.message || err);
+      } finally {
+        if (loginBtn) {
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Sign in";
+        }
+      }
+    });
+  }
 
-  $("mintForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const label = $("keyLabel").value || "MCP key";
-    try {
-      const minted = await api("/api/partner/mcp-keys", {
-        method: "POST",
-        body: JSON.stringify({ label }),
-      });
-      $("freshKey").hidden = false;
-      $("freshKeyValue").textContent = minted.apiKey;
-      renderConfig(minted.apiKey);
-      $("keyLabel").value = "";
-      await refresh();
-    } catch (err) {
-      alert(String(err.message || err));
-    }
-  });
+  const logoutBtn = $("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await api("/api/partner/logout", { method: "POST", body: "{}" });
+      } catch (_) {}
+      showLogin();
+    });
+  }
 
-  $("copyKey").addEventListener("click", async () => {
-    const v = $("freshKeyValue").textContent;
-    try {
-      await navigator.clipboard.writeText(v);
-      $("copyKey").textContent = "Copied";
-    } catch (_) {
-      $("copyKey").textContent = "Copy";
-    }
-  });
+  const mintForm = $("mintForm");
+  if (mintForm) {
+    mintForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const label = $("keyLabel").value || "MCP key";
+      try {
+        const minted = await api("/api/partner/mcp-keys", {
+          method: "POST",
+          body: JSON.stringify({ label }),
+        });
+        $("freshKey").hidden = false;
+        $("freshKeyValue").textContent = minted.apiKey;
+        renderConfig(minted.apiKey);
+        $("keyLabel").value = "";
+        await refresh();
+      } catch (err) {
+        alert(String(err.message || err));
+      }
+    });
+  }
 
-  $("keysBody").addEventListener("click", async (e) => {
-    const btn = e.target.closest("[data-revoke]");
-    if (!btn) return;
-    if (!confirm("Revoke this MCP key?")) return;
-    try {
-      await api(`/api/partner/mcp-keys/${encodeURIComponent(btn.getAttribute("data-revoke"))}/revoke`, {
-        method: "POST",
-        body: "{}",
-      });
-      await refresh();
-    } catch (err) {
-      alert(String(err.message || err));
-    }
-  });
+  const copyKey = $("copyKey");
+  if (copyKey) {
+    copyKey.addEventListener("click", async () => {
+      const v = $("freshKeyValue").textContent;
+      try {
+        await navigator.clipboard.writeText(v);
+        copyKey.textContent = "Copied";
+      } catch (_) {
+        copyKey.textContent = "Copy";
+      }
+    });
+  }
 
+  const keysBody = $("keysBody");
+  if (keysBody) {
+    keysBody.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-revoke]");
+      if (!btn) return;
+      if (!confirm("Revoke this MCP key?")) return;
+      try {
+        await api(`/api/partner/mcp-keys/${encodeURIComponent(btn.getAttribute("data-revoke"))}/revoke`, {
+          method: "POST",
+          body: "{}",
+        });
+        await refresh();
+      } catch (err) {
+        alert(String(err.message || err));
+      }
+    });
+  }
+
+  // Start on login; upgrade to dash only after a valid session.
+  showLogin();
   api("/api/partner/me")
     .then((data) => showDash(data.partner))
     .catch(() => showLogin());

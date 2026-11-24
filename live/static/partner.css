@@ -1,10 +1,13 @@
 .partner-shell .workspace { min-height: 0; }
-.login-fit {
+.login-fit:not([hidden]) {
   height: 100%;
   display: grid;
   place-items: center;
   padding: 1rem;
   overflow: hidden;
+}
+.partner-dash:not([hidden]) {
+  display: grid;
 }
 .login-card {
   width: min(420px, 100%);
