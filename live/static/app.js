@@ -5,6 +5,9 @@
   let devices = [];
   let summary = null;
   let activeCall = "all";
+  let selectedId = null;
+  let page = 0;
+  let pageSize = 12;
 
   const tenantEl = $("tenant");
   const statusEl = $("status");
@@ -48,7 +51,7 @@
       const count = k === "all" ? total : by[k] || 0;
       const pressed = activeCall === k ? "true" : "false";
       const label = k === "all" ? "All" : k;
-      return `<button type="button" class="chip" data-call="${k}" aria-pressed="${pressed}">${label}<b>${count}</b></button>`;
+      return `<button type="button" class="chip" data-call="${k}" aria-pressed="${pressed}"><span>${label}</span><b>${count}</b></button>`;
     }).join("");
   }
 
@@ -65,35 +68,90 @@
     });
   }
 
+  function calcPageSize() {
+    const fit = document.querySelector(".table-fit");
+    if (!fit) return 12;
+    const head = fit.querySelector("thead");
+    const headH = head ? head.getBoundingClientRect().height : 28;
+    const avail = Math.max(120, fit.clientHeight - headH - 4);
+    const rowH = 32;
+    return Math.max(4, Math.floor(avail / rowH));
+  }
+
+  function showDetail(d) {
+    if (!d) {
+      $("detailEmpty").hidden = false;
+      $("detailBody").hidden = true;
+      return;
+    }
+    $("detailEmpty").hidden = true;
+    $("detailBody").hidden = false;
+    $("d-name").textContent = d.device_name || "—";
+    $("d-serial").textContent = d.serial_number || "no serial";
+    $("d-model").textContent = [d.manufacturer, d.model].filter(Boolean).join(" ") || "—";
+    $("d-call").innerHTML = `<span class="pill ${d.call_label || "keep"}">${d.call_label || "keep"}</span>`;
+    $("d-glow").textContent = d.glow_score ?? "—";
+    $("d-glow").className = glowClass(d.glow_score);
+    $("d-comp").textContent = d.compliance_state || "—";
+    $("d-user").textContent = d.user_upn || "—";
+    $("d-why").textContent = d.rationale || "";
+  }
+
   function renderDevices() {
+    pageSize = calcPageSize();
     const rows = filtered();
+    const pages = Math.max(1, Math.ceil(rows.length / pageSize) || 1);
+    if (page >= pages) page = pages - 1;
+    if (page < 0) page = 0;
+    const slice = rows.slice(page * pageSize, page * pageSize + pageSize);
     emptyEl.hidden = rows.length > 0;
-    tbody.innerHTML = rows
+    $("pageInfo").textContent = `${page + 1} / ${pages}`;
+    $("prevPage").disabled = page <= 0;
+    $("nextPage").disabled = page >= pages - 1;
+
+    if (!slice.find((d) => d.id === selectedId)) {
+      selectedId = slice[0] ? slice[0].id : null;
+    }
+
+    tbody.innerHTML = slice
       .map((d) => {
         const call = d.call_label || "keep";
         const glow = d.glow_score;
-        const model = [d.manufacturer, d.model].filter(Boolean).join(" ");
-        return `<tr>
-          <td class="device">
-            <strong>${esc(d.device_name || "—")}</strong>
-            <div class="serial">${esc(d.serial_number || "no serial")}</div>
-            <div class="model">${esc(model || "—")}</div>
-          </td>
+        const sel = d.id === selectedId ? "is-selected" : "";
+        return `<tr class="${sel}" data-id="${esc(d.id)}">
+          <td class="device"><strong>${esc(d.device_name || "—")}</strong> <span class="serial">${esc(
+            d.serial_number || ""
+          )}</span></td>
           <td><span class="pill ${call}">${call}</span></td>
           <td class="glow ${glowClass(glow)}">${glow ?? "—"}</td>
           <td>${d.age_years != null ? d.age_years + "y" : "—"}</td>
           <td>${d.check_in_days != null ? d.check_in_days + "d" : "—"}</td>
-          <td>${esc(d.compliance_state || "—")}</td>
-          <td class="why">${esc(d.rationale || "")}</td>
         </tr>`;
       })
       .join("");
+
+    const selected = rows.find((d) => d.id === selectedId) || slice[0] || null;
+    showDetail(selected);
+  }
+
+  function setView(name) {
+    const fleet = $("viewFleet");
+    const ingest = $("viewIngest");
+    const isFleet = name === "fleet";
+    fleet.hidden = !isFleet;
+    ingest.hidden = isFleet;
+    fleet.dataset.active = isFleet ? "true" : "false";
+    ingest.dataset.active = isFleet ? "false" : "true";
+    document.querySelectorAll(".view-tab").forEach((tab) => {
+      tab.setAttribute("aria-selected", tab.getAttribute("data-view") === name ? "true" : "false");
+    });
+    if (isFleet) requestAnimationFrame(renderDevices);
   }
 
   async function load() {
     const t = tenant();
     $("exportCsv").href = `/api/export.csv?tenant=${encodeURIComponent(t)}`;
-    statusEl.textContent = "Loading fleet…";
+    statusEl.textContent = "Loading…";
     try {
       const [sumRes, devRes] = await Promise.all([
         fetch(`/api/summary?tenant=${encodeURIComponent(t)}`),
@@ -103,34 +161,57 @@
       summary = await sumRes.json();
       const payload = await devRes.json();
       devices = payload.devices || [];
+      page = 0;
       setMeta(summary);
       renderFilters();
       renderDevices();
-      statusEl.textContent = `${summary.deviceCount || 0} devices scored for business “${t}”.`;
+      statusEl.textContent = `${summary.deviceCount || 0} scored · ${t}`;
     } catch (err) {
-      statusEl.textContent = "Could not load fleet — is the server running?";
+      statusEl.textContent = "Load failed";
       console.error(err);
     }
   }
+
+  document.querySelectorAll(".view-tab").forEach((tab) => {
+    tab.addEventListener("click", () => setView(tab.getAttribute("data-view")));
+  });
+  $("backFleet").addEventListener("click", () => setView("fleet"));
 
   callsEl.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-call]");
     if (!btn) return;
     activeCall = btn.getAttribute("data-call");
+    page = 0;
     renderFilters();
     renderDevices();
   });
 
-  searchEl.addEventListener("input", renderDevices);
+  searchEl.addEventListener("input", () => {
+    page = 0;
+    renderDevices();
+  });
+  $("prevPage").addEventListener("click", () => {
+    page -= 1;
+    renderDevices();
+  });
+  $("nextPage").addEventListener("click", () => {
+    page += 1;
+    renderDevices();
+  });
+  tbody.addEventListener("click", (e) => {
+    const tr = e.target.closest("tr[data-id]");
+    if (!tr) return;
+    selectedId = tr.getAttribute("data-id");
+    renderDevices();
+  });
+
   $("refresh").addEventListener("click", load);
   tenantEl.addEventListener("change", load);
   tenantEl.addEventListener("keydown", (e) => {
     if (e.key === "Enter") load();
   });
-
-  $("toggleIngest").addEventListener("click", () => {
-    const panel = $("ingestPanel");
-    panel.hidden = !panel.hidden;
+  window.addEventListener("resize", () => {
+    if ($("viewFleet").dataset.active === "true") renderDevices();
   });
 
   $("ingestBtn").addEventListener("click", async () => {
@@ -160,7 +241,8 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "ingest failed");
       st.textContent = `Ingested ${data.ingested}`;
-      load();
+      await load();
+      setView("fleet");
     } catch (err) {
       st.textContent = String(err.message || err);
     }

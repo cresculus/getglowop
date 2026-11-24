@@ -8,94 +8,102 @@
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/app/styles.css" />
 </head>
-<body>
-  <div class="grain" aria-hidden="true"></div>
-
+<body class="shell">
   <header class="topbar">
-    <a class="wordmark" href="/">
-      <span class="dot" aria-hidden="true"></span>
-      GLOW&nbsp;Ops
-      <small>Live report</small>
-    </a>
-    <nav class="rail" aria-label="Report tools">
-      <label class="biz">
-        <span>Business</span>
-        <input id="tenant" value="demo" spellcheck="false" />
-      </label>
-      <button type="button" class="btn ghost" id="refresh">Reload</button>
+    <a class="wordmark" href="/"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
+    <div class="views" role="tablist" aria-label="Views">
+      <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
+      <button type="button" class="view-tab" data-view="ingest" aria-selected="false">Ingest</button>
+    </div>
+    <div class="rail">
+      <label class="biz"><span>Biz</span><input id="tenant" value="demo" spellcheck="false" /></label>
+      <button type="button" class="btn ghost" id="refresh" title="Reload">↻</button>
       <a class="btn ghost" id="exportCsv" href="/api/export.csv?tenant=demo">CSV</a>
-      <a class="btn ghost" href="/partner/">Partner MCP</a>
-      <a class="btn lime" href="/download/GlowOpsAgent.exe">Download Agent</a>
-    </nav>
+      <a class="btn ghost" href="/partner/">MCP</a>
+      <a class="btn lime" href="/download/GlowOpsAgent.exe">Agent</a>
+    </div>
   </header>
 
-  <main class="sheet">
-    <header class="report-head">
-      <div class="report-titles">
-        <p class="kicker"><span class="live"></span> Demo mode · no login yet</p>
-        <h1>GLOW Op <span class="serif-i">Report</span></h1>
-        <p class="subhead" id="status">Loading fleet…</p>
-      </div>
-      <aside class="meta" aria-label="Fleet snapshot">
-        <dl>
-          <div><dt>Devices</dt><dd id="kpi-count">—</dd></div>
-          <div><dt>Avg GLOW</dt><dd id="kpi-glow">—</dd></div>
-          <div><dt>Ghosts</dt><dd id="kpi-ghost">—</dd></div>
-          <div><dt>Repair first</dt><dd id="kpi-repair">—</dd></div>
-          <div><dt>Mfg kg</dt><dd id="kpi-kg">—</dd></div>
-          <div><dt>Avoidable buys</dt><dd id="kpi-avoid">—</dd></div>
-        </dl>
+  <main class="workspace">
+    <!-- FLEET: one viewport, three panes -->
+    <section class="view view-fleet" id="viewFleet" data-active="true">
+      <aside class="pane stats" aria-label="Snapshot">
+        <p class="pane-label"><span class="live"></span> <span id="status">Loading…</span></p>
+        <div class="kpi-grid">
+          <div><span>Devices</span><strong id="kpi-count">—</strong></div>
+          <div><span>Avg GLOW</span><strong id="kpi-glow">—</strong></div>
+          <div><span>Ghosts</span><strong id="kpi-ghost">—</strong></div>
+          <div><span>Repair</span><strong id="kpi-repair">—</strong></div>
+          <div><span>Mfg kg</span><strong id="kpi-kg">—</strong></div>
+          <div><span>Avoid</span><strong id="kpi-avoid">—</strong></div>
+        </div>
+        <div class="call-bars" id="calls" role="tablist" aria-label="Filter by call"></div>
+        <label class="search-inline">
+          <input id="search" type="search" placeholder="Search…" />
+        </label>
       </aside>
-    </header>
 
-    <div class="toolbar">
-      <div class="filters" id="calls" role="tablist" aria-label="Filter by call"></div>
-      <label class="search">
-        <span class="sr">Search</span>
-        <input id="search" type="search" placeholder="Search device, serial, model…" />
-      </label>
-      <button type="button" class="btn ghost" id="toggleIngest">Ingest JSON</button>
-    </div>
+      <section class="pane ledger" aria-label="Devices">
+        <div class="ledger-head">
+          <h1>GLOW Op <em>Report</em></h1>
+          <div class="pager">
+            <button type="button" class="btn ghost" id="prevPage" aria-label="Previous">‹</button>
+            <span id="pageInfo">1 / 1</span>
+            <button type="button" class="btn ghost" id="nextPage" aria-label="Next">›</button>
+          </div>
+        </div>
+        <div class="table-fit">
+          <table>
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>Call</th>
+                <th>GLOW</th>
+                <th>Age</th>
+                <th>Sync</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+          <p class="empty" id="empty" hidden>No devices match.</p>
+        </div>
+      </section>
 
-    <section class="ledger" aria-label="Fleet decisions">
-      <div class="ledger-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Device</th>
-              <th>Call</th>
-              <th>GLOW</th>
-              <th>Age</th>
-              <th>Check-in</th>
-              <th>Compliance</th>
-              <th>Why</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-      <p class="empty" id="empty" hidden>No devices match this filter.</p>
+      <aside class="pane detail" id="detailPane" aria-label="Device detail">
+        <p class="pane-label">Selected</p>
+        <div id="detailEmpty" class="detail-empty">Select a device</div>
+        <div id="detailBody" hidden>
+          <h2 id="d-name">—</h2>
+          <p class="mono" id="d-serial">—</p>
+          <p id="d-model">—</p>
+          <div class="detail-row"><span>Call</span><strong id="d-call">—</strong></div>
+          <div class="detail-row"><span>GLOW</span><strong id="d-glow">—</strong></div>
+          <div class="detail-row"><span>Compliance</span><strong id="d-comp">—</strong></div>
+          <div class="detail-row"><span>User</span><strong id="d-user">—</strong></div>
+          <p class="why" id="d-why">—</p>
+        </div>
+      </aside>
     </section>
 
-    <section class="ingest" id="ingestPanel" hidden>
-      <div class="ingest-head">
-        <h2>Ingest Graph / Intune JSON</h2>
-        <p>Paste a <code>managedDevices</code> <code>value</code> array or full Graph response.</p>
-      </div>
-      <textarea id="ingestJson" rows="7" spellcheck="false" placeholder='{"value":[{"deviceName":"…","serialNumber":"…","lastSyncDateTime":"…","enrolledDateTime":"…","complianceState":"compliant"}]}'></textarea>
-      <div class="ingest-actions">
-        <button type="button" class="btn lime" id="ingestBtn">Ingest into this business</button>
-        <span id="ingestStatus"></span>
+    <!-- INGEST: separate full viewport page -->
+    <section class="view view-ingest" id="viewIngest" data-active="false" hidden>
+      <div class="ingest-fit">
+        <div>
+          <p class="pane-label">Graph / Intune</p>
+          <h1>Ingest JSON</h1>
+          <p class="lede">Paste managedDevices <code>value</code> into the business selected in the top bar.</p>
+        </div>
+        <textarea id="ingestJson" spellcheck="false" placeholder='{"value":[{"deviceName":"…","serialNumber":"…","lastSyncDateTime":"…"}]}'></textarea>
+        <div class="ingest-actions">
+          <button type="button" class="btn lime" id="ingestBtn">Ingest</button>
+          <button type="button" class="btn ghost" id="backFleet">Back to fleet</button>
+          <span id="ingestStatus"></span>
+        </div>
       </div>
     </section>
-
-    <footer class="foot">
-      <span>Schema 0.1 · keep / repair / redeploy / refresh / recycle / ghost</span>
-      <a href="/dashboard.html">Marketing sample</a>
-    </footer>
   </main>
 
   <script src="/app/app.js"></script>

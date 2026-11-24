@@ -14,16 +14,27 @@
         mcpServers: {
           glowops: {
             url: mcpBase(),
-            headers: {
-              Authorization: `Bearer ${key}`,
-            },
+            headers: { Authorization: `Bearer ${key}` },
           },
         },
       },
       null,
       2
     );
-    $("mcpUrl").textContent = mcpBase();
+    $("mcpUrl").textContent = mcpBase().replace(/^https?:\/\//, "");
+  }
+
+  function setPView(name) {
+    const map = { keys: "pviewKeys", biz: "pviewBiz", connect: "pviewConnect" };
+    Object.entries(map).forEach(([key, id]) => {
+      const el = $(id);
+      const on = key === name;
+      el.hidden = !on;
+      el.dataset.active = on ? "true" : "false";
+    });
+    document.querySelectorAll("[data-pview]").forEach((tab) => {
+      tab.setAttribute("aria-selected", tab.getAttribute("data-pview") === name ? "true" : "false");
+    });
   }
 
   async function api(path, opts = {}) {
@@ -41,8 +52,11 @@
     loginView.hidden = true;
     dashView.hidden = false;
     $("logoutBtn").hidden = false;
-    $("partnerHello").textContent = `${me.name} · ${me.email}`;
+    $("partnerViews").hidden = false;
+    $("partnerHello").hidden = false;
+    $("partnerHello").textContent = me.email;
     renderConfig();
+    setPView("keys");
     refresh();
   }
 
@@ -50,6 +64,8 @@
     loginView.hidden = false;
     dashView.hidden = true;
     $("logoutBtn").hidden = true;
+    $("partnerViews").hidden = true;
+    $("partnerHello").hidden = true;
   }
 
   async function refresh() {
@@ -60,7 +76,7 @@
         (b) =>
           `<li><span><b>${esc(b.business_name || b.business_id)}</b><div class="hint">${esc(
             b.business_id
-          )}</div></span><a class="btn ghost" href="/app/">Open report</a></li>`
+          )}</div></span><a class="btn ghost" href="/app/">Open</a></li>`
       )
       .join("");
     const active = (keys.keys || []).filter((k) => !k.revoked_at);
@@ -72,8 +88,8 @@
           <td>${esc(k.label)}</td>
           <td><code>${esc(k.key_prefix)}…</code></td>
           <td>${esc(k.scopes)}</td>
-          <td>${esc((k.created_at || "").slice(0, 19))}</td>
-          <td>${esc((k.last_used_at || "—").toString().slice(0, 19))}</td>
+          <td>${esc((k.created_at || "").slice(0, 10))}</td>
+          <td>${esc((k.last_used_at || "—").toString().slice(0, 10))}</td>
           <td>${
             revoked
               ? "<em>revoked</em>"
@@ -91,6 +107,10 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
   }
+
+  document.querySelectorAll("[data-pview]").forEach((tab) => {
+    tab.addEventListener("click", () => setPView(tab.getAttribute("data-pview")));
+  });
 
   $("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -137,14 +157,14 @@
       await navigator.clipboard.writeText(v);
       $("copyKey").textContent = "Copied";
     } catch (_) {
-      $("copyKey").textContent = "Select & copy";
+      $("copyKey").textContent = "Copy";
     }
   });
 
   $("keysBody").addEventListener("click", async (e) => {
     const btn = e.target.closest("[data-revoke]");
     if (!btn) return;
-    if (!confirm("Revoke this MCP key? Partner agents using it will fail closed.")) return;
+    if (!confirm("Revoke this MCP key?")) return;
     try {
       await api(`/api/partner/mcp-keys/${encodeURIComponent(btn.getAttribute("data-revoke"))}/revoke`, {
         method: "POST",
