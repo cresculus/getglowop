@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light only" />
-  <title>GlowOps Partner — MCP</title>
+  <title>GlowOps Partner</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,15 +15,9 @@
 <body class="shell partner-shell">
   <header class="topbar">
     <a class="wordmark" href="/"><span class="dot"></span>GLOW&nbsp;Ops</a>
-    <div class="views" id="partnerViews" hidden>
-      <button type="button" class="view-tab" data-pview="enroll" aria-selected="true">Enroll</button>
-      <button type="button" class="view-tab" data-pview="keys" aria-selected="false">MCP</button>
-      <button type="button" class="view-tab" data-pview="biz" aria-selected="false">Businesses</button>
-      <button type="button" class="view-tab" data-pview="connect" aria-selected="false">Connect</button>
-    </div>
+    <span class="section-title" id="sectionTitle">Partner</span>
     <nav class="rail">
       <span class="who" id="partnerHello" hidden></span>
-      <a class="btn ghost" href="/app/">Fleet</a>
       <button type="button" class="btn ghost" id="logoutBtn" hidden>Log out</button>
     </nav>
   </header>
@@ -32,8 +26,8 @@
     <section id="loginView" class="login-fit">
       <div class="login-card">
         <p class="pane-label"><span class="live"></span> Partner console</p>
-        <h1>Sign in for <em>MCP</em></h1>
-        <p class="lede">Mint API keys for your AI agents. Each partner only sees assigned businesses.</p>
+        <h1>Sign in</h1>
+        <p class="lede">Enroll devices to a business, then analyze the GLOW Op Report. MCP lives under Settings.</p>
         <form id="loginForm" class="login-form">
           <label>Email<input id="email" type="email" required autocomplete="username" value="partner@getglowop.com" /></label>
           <label>Password<input id="password" type="password" required autocomplete="current-password" value="GlowOps-Partner-2026!" /></label>
@@ -44,19 +38,48 @@
     </section>
 
     <section id="dashView" class="partner-dash" hidden>
-      <aside class="pane stats">
-        <p class="pane-label"><span class="live"></span> Snapshot</p>
-        <div class="kpi-grid">
-          <div><span>MCP URL</span><strong class="tiny" id="mcpUrl">/mcp</strong></div>
+      <aside class="side-nav" id="partnerNav" aria-label="Partner navigation">
+        <p class="nav-kicker"><span class="live"></span> Get started</p>
+        <button type="button" class="nav-box" data-pview="enroll" aria-selected="true">
+          <span class="nav-step">1</span>
+          <span class="nav-copy">
+            <strong>Enroll</strong>
+            <small>Mint a join key for the GlowOps Agent</small>
+          </span>
+        </button>
+        <button type="button" class="nav-box" data-pview="biz" aria-selected="false">
+          <span class="nav-step">2</span>
+          <span class="nav-copy">
+            <strong>Businesses</strong>
+            <small>Connect devices to each customer</small>
+          </span>
+        </button>
+        <button type="button" class="nav-box" data-pview="analyze" aria-selected="false">
+          <span class="nav-step">3</span>
+          <span class="nav-copy">
+            <strong>Analyze</strong>
+            <small>Show the GLOW Op Report</small>
+          </span>
+        </button>
+        <div class="nav-spacer"></div>
+        <button type="button" class="nav-box nav-box-muted" data-pview="settings" aria-selected="false">
+          <span class="nav-step">⚙</span>
+          <span class="nav-copy">
+            <strong>Settings</strong>
+            <small>MCP keys for AI agents</small>
+          </span>
+        </button>
+        <div class="nav-foot">
           <div><span>Businesses</span><strong id="bizCount">—</strong></div>
-          <div><span>Active keys</span><strong id="keyCount">—</strong></div>
+          <div><span>MCP keys</span><strong id="keyCount">—</strong></div>
         </div>
       </aside>
 
       <section class="pane main-pane">
+        <!-- 1 Enroll -->
         <div class="pview" id="pviewEnroll" data-active="true">
           <div class="ledger-head">
-            <h1>Device join keys</h1>
+            <h1>Enroll devices</h1>
             <form id="enrollForm" class="mint-inline">
               <select id="enrollBiz" title="Business"></select>
               <select id="enrollTtl" title="Expiry">
@@ -69,6 +92,7 @@
               <button class="btn lime" type="submit">Mint join key</button>
             </form>
           </div>
+          <p class="view-lede">Mint a join key + password, put them in the GlowOps Agent on the PC, and the device lands in that business.</p>
           <div id="freshEnroll" class="fresh-key enroll-secret" hidden>
             <div>
               <p><strong>Copy into the GlowOps Agent menu</strong> — password shown once. Expires automatically; join-only.</p>
@@ -88,19 +112,37 @@
           </div>
         </div>
 
-        <div class="pview" id="pviewKeys" data-active="false" hidden>
+        <!-- 2 Businesses -->
+        <div class="pview" id="pviewBiz" data-active="false" hidden>
+          <div class="ledger-head"><h1>Businesses</h1></div>
+          <p class="view-lede">Customer fleets assigned to this partner. Isolation stays per business — not one shared tenant.</p>
+          <ul class="biz-list" id="bizList"></ul>
+        </div>
+
+        <!-- 3 Analyze -->
+        <div class="pview" id="pviewAnalyze" data-active="false" hidden>
+          <div class="ledger-head"><h1>Analyze</h1></div>
+          <p class="view-lede">Open the live GLOW Op Report for a business — keep / repair / redeploy / refresh / recycle / ghost.</p>
+          <div class="analyze-grid" id="analyzeGrid"></div>
+        </div>
+
+        <!-- Settings (MCP) -->
+        <div class="pview" id="pviewSettings" data-active="false" hidden>
           <div class="ledger-head">
-            <h1>MCP keys</h1>
+            <h1>Settings · MCP</h1>
             <form id="mintForm" class="mint-inline">
-              <input id="keyLabel" placeholder="Label" maxlength="64" />
-              <button class="btn lime" type="submit">Mint</button>
+              <input id="keyLabel" placeholder="MCP label" maxlength="64" />
+              <button class="btn lime" type="submit">Mint MCP key</button>
             </form>
           </div>
+          <p class="view-lede">Optional: let partner AI agents read fleet data. Not required to enroll devices.</p>
           <div id="freshKey" class="fresh-key" hidden>
             <code id="freshKeyValue"></code>
             <button type="button" class="btn ghost" id="copyKey">Copy</button>
           </div>
-          <div class="table-fit">
+          <p class="pane-label">Endpoint · <span id="mcpUrl">/mcp</span></p>
+          <pre class="config-block" id="mcpConfig"></pre>
+          <div class="table-fit settings-keys">
             <table>
               <thead>
                 <tr><th>Label</th><th>Prefix</th><th>Scopes</th><th>Created</th><th>Used</th><th></th></tr>
@@ -108,17 +150,6 @@
               <tbody id="keysBody"></tbody>
             </table>
           </div>
-        </div>
-
-        <div class="pview" id="pviewBiz" data-active="false" hidden>
-          <div class="ledger-head"><h1>Assigned businesses</h1></div>
-          <ul class="biz-list" id="bizList"></ul>
-        </div>
-
-        <div class="pview" id="pviewConnect" data-active="false" hidden>
-          <div class="ledger-head"><h1>Agent config</h1></div>
-          <pre class="config-block" id="mcpConfig"></pre>
-          <p class="hint">Tools: list_businesses · fleet_summary · list_devices · get_device · score_device</p>
         </div>
       </section>
     </section>

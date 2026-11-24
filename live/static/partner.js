@@ -2,6 +2,14 @@
   const $ = (id) => document.getElementById(id);
   const loginView = $("loginView");
   const dashView = $("dashView");
+  const TITLES = {
+    enroll: "Enroll",
+    biz: "Businesses",
+    analyze: "Analyze",
+    settings: "Settings",
+  };
+
+  let businessesCache = [];
 
   function mcpBase() {
     return `${window.location.origin}/mcp`;
@@ -9,27 +17,31 @@
 
   function renderConfig(apiKeyPlaceholder) {
     const key = apiKeyPlaceholder || "gow_mcp_YOUR_KEY";
-    $("mcpConfig").textContent = JSON.stringify(
-      {
-        mcpServers: {
-          glowops: {
-            url: mcpBase(),
-            headers: { Authorization: `Bearer ${key}` },
+    const cfg = $("mcpConfig");
+    const urlEl = $("mcpUrl");
+    if (cfg) {
+      cfg.textContent = JSON.stringify(
+        {
+          mcpServers: {
+            glowops: {
+              url: mcpBase(),
+              headers: { Authorization: `Bearer ${key}` },
+            },
           },
         },
-      },
-      null,
-      2
-    );
-    $("mcpUrl").textContent = mcpBase().replace(/^https?:\/\//, "");
+        null,
+        2
+      );
+    }
+    if (urlEl) urlEl.textContent = mcpBase().replace(/^https?:\/\//, "");
   }
 
   function setPView(name) {
     const map = {
       enroll: "pviewEnroll",
-      keys: "pviewKeys",
       biz: "pviewBiz",
-      connect: "pviewConnect",
+      analyze: "pviewAnalyze",
+      settings: "pviewSettings",
     };
     Object.entries(map).forEach(([key, id]) => {
       const el = $(id);
@@ -38,9 +50,12 @@
       el.hidden = !on;
       el.dataset.active = on ? "true" : "false";
     });
-    document.querySelectorAll("[data-pview]").forEach((tab) => {
+    document.querySelectorAll(".side-nav [data-pview]").forEach((tab) => {
       tab.setAttribute("aria-selected", tab.getAttribute("data-pview") === name ? "true" : "false");
     });
+    const title = $("sectionTitle");
+    if (title) title.textContent = TITLES[name] || "Partner";
+    if (name === "analyze") renderAnalyze();
   }
 
   async function api(path, opts = {}) {
@@ -62,7 +77,6 @@
     loginView.hidden = true;
     dashView.hidden = false;
     $("logoutBtn").hidden = false;
-    $("partnerViews").hidden = false;
     $("partnerHello").hidden = false;
     $("partnerHello").textContent = me.email || me.name || "";
     renderConfig();
@@ -77,8 +91,45 @@
     loginView.hidden = false;
     dashView.hidden = true;
     $("logoutBtn").hidden = true;
-    $("partnerViews").hidden = true;
     $("partnerHello").hidden = true;
+    const title = $("sectionTitle");
+    if (title) title.textContent = "Partner";
+  }
+
+  async function renderAnalyze() {
+    const grid = $("analyzeGrid");
+    if (!grid) return;
+    if (!businessesCache.length) {
+      grid.innerHTML = `<p class="view-lede">No businesses assigned yet.</p>`;
+      return;
+    }
+    grid.innerHTML = businessesCache
+      .map(
+        (b) => `<article class="analyze-card" data-biz="${esc(b.business_id)}">
+        <h3>${esc(b.business_name || b.business_id)}</h3>
+        <div class="meta-line">${esc(b.business_id)}</div>
+        <div class="kpis" id="an-${esc(b.business_id)}"><span>Loading…</span></div>
+        <a class="btn lime" href="/app/?tenant=${encodeURIComponent(b.business_id)}">Open report</a>
+      </article>`
+      )
+      .join("");
+
+    await Promise.all(
+      businessesCache.map(async (b) => {
+        const slot = document.getElementById(`an-${b.business_id}`);
+        if (!slot) return;
+        try {
+          const s = await api(`/api/summary?tenant=${encodeURIComponent(b.business_id)}`);
+          slot.innerHTML = `
+            <div><span>Devices</span> <strong>${s.deviceCount ?? 0}</strong></div>
+            <div><span>Avg GLOW</span> <strong>${s.avgGlowScore ?? "—"}</strong></div>
+            <div><span>Ghosts</span> <strong>${s.ghostCount ?? 0}</strong></div>
+            <div><span>Repair</span> <strong>${s.repairBeforeReplaceCount ?? 0}</strong></div>`;
+        } catch {
+          slot.innerHTML = `<span>Could not load summary</span>`;
+        }
+      })
+    );
   }
 
   async function refresh() {
@@ -87,22 +138,25 @@
       api("/api/partner/mcp-keys"),
       api("/api/partner/enrollment-keys"),
     ]);
-    $("bizCount").textContent = (biz.businesses || []).length;
+    businessesCache = biz.businesses || [];
+    $("bizCount").textContent = businessesCache.length;
     const bizSelect = $("enrollBiz");
     if (bizSelect) {
-      bizSelect.innerHTML = (biz.businesses || [])
+      bizSelect.innerHTML = businessesCache
         .map(
           (b) =>
             `<option value="${esc(b.business_id)}">${esc(b.business_name || b.business_id)}</option>`
         )
         .join("");
     }
-    $("bizList").innerHTML = (biz.businesses || [])
+    $("bizList").innerHTML = businessesCache
       .map(
         (b) =>
           `<li><span><b>${esc(b.business_name || b.business_id)}</b><div class="hint">${esc(
             b.business_id
-          )}</div></span><a class="btn ghost" href="/app/">Open</a></li>`
+          )}</div></span><a class="btn ghost" href="/app/?tenant=${encodeURIComponent(
+            b.business_id
+          )}">Analyze</a></li>`
       )
       .join("");
     const active = (keys.keys || []).filter((k) => !k.revoked_at);
@@ -142,6 +196,8 @@
         </tr>`;
       })
       .join("");
+
+    if ($("pviewAnalyze")?.dataset.active === "true") renderAnalyze();
   }
 
   function esc(s) {
@@ -152,13 +208,12 @@
       .replace(/"/g, "&quot;");
   }
 
-  document.querySelectorAll("[data-pview]").forEach((tab) => {
+  document.querySelectorAll(".side-nav [data-pview]").forEach((tab) => {
     tab.addEventListener("click", () => setPView(tab.getAttribute("data-pview")));
   });
 
   const loginForm = $("loginForm");
   const loginBtn = loginForm ? loginForm.querySelector('button[type="submit"]') : null;
-
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -303,7 +358,6 @@
     });
   }
 
-  // Start on login; upgrade to dash only after a valid session.
   showLogin();
   api("/api/partner/me")
     .then((data) => showDash(data.partner))
