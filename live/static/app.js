@@ -98,7 +98,9 @@
     }
     $("detailEmpty").hidden = true;
     $("detailBody").hidden = false;
-    $("d-name").textContent = d.device_name || "—";
+    $("d-name").innerHTML = `<button type="button" class="device-link" data-props="${esc(
+      d.id
+    )}" title="Open properties">${esc(d.device_name || "—")}</button>`;
     $("d-serial").textContent = d.serial_number || "no serial";
     $("d-model").textContent = [d.manufacturer, d.model].filter(Boolean).join(" ") || "—";
     const call = String(d.call_label || d.call || "keep").toLowerCase();
@@ -237,13 +239,12 @@
       })
       .join("");
 
-    const topRisk = [...devices]
+    const deviceButtons = [...devices]
       .sort((a, b) => (a.glow_score ?? 999) - (b.glow_score ?? 999))
-      .slice(0, 5)
       .map((d) => {
         const call = String(d.call_label || "keep").toLowerCase();
         return `<li>
-          <button type="button" class="dash-device" data-open-props="${esc(d.id)}">
+          <button type="button" class="dash-device" data-open-props="${esc(d.id)}" title="Open properties">
             <strong>${esc(d.device_name || d.id)}</strong>
             <span class="pill ${call}">${call}</span>
             <em class="${glowClass(d.glow_score)}">${esc(d.glow_score ?? "—")}</em>
@@ -269,8 +270,8 @@
         <div class="dash-bars">${callBars}</div>
       </section>
       <section class="props-card">
-        <h3>Lowest GLOW — open properties</h3>
-        <ul class="dash-list">${topRisk || "<li>No devices</li>"}</ul>
+        <h3>Devices — click a name for properties</h3>
+        <ul class="dash-list">${deviceButtons || "<li>No devices</li>"}</ul>
       </section>
     `;
   }
@@ -326,9 +327,12 @@
         const id = String(d.id);
         const sel = id === String(selectedId) ? "is-selected" : "";
         return `<tr class="${sel}" data-id="${esc(id)}">
-          <td class="device"><strong>${esc(d.device_name || "—")}</strong> <span class="serial">${esc(
-            d.serial_number || ""
-          )}</span></td>
+          <td class="device">
+            <button type="button" class="device-link" data-props="${esc(id)}" title="Open properties">
+              <strong>${esc(d.device_name || "—")}</strong>
+              <span class="serial">${esc(d.serial_number || "")}</span>
+            </button>
+          </td>
           <td><span class="pill ${call}">${call}</span></td>
           <td class="glow ${glowClass(glow)}">${glow ?? "—"}</td>
           <td>${d.age_years != null ? d.age_years + "y" : "—"}</td>
@@ -449,20 +453,21 @@
   tbody.addEventListener("click", (e) => {
     const propsBtn = e.target.closest("[data-props]");
     if (propsBtn) {
+      e.preventDefault();
       e.stopPropagation();
       openProperties(propsBtn.getAttribute("data-props"));
       return;
     }
     const tr = e.target.closest("tr[data-id]");
     if (!tr) return;
-    selectedId = tr.getAttribute("data-id");
-    renderDevices();
+    // Clicking the row (not only the Properties button) opens properties.
+    openProperties(tr.getAttribute("data-id"));
   });
 
-  tbody.addEventListener("dblclick", (e) => {
-    const tr = e.target.closest("tr[data-id]");
-    if (!tr) return;
-    openProperties(tr.getAttribute("data-id"));
+  $("detailBody")?.addEventListener("click", (e) => {
+    const propsBtn = e.target.closest("[data-props]");
+    if (!propsBtn) return;
+    openProperties(propsBtn.getAttribute("data-props"));
   });
 
   $("dashGrid")?.addEventListener("click", (e) => {
