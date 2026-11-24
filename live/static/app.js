@@ -58,7 +58,8 @@
   function filtered() {
     const q = (searchEl.value || "").trim().toLowerCase();
     return devices.filter((d) => {
-      if (activeCall !== "all" && (d.call_label || "keep") !== activeCall) return false;
+      const call = String(d.call_label || d.call || "keep").toLowerCase();
+      if (activeCall !== "all" && call !== activeCall) return false;
       if (!q) return true;
       const blob = [d.device_name, d.serial_number, d.manufacturer, d.model, d.user_upn, d.rationale]
         .filter(Boolean)
@@ -70,12 +71,12 @@
 
   function calcPageSize() {
     const fit = document.querySelector(".table-fit");
-    if (!fit) return 12;
+    if (!fit) return 20;
     const head = fit.querySelector("thead");
     const headH = head ? head.getBoundingClientRect().height : 28;
-    const avail = Math.max(120, fit.clientHeight - headH - 4);
+    const avail = Math.max(160, fit.clientHeight - headH - 8);
     const rowH = 32;
-    return Math.max(4, Math.floor(avail / rowH));
+    return Math.max(6, Math.floor(avail / rowH));
   }
 
   function showDetail(d) {
@@ -89,36 +90,51 @@
     $("d-name").textContent = d.device_name || "—";
     $("d-serial").textContent = d.serial_number || "no serial";
     $("d-model").textContent = [d.manufacturer, d.model].filter(Boolean).join(" ") || "—";
-    $("d-call").innerHTML = `<span class="pill ${d.call_label || "keep"}">${d.call_label || "keep"}</span>`;
+    const call = String(d.call_label || d.call || "keep").toLowerCase();
+    $("d-call").innerHTML = `<span class="pill ${call}">${call}</span>`;
     $("d-glow").textContent = d.glow_score ?? "—";
     $("d-glow").className = glowClass(d.glow_score);
     $("d-comp").textContent = d.compliance_state || "—";
     $("d-user").textContent = d.user_upn || "—";
-    $("d-why").textContent = d.rationale || "";
+    $("d-why").textContent = d.rationale || d.health_notes || "";
   }
 
   function renderDevices() {
     pageSize = calcPageSize();
-    const rows = filtered();
+    let rows = filtered();
+
+    // If a deep-linked call filter matches nothing, fall back to All so the fleet is never blank by accident.
+    if (!rows.length && devices.length && activeCall !== "all" && !(searchEl.value || "").trim()) {
+      activeCall = "all";
+      rows = filtered();
+      renderFilters();
+    }
+
     const pages = Math.max(1, Math.ceil(rows.length / pageSize) || 1);
     if (page >= pages) page = pages - 1;
     if (page < 0) page = 0;
     const slice = rows.slice(page * pageSize, page * pageSize + pageSize);
-    emptyEl.hidden = rows.length > 0;
+    const hasRows = rows.length > 0;
+    emptyEl.hidden = hasRows;
+    emptyEl.textContent = devices.length
+      ? "No devices match this filter."
+      : "No devices in this business yet.";
     $("pageInfo").textContent = `${page + 1} / ${pages}`;
     $("prevPage").disabled = page <= 0;
     $("nextPage").disabled = page >= pages - 1;
 
-    if (!slice.find((d) => d.id === selectedId)) {
-      selectedId = slice[0] ? slice[0].id : null;
+    const selectedStr = selectedId == null ? null : String(selectedId);
+    if (!slice.find((d) => String(d.id) === selectedStr)) {
+      selectedId = slice[0] ? String(slice[0].id) : null;
     }
 
     tbody.innerHTML = slice
       .map((d) => {
-        const call = d.call_label || "keep";
+        const call = String(d.call_label || d.call || "keep").toLowerCase();
         const glow = d.glow_score;
-        const sel = d.id === selectedId ? "is-selected" : "";
-        return `<tr class="${sel}" data-id="${esc(d.id)}">
+        const id = String(d.id);
+        const sel = id === String(selectedId) ? "is-selected" : "";
+        return `<tr class="${sel}" data-id="${esc(id)}">
           <td class="device"><strong>${esc(d.device_name || "—")}</strong> <span class="serial">${esc(
             d.serial_number || ""
           )}</span></td>
@@ -130,7 +146,8 @@
       })
       .join("");
 
-    const selected = rows.find((d) => d.id === selectedId) || slice[0] || null;
+    const selected =
+      rows.find((d) => String(d.id) === String(selectedId)) || slice[0] || null;
     showDetail(selected);
   }
 
@@ -145,7 +162,10 @@
     document.querySelectorAll(".view-tab").forEach((tab) => {
       tab.setAttribute("aria-selected", tab.getAttribute("data-view") === name ? "true" : "false");
     });
-    if (isFleet) requestAnimationFrame(renderDevices);
+    if (isFleet) requestAnimationFrame(() => {
+      renderDevices();
+      requestAnimationFrame(renderDevices);
+    });
   }
 
   async function load() {
@@ -160,14 +180,17 @@
       if (!sumRes.ok || !devRes.ok) throw new Error("API error");
       summary = await sumRes.json();
       const payload = await devRes.json();
-      devices = payload.devices || [];
+      const list = payload.devices || payload.items || [];
+      devices = Array.isArray(list) ? list : [];
       page = 0;
       setMeta(summary);
       renderFilters();
       renderDevices();
-      statusEl.textContent = `${summary.deviceCount || 0} scored · ${t}`;
+      statusEl.textContent = `${summary.deviceCount ?? devices.length} scored · ${t}`;
     } catch (err) {
       statusEl.textContent = "Load failed";
+      devices = [];
+      renderDevices();
       console.error(err);
     }
   }
@@ -257,5 +280,6 @@
 
   load().then(() => {
     if (viewParam === "ingest") setView("ingest");
+    else setView("fleet");
   });
 })();

@@ -229,7 +229,13 @@ class Handler(BaseHTTPRequestHandler):
 
         if path.rstrip("/") == "/api/devices":
             rows = list_devices(CONN, tenant)
-            status, body, ctype = _json_bytes({"tenantId": tenant, "devices": rows, "count": len(rows)})
+            # Drop bulky raw_json from list responses — keeps the fleet table reliable.
+            slim = []
+            for r in rows:
+                item = dict(r)
+                item.pop("raw_json", None)
+                slim.append(item)
+            status, body, ctype = _json_bytes({"tenantId": tenant, "devices": slim, "count": len(slim)})
             return self._send(status, body, ctype)
 
         if path.rstrip("/") == "/api/export.csv":

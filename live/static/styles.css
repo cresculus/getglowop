@@ -175,9 +175,16 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
 .pager .btn { min-width: 28px; min-height: 28px; padding: 0; }
 
 .table-fit {
-  flex: 1; min-height: 0; overflow: hidden;
-  display: flex; flex-direction: column;
+  flex: 1; min-height: 0; overflow: auto;
+  display: block;
+  position: relative;
 }
+.table-fit table { min-height: 0; }
+.table-fit .empty {
+  position: absolute; inset: 2.5rem 0 0; display: grid; place-items: center;
+  pointer-events: none;
+}
+.table-fit .empty[hidden] { display: none !important; }
 table {
   width: 100%; border-collapse: collapse; table-layout: fixed;
   font-size: 0.8rem;
