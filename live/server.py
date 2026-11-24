@@ -510,7 +510,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not enrollment:
                     return self._send(
                         401,
-                        b'{"error":"join key required — invalid, revoked, or expired"}',
+                        b'{"error":"join key required - invalid, revoked, or expired"}',
                         "application/json",
                     )
                 tenant = enrollment["businessId"]
@@ -554,7 +554,7 @@ class Handler(BaseHTTPRequestHandler):
             if not enrollment:
                 return self._send(
                     401,
-                    b'{"error":"join key required — invalid, revoked, or expired"}',
+                    b'{"error":"join key required - invalid, revoked, or expired"}',
                     "application/json",
                 )
             payload = {**payload, "tenantId": enrollment["businessId"]}
