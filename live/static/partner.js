@@ -2,13 +2,6 @@
   const $ = (id) => document.getElementById(id);
   const loginView = $("loginView");
   const dashView = $("dashView");
-  const TITLES = {
-    enroll: "Enroll",
-    biz: "Businesses",
-    analyze: "Analyze",
-    settings: "Settings",
-  };
-
   let businessesCache = [];
 
   function mcpBase() {
@@ -50,11 +43,9 @@
       el.hidden = !on;
       el.dataset.active = on ? "true" : "false";
     });
-    document.querySelectorAll(".side-nav [data-pview]").forEach((tab) => {
+    document.querySelectorAll("[data-pview]").forEach((tab) => {
       tab.setAttribute("aria-selected", tab.getAttribute("data-pview") === name ? "true" : "false");
     });
-    const title = $("sectionTitle");
-    if (title) title.textContent = TITLES[name] || "Partner";
     if (name === "analyze") renderAnalyze();
   }
 
@@ -79,6 +70,8 @@
     $("logoutBtn").hidden = false;
     $("partnerHello").hidden = false;
     $("partnerHello").textContent = me.email || me.name || "";
+    const topNav = $("partnerTopNav");
+    if (topNav) topNav.hidden = false;
     renderConfig();
     setPView("enroll");
     refresh().catch((err) => {
@@ -92,8 +85,8 @@
     dashView.hidden = true;
     $("logoutBtn").hidden = true;
     $("partnerHello").hidden = true;
-    const title = $("sectionTitle");
-    if (title) title.textContent = "Partner";
+    const topNav = $("partnerTopNav");
+    if (topNav) topNav.hidden = true;
   }
 
   async function renderAnalyze() {
@@ -208,7 +201,7 @@
       .replace(/"/g, "&quot;");
   }
 
-  document.querySelectorAll(".side-nav [data-pview]").forEach((tab) => {
+  document.querySelectorAll("[data-pview]").forEach((tab) => {
     tab.addEventListener("click", () => setPView(tab.getAttribute("data-pview")));
   });
 

@@ -15,7 +15,11 @@
 <body class="shell partner-shell">
   <header class="topbar">
     <a class="wordmark" href="/"><span class="dot"></span>GLOW&nbsp;Ops</a>
-    <span class="section-title" id="sectionTitle">Partner</span>
+    <nav class="top-nav" id="partnerTopNav" aria-label="Partner primary" hidden>
+      <button type="button" class="top-tab" data-pview="enroll" aria-selected="true">Enroll</button>
+      <button type="button" class="top-tab" data-pview="biz" aria-selected="false">Businesses</button>
+      <button type="button" class="top-tab" data-pview="analyze" aria-selected="false">Analyze</button>
+    </nav>
     <nav class="rail">
       <span class="who" id="partnerHello" hidden></span>
       <button type="button" class="btn ghost" id="logoutBtn" hidden>Log out</button>
@@ -38,37 +42,8 @@
     </section>
 
     <section id="dashView" class="partner-dash" hidden>
-      <aside class="side-nav" id="partnerNav" aria-label="Partner navigation">
-        <p class="nav-kicker"><span class="live"></span> Get started</p>
-        <button type="button" class="nav-box" data-pview="enroll" aria-selected="true">
-          <span class="nav-step">1</span>
-          <span class="nav-copy">
-            <strong>Enroll</strong>
-            <small>Mint a join key for the GlowOps Agent</small>
-          </span>
-        </button>
-        <button type="button" class="nav-box" data-pview="biz" aria-selected="false">
-          <span class="nav-step">2</span>
-          <span class="nav-copy">
-            <strong>Businesses</strong>
-            <small>Connect devices to each customer</small>
-          </span>
-        </button>
-        <button type="button" class="nav-box" data-pview="analyze" aria-selected="false">
-          <span class="nav-step">3</span>
-          <span class="nav-copy">
-            <strong>Analyze</strong>
-            <small>Show the GLOW Op Report</small>
-          </span>
-        </button>
-        <div class="nav-spacer"></div>
-        <button type="button" class="nav-box nav-box-muted" data-pview="settings" aria-selected="false">
-          <span class="nav-step">⚙</span>
-          <span class="nav-copy">
-            <strong>Settings</strong>
-            <small>MCP keys for AI agents</small>
-          </span>
-        </button>
+      <aside class="side-nav" id="partnerNav" aria-label="Partner settings">
+        <button type="button" class="side-link" data-pview="settings" aria-selected="false">Settings</button>
         <div class="nav-foot">
           <div><span>Businesses</span><strong id="bizCount">—</strong></div>
           <div><span>MCP keys</span><strong id="keyCount">—</strong></div>
@@ -76,7 +51,6 @@
       </aside>
 
       <section class="pane main-pane">
-        <!-- 1 Enroll -->
         <div class="pview" id="pviewEnroll" data-active="true">
           <div class="ledger-head">
             <h1>Enroll devices</h1>
@@ -112,21 +86,18 @@
           </div>
         </div>
 
-        <!-- 2 Businesses -->
         <div class="pview" id="pviewBiz" data-active="false" hidden>
           <div class="ledger-head"><h1>Businesses</h1></div>
           <p class="view-lede">Customer fleets assigned to this partner. Isolation stays per business — not one shared tenant.</p>
           <ul class="biz-list" id="bizList"></ul>
         </div>
 
-        <!-- 3 Analyze -->
         <div class="pview" id="pviewAnalyze" data-active="false" hidden>
           <div class="ledger-head"><h1>Analyze</h1></div>
           <p class="view-lede">Open the live GLOW Op Report for a business — keep / repair / redeploy / refresh / recycle / ghost.</p>
           <div class="analyze-grid" id="analyzeGrid"></div>
         </div>
 
-        <!-- Settings (MCP) -->
         <div class="pview" id="pviewSettings" data-active="false" hidden>
           <div class="ledger-head">
             <h1>Settings · MCP</h1>
