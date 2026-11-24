@@ -6,9 +6,6 @@
   padding: 1rem;
   overflow: hidden;
 }
-.partner-dash:not([hidden]) {
-  display: grid;
-}
 .login-card {
   width: min(420px, 100%);
   background: var(--surface);
@@ -39,7 +36,7 @@
 }
 .hint { color: var(--muted); font-size: 0.8rem; margin: 0.2rem 0 0; }
 
-.partner-dash {
+.partner-dash:not([hidden]) {
   height: 100%;
   display: grid;
   grid-template-columns: 180px minmax(0, 1fr);
