@@ -15,11 +15,11 @@
 <body class="shell partner-shell">
   <header class="topbar">
     <a class="wordmark" href="/"><span class="dot"></span>GLOW&nbsp;Ops</a>
-    <nav class="top-nav" id="partnerTopNav" aria-label="Partner primary" hidden>
-      <button type="button" class="top-tab" data-pview="enroll" aria-selected="true">Enroll</button>
-      <button type="button" class="top-tab" data-pview="biz" aria-selected="false">Businesses</button>
-      <button type="button" class="top-tab" data-pview="analyze" aria-selected="false">Analyze</button>
-    </nav>
+    <div class="views top-nav" id="partnerTopNav" role="tablist" aria-label="Partner primary">
+      <button type="button" class="view-tab" data-pview="enroll" aria-selected="true">Enroll</button>
+      <button type="button" class="view-tab" data-pview="biz" aria-selected="false">Businesses</button>
+      <button type="button" class="view-tab" data-pview="analyze" aria-selected="false">Analyze</button>
+    </div>
     <nav class="rail">
       <span class="who" id="partnerHello" hidden></span>
       <button type="button" class="btn ghost" id="logoutBtn" hidden>Log out</button>
@@ -44,22 +44,22 @@
     <section id="dashView" class="partner-dash" hidden>
       <aside class="side-nav" id="partnerNav" aria-label="Quick navigation">
         <p class="nav-kicker">Dashboard</p>
-        <a class="side-link" id="navFleet" href="/app/">Fleet report</a>
-        <a class="side-link" id="navIngest" href="/app/?view=ingest">Ingest JSON</a>
-        <a class="side-link" id="navCsv" href="/api/export.csv?tenant=demo">Export CSV</a>
+        <a class="side-link" id="navFleet" href="/app/" target="glowops-dash" rel="noopener">Fleet report</a>
+        <a class="side-link" id="navIngest" href="/app/?view=ingest" target="glowops-dash" rel="noopener">Ingest JSON</a>
+        <a class="side-link" id="navCsv" href="/api/export.csv?tenant=demo" target="glowops-dash" rel="noopener">Export CSV</a>
         <a class="side-link" href="/download/GlowOpsAgent.exe">Agent EXE</a>
 
         <p class="nav-kicker">Calls</p>
-        <a class="side-link side-call" data-call="repair" href="/app/?call=repair">Repair</a>
-        <a class="side-link side-call" data-call="ghost" href="/app/?call=ghost">Ghosts</a>
-        <a class="side-link side-call" data-call="recycle" href="/app/?call=recycle">Recycle</a>
-        <a class="side-link side-call" data-call="refresh" href="/app/?call=refresh">Refresh</a>
-        <a class="side-link side-call" data-call="redeploy" href="/app/?call=redeploy">Redeploy</a>
-        <a class="side-link side-call" data-call="keep" href="/app/?call=keep">Keep</a>
+        <a class="side-link side-call" data-call="repair" href="/app/?call=repair" target="glowops-dash" rel="noopener">Repair</a>
+        <a class="side-link side-call" data-call="ghost" href="/app/?call=ghost" target="glowops-dash" rel="noopener">Ghosts</a>
+        <a class="side-link side-call" data-call="recycle" href="/app/?call=recycle" target="glowops-dash" rel="noopener">Recycle</a>
+        <a class="side-link side-call" data-call="refresh" href="/app/?call=refresh" target="glowops-dash" rel="noopener">Refresh</a>
+        <a class="side-link side-call" data-call="redeploy" href="/app/?call=redeploy" target="glowops-dash" rel="noopener">Redeploy</a>
+        <a class="side-link side-call" data-call="keep" href="/app/?call=keep" target="glowops-dash" rel="noopener">Keep</a>
 
         <p class="nav-kicker">Partner</p>
         <button type="button" class="side-link" data-pview="settings" aria-selected="false">Settings · MCP</button>
-        <a class="side-link" href="/">getglowop.com</a>
+        <a class="side-link" href="/" target="_blank" rel="noopener">getglowop.com</a>
 
         <div class="nav-foot">
           <div><span>Businesses</span><strong id="bizCount">—</strong></div>

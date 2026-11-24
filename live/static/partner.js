@@ -84,13 +84,12 @@
       showLogin();
       return;
     }
+    document.body.classList.add("is-authed");
     loginView.hidden = true;
     dashView.hidden = false;
     $("logoutBtn").hidden = false;
     $("partnerHello").hidden = false;
     $("partnerHello").textContent = me.email || me.name || "";
-    const topNav = $("partnerTopNav");
-    if (topNav) topNav.hidden = false;
     renderConfig();
     setPView("enroll");
     refresh().catch((err) => {
@@ -100,12 +99,11 @@
   }
 
   function showLogin() {
+    document.body.classList.remove("is-authed");
     loginView.hidden = false;
     dashView.hidden = true;
     $("logoutBtn").hidden = true;
     $("partnerHello").hidden = true;
-    const topNav = $("partnerTopNav");
-    if (topNav) topNav.hidden = true;
   }
 
   async function renderAnalyze() {
