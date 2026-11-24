@@ -65,7 +65,14 @@ AGENT_DIR = ROOT / "agent"
 HOST = os.environ.get("GLOWOPS_HOST", "0.0.0.0")
 PORT = int(os.environ.get("PORT") or os.environ.get("GLOWOPS_PORT") or "8787")
 # Lab snapshot shipped with the image — used when runtime volume/tmp is empty.
-BOOTSTRAP_DB = ROOT / "data" / "glowops.db"
+BOOTSTRAP_DB = next(
+    (
+        p
+        for p in (ROOT / "bootstrap" / "glowops.db", ROOT / "data" / "glowops.db")
+        if p.is_file()
+    ),
+    ROOT / "bootstrap" / "glowops.db",
+)
 
 _marketing_env = os.environ.get("GLOWOPS_MARKETING_ROOT")
 if _marketing_env:
