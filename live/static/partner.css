@@ -1,0 +1,87 @@
+.partner-sheet { max-width: 960px; }
+.panel-card {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.panel-card h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.035em;
+  font-weight: 900;
+}
+.panel-card .panel-head h2 {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: 1.05rem;
+}
+.login-form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 420px;
+  margin-top: 1.25rem;
+}
+.login-form label, .mint-row {
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.login-form input, .mint-row input {
+  border: 2px solid var(--line);
+  background: #f7f9f2;
+  min-height: 44px;
+  padding: 0.45rem 0.7rem;
+  font: 600 1rem/1.2 var(--font);
+  color: var(--ink);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.mint-row {
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  margin-bottom: 0.9rem;
+}
+.hint { color: var(--muted); font-size: 0.85rem; margin: 0.4rem 0 0; }
+.biz-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.biz-list li {
+  display: flex; justify-content: space-between; gap: 1rem;
+  border: 1.5px solid var(--line); padding: 0.65rem 0.8rem; background: #f7f9f2;
+}
+.biz-list b { font-weight: 800; }
+.fresh-key {
+  border: 2px solid var(--line);
+  background: #f3ffe0;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.9rem;
+  display: flex; flex-wrap: wrap; gap: 0.65rem; align-items: center;
+}
+.fresh-key code {
+  flex: 1;
+  min-width: 200px;
+  word-break: break-all;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink);
+}
+.config-block {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  background: #0d130b;
+  color: #edf1e8;
+  border: 2px solid var(--line);
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.mono-sm { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; }
+.btn.danger { background: var(--red-bg); }

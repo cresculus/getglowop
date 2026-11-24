@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""GlowOps live dashboard — stdlib HTTP + SQLite. No login for local / early demo.
+"""GlowOps live dashboard + partner MCP.
 
 Serves:
-  /app/              live dashboard UI
-  /api/*             JSON API
-  /download/agent.zip
-  /*                 optional marketing site (GLOWOPS_MARKETING_ROOT or sibling getglowop files)
+  /app/                 live fleet UI (demo, no login)
+  /partner/             partner login + MCP key console
+  /mcp                  partner MCP JSON-RPC (Bearer gow_mcp_…)
+  /api/*                JSON API
+  /download/*           agent artifacts
+  /*                    optional marketing site
 """
 from __future__ import annotations
 
@@ -15,6 +17,7 @@ import json
 import os
 import sys
 import zipfile
+from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -33,6 +36,19 @@ from db import (  # noqa: E402
     upsert_device,
 )
 from graph_map import map_managed_devices  # noqa: E402
+from mcp_protocol import handle_mcp_rpc  # noqa: E402
+from partners import (  # noqa: E402
+    authenticate_partner,
+    create_session,
+    list_mcp_keys,
+    list_partner_businesses,
+    mint_mcp_key,
+    partner_from_mcp_key,
+    partner_from_session,
+    revoke_mcp_key,
+    revoke_session,
+    seed_demo_partner,
+)
 
 DATA_DIR = Path(os.environ.get("GLOWOPS_DATA", str(ROOT / "data")))
 DB_PATH = DATA_DIR / "glowops.db"
@@ -45,7 +61,6 @@ _marketing_env = os.environ.get("GLOWOPS_MARKETING_ROOT")
 if _marketing_env:
     MARKETING_ROOT = Path(_marketing_env).resolve()
 elif (ROOT.parent / "index.html").is_file() and (ROOT.parent / "dashboard.html").is_file():
-    # getglowop layout: live/ next to marketing html
     MARKETING_ROOT = ROOT.parent
 elif (ROOT / "index.html").is_file() and ROOT.name != "static":
     MARKETING_ROOT = ROOT
@@ -54,6 +69,13 @@ else:
 
 CONN = connect(DB_PATH)
 seed_if_empty(CONN, "demo")
+DEMO_PARTNER = seed_demo_partner(CONN)
+
+AGENT_EXE_NAME = "GlowOpsAgent.exe"
+AGENT_RELEASE_URL = os.environ.get(
+    "GLOWOPS_AGENT_RELEASE_URL",
+    "https://github.com/cresculus/getglowop/releases/latest/download/GlowOpsAgent.exe",
+)
 
 
 def _json_bytes(obj: object, status: int = 200) -> tuple[int, bytes, str]:
@@ -66,13 +88,6 @@ def _read_json(handler: BaseHTTPRequestHandler) -> object:
     if not raw:
         return {}
     return json.loads(raw.decode("utf-8"))
-
-
-AGENT_EXE_NAME = "GlowOpsAgent.exe"
-AGENT_RELEASE_URL = os.environ.get(
-    "GLOWOPS_AGENT_RELEASE_URL",
-    "https://github.com/cresculus/getglowop/releases/latest/download/GlowOpsAgent.exe",
-)
 
 
 def _agent_exe_path() -> Path | None:
@@ -89,19 +104,16 @@ def _agent_zip() -> bytes:
         sidecar = AGENT_DIR / "glowops.agent.json"
         if sidecar.is_file():
             zf.write(sidecar, arcname="glowops-agent/glowops.agent.json")
-        # Keep optional Python helper for labs; EXE is the published agent.
         py = AGENT_DIR / "agent.py"
         if py.is_file():
             zf.write(py, arcname="glowops-agent/agent.py")
         zf.writestr(
             "glowops-agent/README.txt",
             "GlowOps Agent (Windows)\n"
-            "=======================\n"
-            "1. Edit glowops.agent.json (url + tenantId) next to the EXE\n"
-            "2. Double-click GlowOpsAgent.exe  (run = heartbeat + this host)\n"
-            "   Or: GlowOpsAgent.exe inventory --file devices.json\n"
-            "3. Graph/Intune JSON uses the same shape as managedDevices value[]\n"
-            f"\nDirect EXE: /download/{AGENT_EXE_NAME}\n",
+            "1. Edit glowops.agent.json (url + tenantId)\n"
+            "2. Double-click GlowOpsAgent.exe\n"
+            f"Direct EXE: /download/{AGENT_EXE_NAME}\n"
+            "Partner MCP: /partner/  (mint gow_mcp_ keys)\n",
         )
     return buf.getvalue()
 
@@ -133,7 +145,7 @@ def _safe_file(root: Path, rel: str) -> Path | None:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "GlowOps/0.1"
+    server_version = "GlowOps/0.2"
 
     def log_message(self, fmt: str, *args) -> None:
         sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
@@ -141,7 +153,7 @@ class Handler(BaseHTTPRequestHandler):
     def _cors(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
     def _send(self, status: int, body: bytes, content_type: str, extra: dict | None = None) -> None:
         self.send_response(status)
@@ -155,13 +167,29 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _redirect(self, location: str, status: int = 302) -> None:
-        body = b""
         self.send_response(status)
         self.send_header("Location", location)
         self.send_header("Content-Length", "0")
         self._cors()
         self.end_headers()
-        self.wfile.write(body)
+
+    def _cookie(self, name: str) -> str | None:
+        raw = self.headers.get("Cookie")
+        if not raw:
+            return None
+        jar = SimpleCookie()
+        jar.load(raw)
+        morsel = jar.get(name)
+        return morsel.value if morsel else None
+
+    def _bearer(self) -> str | None:
+        auth = self.headers.get("Authorization") or ""
+        if auth.lower().startswith("bearer "):
+            return auth[7:].strip()
+        return None
+
+    def _session_partner(self):
+        return partner_from_session(CONN, self._cookie("glowops_partner"))
 
     def do_OPTIONS(self) -> None:  # noqa: N802
         self.send_response(204)
@@ -176,7 +204,15 @@ class Handler(BaseHTTPRequestHandler):
 
         if path.rstrip("/") in ("/api/health", "/health"):
             status, body, ctype = _json_bytes(
-                {"ok": True, "service": "glowops", "auth": "none", "app": "/app/"}
+                {
+                    "ok": True,
+                    "service": "glowops",
+                    "app": "/app/",
+                    "partner": "/partner/",
+                    "mcp": "/mcp",
+                    "fleetAuth": "none-demo",
+                    "partnerAuth": "session+mcp-key",
+                }
             )
             return self._send(status, body, ctype)
 
@@ -230,6 +266,30 @@ class Handler(BaseHTTPRequestHandler):
                 {"Content-Disposition": f'attachment; filename="glowops-{tenant}.csv"'},
             )
 
+        # Partner session APIs
+        if path.rstrip("/") == "/api/partner/me":
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            status, body, ctype = _json_bytes({"partner": partner})
+            return self._send(status, body, ctype)
+
+        if path.rstrip("/") == "/api/partner/businesses":
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            status, body, ctype = _json_bytes(
+                {"businesses": list_partner_businesses(CONN, partner["id"])}
+            )
+            return self._send(status, body, ctype)
+
+        if path.rstrip("/") == "/api/partner/mcp-keys":
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            status, body, ctype = _json_bytes({"keys": list_mcp_keys(CONN, partner["id"])})
+            return self._send(status, body, ctype)
+
         if path.rstrip("/") in (f"/download/{AGENT_EXE_NAME}", "/download/agent.exe"):
             exe = _agent_exe_path()
             if exe:
@@ -242,7 +302,6 @@ class Handler(BaseHTTPRequestHandler):
             return self._redirect(AGENT_RELEASE_URL)
 
         if path.rstrip("/") == "/download/agent.zip":
-            # Prefer zip that includes EXE when present; otherwise redirect to release EXE.
             if _agent_exe_path() is None and not (AGENT_DIR / "agent.py").is_file():
                 return self._redirect(AGENT_RELEASE_URL)
             data = _agent_zip()
@@ -252,6 +311,11 @@ class Handler(BaseHTTPRequestHandler):
                 "application/zip",
                 {"Content-Disposition": 'attachment; filename="glowops-agent.zip"'},
             )
+
+        # Partner console
+        if path.rstrip("/") in ("/partner", "/partner/"):
+            f = STATIC_DIR / "partner.html"
+            return self._send(200, f.read_bytes(), _content_type(f))
 
         # Live app static under /app/
         if path == "/app" or path == "/app/":
@@ -266,17 +330,14 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, f.read_bytes(), _content_type(f))
             return self._send(404, b'{"error":"not found"}', "application/json")
 
-        # Convenience aliases
         if path.rstrip("/") in ("/live", "/dashboard-live"):
             return self._redirect("/app/")
 
-        # Marketing site (getglowop) or fall through to app
         if MARKETING_ROOT:
             rel = path.lstrip("/") or "index.html"
             if path.endswith("/") and path != "/":
                 rel = path.strip("/") + "/index.html"
             f = _safe_file(MARKETING_ROOT, rel)
-            # never serve live/ python sources as static accidentally for dirs we care about
             if f and "live" not in Path(rel).parts[:1]:
                 return self._send(200, f.read_bytes(), _content_type(f))
             if path == "/" or path == "":
@@ -284,7 +345,6 @@ class Handler(BaseHTTPRequestHandler):
                 if index.is_file():
                     return self._send(200, index.read_bytes(), _content_type(index))
 
-        # Local-only: no marketing → send people to the app
         if path in ("/", ""):
             return self._redirect("/app/")
 
@@ -298,6 +358,68 @@ class Handler(BaseHTTPRequestHandler):
             payload = _read_json(self)
         except json.JSONDecodeError:
             return self._send(400, b'{"error":"invalid json"}', "application/json")
+
+        # ---- MCP (partner API key) ----
+        if path in ("/mcp", "/mcp/"):
+            partner = partner_from_mcp_key(CONN, self._bearer())
+            if not partner:
+                return self._send(401, b'{"error":"invalid or revoked MCP key"}', "application/json")
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"JSON-RPC object required"}', "application/json")
+            # batch support
+            if isinstance(payload.get("method"), str) or "method" in payload:
+                result = handle_mcp_rpc(CONN, partner, payload)
+                status, body, ctype = _json_bytes(result)
+                return self._send(status, body, ctype)
+            return self._send(400, b'{"error":"JSON-RPC method required"}', "application/json")
+
+        # ---- Partner auth ----
+        if path == "/api/partner/login":
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"object required"}', "application/json")
+            partner = authenticate_partner(
+                CONN, str(payload.get("email") or ""), str(payload.get("password") or "")
+            )
+            if not partner:
+                return self._send(401, b'{"error":"invalid credentials"}', "application/json")
+            token = create_session(CONN, partner["id"])
+            status, body, ctype = _json_bytes({"ok": True, "partner": partner})
+            cookie = (
+                f"glowops_partner={token}; Path=/; HttpOnly; SameSite=Lax; Max-Age={12 * 3600}"
+            )
+            return self._send(status, body, ctype, {"Set-Cookie": cookie})
+
+        if path == "/api/partner/logout":
+            revoke_session(CONN, self._cookie("glowops_partner"))
+            status, body, ctype = _json_bytes({"ok": True})
+            return self._send(
+                status,
+                body,
+                ctype,
+                {"Set-Cookie": "glowops_partner=; Path=/; HttpOnly; Max-Age=0"},
+            )
+
+        if path == "/api/partner/mcp-keys":
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            label = "Default"
+            if isinstance(payload, dict):
+                label = str(payload.get("label") or "Default")
+            minted = mint_mcp_key(CONN, partner["id"], label=label, scopes="read")
+            status, body, ctype = _json_bytes(minted)
+            return self._send(status, body, ctype)
+
+        if path.startswith("/api/partner/mcp-keys/") and path.endswith("/revoke"):
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            key_id = path[len("/api/partner/mcp-keys/") : -len("/revoke")]
+            ok = revoke_mcp_key(CONN, partner["id"], key_id)
+            if not ok:
+                return self._send(404, b'{"error":"key not found"}', "application/json")
+            status, body, ctype = _json_bytes({"ok": True, "id": key_id})
+            return self._send(status, body, ctype)
 
         if path == "/api/ingest":
             tenant = (
@@ -355,11 +477,12 @@ class Handler(BaseHTTPRequestHandler):
 
 def main() -> None:
     print(f"GlowOps dashboard  http://127.0.0.1:{PORT}/app/")
-    print(f"  API summary      http://127.0.0.1:{PORT}/api/summary?tenant=demo")
-    print(f"  Agent download   http://127.0.0.1:{PORT}/download/agent.zip")
+    print(f"  Partner MCP UI   http://127.0.0.1:{PORT}/partner/")
+    print(f"  MCP endpoint     http://127.0.0.1:{PORT}/mcp")
+    print(f"  Demo partner     partner@getglowop.com / GlowOps-Partner-2026!")
+    if DEMO_PARTNER.get("bootstrapKey"):
+        print(f"  Bootstrap key    {DEMO_PARTNER['bootstrapKey']['apiKey']}")
     print(f"  SQLite           {DB_PATH}")
-    print(f"  Marketing root   {MARKETING_ROOT or '(none — / redirects to /app/)'}")
-    print("  Auth             none (demo mode)")
     httpd = ThreadingHTTPServer((HOST, PORT), Handler)
     try:
         httpd.serve_forever()

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light only" />
+  <title>GlowOps Partner — MCP &amp; login</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/styles.css" />
+  <link rel="stylesheet" href="/app/partner.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="wordmark" href="/"><span class="dot"></span>GLOW&nbsp;Ops <small>Partner</small></a>
+    <nav class="rail">
+      <a class="btn ghost" href="/app/">Fleet report</a>
+      <button type="button" class="btn ghost" id="logoutBtn" hidden>Log out</button>
+    </nav>
+  </header>
+
+  <main class="sheet partner-sheet">
+    <section id="loginView" class="panel-card">
+      <p class="kicker"><span class="live"></span> Partner console</p>
+      <h1>Sign in to mint <span class="serif-i">MCP</span> keys</h1>
+      <p class="subhead">Each partner only sees their assigned customer businesses. API keys authenticate AI agents — plaintext shown once.</p>
+      <form id="loginForm" class="login-form">
+        <label>Email<input id="email" type="email" required autocomplete="username" value="partner@getglowop.com" /></label>
+        <label>Password<input id="password" type="password" required autocomplete="current-password" value="GlowOps-Partner-2026!" /></label>
+        <button class="btn lime" type="submit">Sign in</button>
+        <p class="hint" id="loginErr"></p>
+      </form>
+    </section>
+
+    <section id="dashView" hidden>
+      <header class="report-head">
+        <div class="report-titles">
+          <p class="kicker"><span class="live"></span> Isolated tenant data</p>
+          <h1>Partner <span class="serif-i">MCP</span></h1>
+          <p class="subhead" id="partnerHello">—</p>
+        </div>
+        <aside class="meta">
+          <dl>
+            <div><dt>MCP URL</dt><dd class="mono-sm" id="mcpUrl">/mcp</dd></div>
+            <div><dt>Businesses</dt><dd id="bizCount">—</dd></div>
+            <div><dt>Active keys</dt><dd id="keyCount">—</dd></div>
+          </dl>
+        </aside>
+      </header>
+
+      <section class="panel-card">
+        <div class="panel-head">
+          <h2>Assigned businesses</h2>
+          <p>Customer fleets this partner may query via MCP. Not merged into one tenant.</p>
+        </div>
+        <ul class="biz-list" id="bizList"></ul>
+      </section>
+
+      <section class="panel-card">
+        <div class="panel-head">
+          <h2>MCP API keys</h2>
+          <p>Bearer token for Cursor / Claude / partner agents. Hash stored only.</p>
+        </div>
+        <form id="mintForm" class="mint-row">
+          <input id="keyLabel" placeholder="Label (e.g. Cursor prod)" maxlength="64" />
+          <button class="btn lime" type="submit">Mint key</button>
+        </form>
+        <div id="freshKey" class="fresh-key" hidden>
+          <p><strong>Copy now</strong> — this secret is not shown again.</p>
+          <code id="freshKeyValue"></code>
+          <button type="button" class="btn ghost" id="copyKey">Copy</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Label</th><th>Prefix</th><th>Scopes</th><th>Created</th><th>Last used</th><th></th></tr>
+            </thead>
+            <tbody id="keysBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel-card">
+        <div class="panel-head">
+          <h2>Connect an AI agent</h2>
+          <p>Cursor / Claude Desktop style MCP remote server config.</p>
+        </div>
+        <pre class="config-block" id="mcpConfig"></pre>
+        <p class="hint">Tools: glowops_list_businesses, glowops_fleet_summary, glowops_list_devices, glowops_get_device, glowops_score_device.</p>
+      </section>
+    </section>
+  </main>
+  <script src="/app/partner.js"></script>
+</body>
+</html>
