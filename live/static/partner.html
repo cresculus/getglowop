@@ -16,7 +16,8 @@
   <header class="topbar">
     <a class="wordmark" href="/"><span class="dot"></span>GLOW&nbsp;Ops</a>
     <div class="views" id="partnerViews" hidden>
-      <button type="button" class="view-tab" data-pview="keys" aria-selected="true">Keys</button>
+      <button type="button" class="view-tab" data-pview="enroll" aria-selected="true">Enroll</button>
+      <button type="button" class="view-tab" data-pview="keys" aria-selected="false">MCP</button>
       <button type="button" class="view-tab" data-pview="biz" aria-selected="false">Businesses</button>
       <button type="button" class="view-tab" data-pview="connect" aria-selected="false">Connect</button>
     </div>
@@ -53,7 +54,41 @@
       </aside>
 
       <section class="pane main-pane">
-        <div class="pview" id="pviewKeys" data-active="true">
+        <div class="pview" id="pviewEnroll" data-active="true">
+          <div class="ledger-head">
+            <h1>Device join keys</h1>
+            <form id="enrollForm" class="mint-inline">
+              <select id="enrollBiz" title="Business"></select>
+              <select id="enrollTtl" title="Expiry">
+                <option value="1">1 hour</option>
+                <option value="24" selected>24 hours</option>
+                <option value="168">7 days</option>
+                <option value="720">30 days max</option>
+              </select>
+              <input id="enrollLabel" placeholder="Label" maxlength="64" />
+              <button class="btn lime" type="submit">Mint join key</button>
+            </form>
+          </div>
+          <div id="freshEnroll" class="fresh-key enroll-secret" hidden>
+            <div>
+              <p><strong>Copy into the GlowOps Agent menu</strong> — password shown once. Expires automatically; join-only.</p>
+              <p class="mono">Key: <code id="freshJoinKey"></code></p>
+              <p class="mono">Password: <code id="freshJoinPass"></code></p>
+              <p class="hint" id="freshJoinExp"></p>
+            </div>
+            <button type="button" class="btn ghost" id="copyEnroll">Copy both</button>
+          </div>
+          <div class="table-fit">
+            <table>
+              <thead>
+                <tr><th>Label</th><th>Business</th><th>Key</th><th>Status</th><th>Expires</th><th>Uses</th><th></th></tr>
+              </thead>
+              <tbody id="enrollBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="pview" id="pviewKeys" data-active="false" hidden>
           <div class="ledger-head">
             <h1>MCP keys</h1>
             <form id="mintForm" class="mint-inline">

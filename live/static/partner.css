@@ -71,6 +71,15 @@
   flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-family: var(--mono); font-size: 0.72rem;
 }
+.fresh-key.enroll-secret {
+  align-items: flex-start;
+}
+.fresh-key.enroll-secret p { margin: 0.15rem 0; }
+.fresh-key.enroll-secret .mono { font-size: 0.75rem; }
+.mint-inline select {
+  border: 2px solid var(--line); min-height: 28px; background: var(--bg);
+  font: 600 0.72rem/1 var(--font); max-width: 110px;
+}
 .pview {
   height: 100%;
   min-height: 0;

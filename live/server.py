@@ -37,6 +37,12 @@ from db import (  # noqa: E402
 )
 from graph_map import map_managed_devices  # noqa: E402
 from mcp_protocol import handle_mcp_rpc  # noqa: E402
+from enrollment import (  # noqa: E402
+    list_enrollment_keys,
+    mint_enrollment_key,
+    revoke_enrollment_key,
+    verify_enrollment,
+)
 from partners import (  # noqa: E402
     authenticate_partner,
     create_session,
@@ -45,6 +51,7 @@ from partners import (  # noqa: E402
     mint_mcp_key,
     partner_from_mcp_key,
     partner_from_session,
+    partner_may_access,
     revoke_mcp_key,
     revoke_session,
     seed_demo_partner,
@@ -290,6 +297,13 @@ class Handler(BaseHTTPRequestHandler):
             status, body, ctype = _json_bytes({"keys": list_mcp_keys(CONN, partner["id"])})
             return self._send(status, body, ctype)
 
+        if path.rstrip("/") == "/api/partner/enrollment-keys":
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            status, body, ctype = _json_bytes({"keys": list_enrollment_keys(CONN, partner["id"])})
+            return self._send(status, body, ctype)
+
         if path.rstrip("/") in (f"/download/{AGENT_EXE_NAME}", "/download/agent.exe"):
             exe = _agent_exe_path()
             if exe:
@@ -421,19 +435,95 @@ class Handler(BaseHTTPRequestHandler):
             status, body, ctype = _json_bytes({"ok": True, "id": key_id})
             return self._send(status, body, ctype)
 
-        if path == "/api/ingest":
-            tenant = (
-                (payload.get("tenantId") if isinstance(payload, dict) else None)
-                or (qs.get("tenant") or ["demo"])[0]
+        if path == "/api/partner/enrollment-keys":
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"object required"}', "application/json")
+            business_id = str(payload.get("businessId") or "").strip()
+            if not business_id or not partner_may_access(CONN, partner["id"], business_id):
+                return self._send(403, b'{"error":"business not assigned to partner"}', "application/json")
+            ttl = int(payload.get("ttlHours") or 24)
+            label = str(payload.get("label") or "Device join")
+            minted = mint_enrollment_key(
+                CONN,
+                partner_id=partner["id"],
+                business_id=business_id,
+                label=label,
+                ttl_hours=ttl,
             )
-            source = (payload.get("source") if isinstance(payload, dict) else None) or "api"
-            body = payload
-            if isinstance(payload, dict):
-                body = payload.get("devices") or payload.get("value") or payload.get("managedDevices") or payload
+            status, body, ctype = _json_bytes(minted)
+            return self._send(status, body, ctype)
+
+        if path.startswith("/api/partner/enrollment-keys/") and path.endswith("/revoke"):
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            key_id = path[len("/api/partner/enrollment-keys/") : -len("/revoke")]
+            ok = revoke_enrollment_key(CONN, partner["id"], key_id)
+            if not ok:
+                return self._send(404, b'{"error":"key not found"}', "application/json")
+            status, body, ctype = _json_bytes({"ok": True, "id": key_id})
+            return self._send(status, body, ctype)
+
+        if path == "/api/agent/join":
+            # Validate join key+password without uploading devices (agent menu probe).
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"object required"}', "application/json")
+            enrollment = verify_enrollment(
+                CONN,
+                join_key=str(payload.get("joinKey") or payload.get("key") or ""),
+                join_password=str(payload.get("joinPassword") or payload.get("password") or ""),
+                business_id=payload.get("businessId") or payload.get("tenantId"),
+            )
+            if not enrollment:
+                return self._send(
+                    401,
+                    b'{"error":"invalid, revoked, or expired join key"}',
+                    "application/json",
+                )
+            status, body_out, ctype = _json_bytes(
+                {
+                    "ok": True,
+                    "businessId": enrollment["businessId"],
+                    "expiresAt": enrollment["expiresAt"],
+                    "scope": enrollment["scope"],
+                    "label": enrollment["label"],
+                }
+            )
+            return self._send(status, body_out, ctype)
+
+        if path == "/api/ingest":
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"object required"}', "application/json")
+            # Device join path requires enrollment key+password (fail closed after expiry).
+            source = str(payload.get("source") or "api")
+            enrollment = None
+            if source.startswith("agent") or payload.get("joinKey") or payload.get("joinPassword"):
+                enrollment = verify_enrollment(
+                    CONN,
+                    join_key=str(payload.get("joinKey") or ""),
+                    join_password=str(payload.get("joinPassword") or ""),
+                    business_id=payload.get("tenantId") or payload.get("businessId"),
+                )
+                if not enrollment:
+                    return self._send(
+                        401,
+                        b'{"error":"join key required — invalid, revoked, or expired"}',
+                        "application/json",
+                    )
+                tenant = enrollment["businessId"]
+                source = "agent-join"
+            else:
+                # Dashboard paste / lab ingest (partner session or open demo tenant)
+                partner = self._session_partner()
+                tenant = str(payload.get("tenantId") or payload.get("businessId") or (qs.get("tenant") or ["demo"])[0])
+                if partner and not partner_may_access(CONN, partner["id"], tenant):
+                    return self._send(403, b'{"error":"business not assigned"}', "application/json")
+            body = payload.get("devices") or payload.get("value") or payload.get("managedDevices") or payload
             devices = map_managed_devices(body)
-            if not devices and isinstance(payload, dict) and (
-                payload.get("deviceName") or payload.get("serialNumber")
-            ):
+            if not devices and (payload.get("deviceName") or payload.get("serialNumber")):
                 devices = map_managed_devices([payload])
             results = []
             for d in devices:
@@ -443,9 +533,11 @@ class Handler(BaseHTTPRequestHandler):
                 {
                     "ok": True,
                     "tenantId": tenant,
+                    "businessId": tenant,
                     "ingested": len(results),
                     "results": results,
                     "summary": fleet_summary(CONN, str(tenant)),
+                    "enrollment": {"expiresAt": enrollment["expiresAt"]} if enrollment else None,
                 }
             )
             return self._send(status, body_out, ctype)
@@ -453,14 +545,35 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/agent/heartbeat":
             if not isinstance(payload, dict):
                 return self._send(400, b'{"error":"object required"}', "application/json")
+            enrollment = verify_enrollment(
+                CONN,
+                join_key=str(payload.get("joinKey") or ""),
+                join_password=str(payload.get("joinPassword") or ""),
+                business_id=payload.get("tenantId") or payload.get("businessId"),
+            )
+            if not enrollment:
+                return self._send(
+                    401,
+                    b'{"error":"join key required — invalid, revoked, or expired"}',
+                    "application/json",
+                )
+            payload = {**payload, "tenantId": enrollment["businessId"]}
             record_heartbeat(CONN, payload)
             devices = map_managed_devices(payload.get("devices") or [])
-            tenant = payload.get("tenantId") or "demo"
+            tenant = enrollment["businessId"]
             for d in devices:
                 upsert_device(CONN, str(tenant), d, source="agent")
             if devices:
                 record_ingest(CONN, str(tenant), "agent", len(devices))
-            status, body_out, ctype = _json_bytes({"ok": True, "received": True, "devices": len(devices)})
+            status, body_out, ctype = _json_bytes(
+                {
+                    "ok": True,
+                    "received": True,
+                    "devices": len(devices),
+                    "businessId": tenant,
+                    "expiresAt": enrollment["expiresAt"],
+                }
+            )
             return self._send(status, body_out, ctype)
 
         if path == "/api/score":

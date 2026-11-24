@@ -25,9 +25,15 @@
   }
 
   function setPView(name) {
-    const map = { keys: "pviewKeys", biz: "pviewBiz", connect: "pviewConnect" };
+    const map = {
+      enroll: "pviewEnroll",
+      keys: "pviewKeys",
+      biz: "pviewBiz",
+      connect: "pviewConnect",
+    };
     Object.entries(map).forEach(([key, id]) => {
       const el = $(id);
+      if (!el) return;
       const on = key === name;
       el.hidden = !on;
       el.dataset.active = on ? "true" : "false";
@@ -60,7 +66,7 @@
     $("partnerHello").hidden = false;
     $("partnerHello").textContent = me.email || me.name || "";
     renderConfig();
-    setPView("keys");
+    setPView("enroll");
     refresh().catch((err) => {
       console.error(err);
       $("loginErr").textContent = String(err.message || err);
@@ -76,8 +82,21 @@
   }
 
   async function refresh() {
-    const [biz, keys] = await Promise.all([api("/api/partner/businesses"), api("/api/partner/mcp-keys")]);
+    const [biz, keys, enroll] = await Promise.all([
+      api("/api/partner/businesses"),
+      api("/api/partner/mcp-keys"),
+      api("/api/partner/enrollment-keys"),
+    ]);
     $("bizCount").textContent = (biz.businesses || []).length;
+    const bizSelect = $("enrollBiz");
+    if (bizSelect) {
+      bizSelect.innerHTML = (biz.businesses || [])
+        .map(
+          (b) =>
+            `<option value="${esc(b.business_id)}">${esc(b.business_name || b.business_id)}</option>`
+        )
+        .join("");
+    }
     $("bizList").innerHTML = (biz.businesses || [])
       .map(
         (b) =>
@@ -101,6 +120,24 @@
             revoked
               ? "<em>revoked</em>"
               : `<button type="button" class="btn ghost danger" data-revoke="${esc(k.id)}">Revoke</button>`
+          }</td>
+        </tr>`;
+      })
+      .join("");
+    $("enrollBody").innerHTML = (enroll.keys || [])
+      .map((k) => {
+        const status = k.status || "active";
+        return `<tr>
+          <td>${esc(k.label)}</td>
+          <td>${esc(k.business_id)}</td>
+          <td><code>${esc(k.key_code)}</code></td>
+          <td>${esc(status)}</td>
+          <td>${esc((k.expires_at || "").slice(0, 16).replace("T", " "))}</td>
+          <td>${esc(k.use_count ?? 0)}</td>
+          <td>${
+            status === "active"
+              ? `<button type="button" class="btn ghost danger" data-revoke-enroll="${esc(k.id)}">Revoke</button>`
+              : "—"
           }</td>
         </tr>`;
       })
@@ -155,6 +192,62 @@
         await api("/api/partner/logout", { method: "POST", body: "{}" });
       } catch (_) {}
       showLogin();
+    });
+  }
+
+  const enrollForm = $("enrollForm");
+  if (enrollForm) {
+    enrollForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try {
+        const minted = await api("/api/partner/enrollment-keys", {
+          method: "POST",
+          body: JSON.stringify({
+            businessId: $("enrollBiz").value,
+            ttlHours: Number($("enrollTtl").value || 24),
+            label: $("enrollLabel").value || "Device join",
+          }),
+        });
+        $("freshEnroll").hidden = false;
+        $("freshJoinKey").textContent = minted.joinKey;
+        $("freshJoinPass").textContent = minted.joinPassword;
+        $("freshJoinExp").textContent = `Expires ${minted.expiresAt} · scope ${minted.scope} · TTL ${minted.ttlHours}h`;
+        $("enrollLabel").value = "";
+        await refresh();
+      } catch (err) {
+        alert(String(err.message || err));
+      }
+    });
+  }
+
+  const copyEnroll = $("copyEnroll");
+  if (copyEnroll) {
+    copyEnroll.addEventListener("click", async () => {
+      const text = `Join Key: ${$("freshJoinKey").textContent}\nJoin Password: ${$("freshJoinPass").textContent}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        copyEnroll.textContent = "Copied";
+      } catch (_) {
+        copyEnroll.textContent = "Copy";
+      }
+    });
+  }
+
+  const enrollBody = $("enrollBody");
+  if (enrollBody) {
+    enrollBody.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-revoke-enroll]");
+      if (!btn) return;
+      if (!confirm("Revoke this join key? Agents using it will fail closed.")) return;
+      try {
+        await api(
+          `/api/partner/enrollment-keys/${encodeURIComponent(btn.getAttribute("data-revoke-enroll"))}/revoke`,
+          { method: "POST", body: "{}" }
+        );
+        await refresh();
+      } catch (err) {
+        alert(String(err.message || err));
+      }
     });
   }
 
