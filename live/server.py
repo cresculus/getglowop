@@ -68,20 +68,40 @@ def _read_json(handler: BaseHTTPRequestHandler) -> object:
     return json.loads(raw.decode("utf-8"))
 
 
+AGENT_EXE_NAME = "GlowOpsAgent.exe"
+AGENT_RELEASE_URL = os.environ.get(
+    "GLOWOPS_AGENT_RELEASE_URL",
+    "https://github.com/cresculus/getglowop/releases/latest/download/GlowOpsAgent.exe",
+)
+
+
+def _agent_exe_path() -> Path | None:
+    candidate = AGENT_DIR / AGENT_EXE_NAME
+    return candidate if candidate.is_file() else None
+
+
 def _agent_zip() -> bytes:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-        for path in sorted(AGENT_DIR.rglob("*")):
-            if path.is_file() and "__pycache__" not in path.parts:
-                zf.write(path, arcname=str(Path("glowops-agent") / path.relative_to(AGENT_DIR)))
+        exe = _agent_exe_path()
+        if exe:
+            zf.write(exe, arcname=f"glowops-agent/{AGENT_EXE_NAME}")
+        sidecar = AGENT_DIR / "glowops.agent.json"
+        if sidecar.is_file():
+            zf.write(sidecar, arcname="glowops-agent/glowops.agent.json")
+        # Keep optional Python helper for labs; EXE is the published agent.
+        py = AGENT_DIR / "agent.py"
+        if py.is_file():
+            zf.write(py, arcname="glowops-agent/agent.py")
         zf.writestr(
             "glowops-agent/README.txt",
-            "GlowOps Agent\n"
-            "1. Set GLOWOPS_URL to your dashboard (default http://127.0.0.1:8787)\n"
-            "2. Set GLOWOPS_TENANT (default demo)\n"
-            "3. python agent.py heartbeat\n"
-            "4. python agent.py inventory --file devices.json\n"
-            "   devices.json = Graph managedDevices list or {\"value\":[...]}\n",
+            "GlowOps Agent (Windows)\n"
+            "=======================\n"
+            "1. Edit glowops.agent.json (url + tenantId) next to the EXE\n"
+            "2. Double-click GlowOpsAgent.exe  (run = heartbeat + this host)\n"
+            "   Or: GlowOpsAgent.exe inventory --file devices.json\n"
+            "3. Graph/Intune JSON uses the same shape as managedDevices value[]\n"
+            f"\nDirect EXE: /download/{AGENT_EXE_NAME}\n",
         )
     return buf.getvalue()
 
@@ -210,7 +230,21 @@ class Handler(BaseHTTPRequestHandler):
                 {"Content-Disposition": f'attachment; filename="glowops-{tenant}.csv"'},
             )
 
+        if path.rstrip("/") in (f"/download/{AGENT_EXE_NAME}", "/download/agent.exe"):
+            exe = _agent_exe_path()
+            if exe:
+                return self._send(
+                    200,
+                    exe.read_bytes(),
+                    "application/vnd.microsoft.portable-executable",
+                    {"Content-Disposition": f'attachment; filename="{AGENT_EXE_NAME}"'},
+                )
+            return self._redirect(AGENT_RELEASE_URL)
+
         if path.rstrip("/") == "/download/agent.zip":
+            # Prefer zip that includes EXE when present; otherwise redirect to release EXE.
+            if _agent_exe_path() is None and not (AGENT_DIR / "agent.py").is_file():
+                return self._redirect(AGENT_RELEASE_URL)
             data = _agent_zip()
             return self._send(
                 200,

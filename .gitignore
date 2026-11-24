@@ -5,3 +5,7 @@ node_modules/
 live/data/
 **/__pycache__/
 *.pyc
+*.exe
+!Dockerfile
+live/agent/GlowOpsAgent.exe
+live/agent/*.exe
