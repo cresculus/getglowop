@@ -259,6 +259,35 @@ class Handler(BaseHTTPRequestHandler):
             status, body, ctype = _json_bytes({"tenantId": tenant, "devices": slim, "count": len(slim)})
             return self._send(status, body, ctype)
 
+        if path.startswith("/api/devices/"):
+            device_id = path[len("/api/devices/") :].strip("/")
+            if not device_id:
+                return self._send(400, b'{"error":"device id required"}', "application/json")
+            rows = list_devices(CONN, tenant)
+            match = next((dict(r) for r in rows if str(r.get("id")) == device_id), None)
+            if not match:
+                # Fall back across tenants only when explicitly asked via tenant=*
+                if tenant == "*":
+                    rows = list_devices(CONN, None)
+                    match = next((dict(r) for r in rows if str(r.get("id")) == device_id), None)
+            if not match:
+                return self._send(404, b'{"error":"device not found"}', "application/json")
+            inv = None
+            raw = match.get("raw_json")
+            if raw:
+                try:
+                    parsed = json.loads(raw) if isinstance(raw, str) else raw
+                    inv = parsed.get("glowopsInventory") if isinstance(parsed, dict) else None
+                    if inv is None and isinstance(parsed, dict) and parsed.get("device"):
+                        inv = parsed
+                    match["inventory"] = inv
+                    match["raw"] = parsed
+                except Exception:
+                    match["inventory"] = None
+                    match["raw"] = None
+            status, body, ctype = _json_bytes({"tenantId": match.get("tenant_id") or tenant, "device": match})
+            return self._send(status, body, ctype)
+
         if path.rstrip("/") == "/api/export.csv":
             rows = list_devices(CONN, tenant)
             out = io.StringIO()

@@ -16,19 +16,21 @@
     <a class="wordmark" href="/"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
     <div class="views" role="tablist" aria-label="Views">
       <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
+      <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
+      <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
       <button type="button" class="view-tab" data-view="ingest" aria-selected="false">Ingest</button>
     </div>
     <div class="rail">
       <label class="biz"><span>Biz</span><input id="tenant" value="demo" spellcheck="false" /></label>
       <button type="button" class="btn ghost" id="refresh" title="Reload">↻</button>
       <a class="btn ghost" id="exportCsv" href="/api/export.csv?tenant=demo">CSV</a>
-      <a class="btn ghost" href="/partner/">MCP</a>
+      <a class="btn ghost" href="/partner/">Partner</a>
       <a class="btn lime" href="/download/GlowOpsAgent.exe">Agent</a>
     </div>
   </header>
 
   <main class="workspace">
-    <!-- FLEET: one viewport, three panes -->
+    <!-- FLEET -->
     <section class="view view-fleet" id="viewFleet" data-active="true">
       <aside class="pane stats" aria-label="Snapshot">
         <p class="pane-label"><span class="live"></span> <span id="status">Loading…</span></p>
@@ -64,6 +66,7 @@
                 <th>GLOW</th>
                 <th>Age</th>
                 <th>Sync</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="tbody"></tbody>
@@ -81,14 +84,46 @@
           <p id="d-model">—</p>
           <div class="detail-row"><span>Call</span><strong id="d-call">—</strong></div>
           <div class="detail-row"><span>GLOW</span><strong id="d-glow">—</strong></div>
+          <div class="detail-row"><span>Battery</span><strong id="d-batt">—</strong></div>
           <div class="detail-row"><span>Compliance</span><strong id="d-comp">—</strong></div>
           <div class="detail-row"><span>User</span><strong id="d-user">—</strong></div>
           <p class="why" id="d-why">—</p>
+          <button type="button" class="btn lime detail-open" id="openProperties">Properties</button>
         </div>
       </aside>
     </section>
 
-    <!-- INGEST: separate full viewport page -->
+    <!-- DASHBOARD -->
+    <section class="view view-dashboard" id="viewDashboard" data-active="false" hidden>
+      <div class="dash-fit">
+        <div class="ledger-head">
+          <h1>Fleet <em>Dashboard</em></h1>
+          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
+        </div>
+        <div class="dash-grid" id="dashGrid"></div>
+      </div>
+    </section>
+
+    <!-- PROPERTIES -->
+    <section class="view view-properties" id="viewProperties" data-active="false" hidden>
+      <div class="props-fit">
+        <div class="ledger-head">
+          <div>
+            <p class="pane-label">Device properties</p>
+            <h1 id="p-title">—</h1>
+          </div>
+          <div class="pager">
+            <button type="button" class="btn ghost" data-back-fleet>Fleet</button>
+            <button type="button" class="btn lime" id="propsToDash">Dashboard</button>
+          </div>
+        </div>
+        <div class="props-body" id="propsBody">
+          <p class="detail-empty">Pick a device from Fleet, then open Properties.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- INGEST -->
     <section class="view view-ingest" id="viewIngest" data-active="false" hidden>
       <div class="ingest-fit">
         <div>
@@ -99,7 +134,7 @@
         <textarea id="ingestJson" spellcheck="false" placeholder='{"value":[{"deviceName":"…","serialNumber":"…","lastSyncDateTime":"…"}]}'></textarea>
         <div class="ingest-actions">
           <button type="button" class="btn lime" id="ingestBtn">Ingest</button>
-          <button type="button" class="btn ghost" id="backFleet">Back to fleet</button>
+          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
           <span id="ingestStatus"></span>
         </div>
       </div>
