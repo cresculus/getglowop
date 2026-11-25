@@ -56,6 +56,7 @@ from partners import (  # noqa: E402
     authenticate_partner,
     bind_business,
     create_session,
+    ensure_clerk_partner,
     list_mcp_keys,
     list_partner_businesses,
     mint_mcp_key,
@@ -235,7 +236,13 @@ class Handler(BaseHTTPRequestHandler):
         if token and token.count(".") == 2 and clerk_configured():
             claims = verify_bearer_token(token)
             if claims:
-                return partner_from_claims(claims)
+                stub = partner_from_claims(claims)
+                return ensure_clerk_partner(
+                    CONN,
+                    partner_id=stub["id"],
+                    name=stub.get("name") or "Partner",
+                    email=stub.get("email") or "",
+                )
         return self._session_partner()
 
     def do_OPTIONS(self) -> None:  # noqa: N802
@@ -258,7 +265,8 @@ class Handler(BaseHTTPRequestHandler):
                     "partner": "/partner/",
                     "mcp": "/mcp",
                     "fleetAuth": "none-demo",
-                    "partnerAuth": "session+mcp-key",
+                    "partnerAuth": "clerk+session+mcp-key" if clerk_configured() else "session+mcp-key",
+                    "clerk": clerk_configured(),
                 }
             )
             return self._send(status, body, ctype)
@@ -460,9 +468,25 @@ class Handler(BaseHTTPRequestHandler):
                 {"Content-Disposition": 'attachment; filename="glowops-agent.zip"'},
             )
 
-        # Partner console
+        # Partner console + Clerk auth pages
         if path.rstrip("/") in ("/partner", "/partner/"):
             f = STATIC_DIR / "partner.html"
+            return self._send(
+                200,
+                f.read_bytes(),
+                _content_type(f),
+                {"Cache-Control": "no-store, max-age=0"},
+            )
+        if path.rstrip("/") == "/partner/sign-in":
+            f = STATIC_DIR / "partner-sign-in.html"
+            return self._send(
+                200,
+                f.read_bytes(),
+                _content_type(f),
+                {"Cache-Control": "no-store, max-age=0"},
+            )
+        if path.rstrip("/") == "/partner/sign-up":
+            f = STATIC_DIR / "partner-sign-up.html"
             return self._send(
                 200,
                 f.read_bytes(),

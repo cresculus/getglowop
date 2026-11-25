@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css?v=clerk-1" />
-  <link rel="stylesheet" href="/app/partner.css?v=clerk-1" />
+  <link rel="stylesheet" href="/app/styles.css?v=clerk-2" />
+  <link rel="stylesheet" href="/app/partner.css?v=clerk-2" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -33,18 +33,18 @@
     <section id="loginView" class="login-fit">
       <div class="login-card">
         <p class="pane-label"><span class="live"></span> Partner console</p>
-        <h1>Sign in</h1>
-        <p class="lede">Add businesses, enroll devices, then open each fleet report.</p>
-        <div id="clerkSignIn" class="clerk-sign-in" hidden>
-          <div id="clerkMount"></div>
-          <p class="hint">Sign in with the GlowOps Clerk app.</p>
-        </div>
-        <form id="loginForm" class="login-form">
-          <p class="hint" id="legacyLoginLabel">Lab password login (disabled once Clerk keys are set)</p>
+        <h1>Dashboard</h1>
+        <p class="lede" id="dashGateLede">Checking sign-in…</p>
+        <p class="hint" id="loginErr"></p>
+        <p class="hint auth-switch" id="dashGateLinks" hidden>
+          <a class="btn lime" href="/partner/sign-in">Sign in</a>
+          <a class="btn ghost" href="/partner/sign-up">Sign up</a>
+        </p>
+        <form id="loginForm" class="login-form" hidden>
+          <p class="hint" id="legacyLoginLabel">Lab password login</p>
           <label>Email<input id="email" type="email" required autocomplete="username" value="partner@getglowop.com" /></label>
           <label>Password<input id="password" type="password" required autocomplete="current-password" value="GlowOps-Partner-2026!" /></label>
           <button class="btn lime" type="submit">Sign in</button>
-          <p class="hint" id="loginErr"></p>
         </form>
       </div>
     </section>
@@ -194,6 +194,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/partner.js?v=clerk-1"></script>
+  <script src="/app/clerk-partner.js?v=clerk-2"></script>
+  <script src="/app/partner.js?v=clerk-2"></script>
 </body>
 </html>

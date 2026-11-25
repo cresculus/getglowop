@@ -46,6 +46,10 @@
   text-transform: none; letter-spacing: 0;
 }
 .hint { color: var(--muted); font-size: 0.8rem; margin: 0.2rem 0 0; }
+.auth-switch { margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+.auth-switch a { color: var(--ink); font-weight: 700; }
+.clerk-mount { min-height: 220px; margin-top: 0.35rem; }
+.partner-auth .login-card { width: min(440px, 100%); }
 
 .partner-shell .workspace {
   padding: 0.55rem;

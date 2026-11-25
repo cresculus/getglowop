@@ -48,7 +48,7 @@ def _issuer_from_publishable(pk: str) -> str | None:
             return None
         padded = pk[len(prefix) :]
         pad = "=" * (-len(padded) % 4)
-        host = base64.b64decode(padded + pad).decode("utf-8").strip()
+        host = base64.b64decode(padded + pad).decode("utf-8").strip().rstrip("$")
         if not host:
             return None
         if not host.startswith("http"):

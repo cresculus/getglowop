@@ -275,6 +275,34 @@ def partner_from_mcp_key(conn: sqlite3.Connection, api_key: str | None) -> dict[
     }
 
 
+def ensure_clerk_partner(
+    conn: sqlite3.Connection,
+    *,
+    partner_id: str,
+    name: str,
+    email: str,
+) -> dict[str, Any]:
+    """Upsert a partner row for a Clerk user (password unused; auth is JWT)."""
+    ensure_partner_schema(conn)
+    email_n = (email or "").lower().strip() or f"{partner_id}@clerk.local"
+    name_n = (name or "").strip() or email_n.split("@")[0]
+    existing = conn.execute("SELECT id, name, email FROM partners WHERE id = ?", (partner_id,)).fetchone()
+    if existing:
+        conn.execute(
+            "UPDATE partners SET name = ?, email = ?, active = 1 WHERE id = ?",
+            (name_n, email_n, partner_id),
+        )
+        conn.commit()
+        return {"id": partner_id, "name": name_n, "email": email_n, "auth": "clerk"}
+    # Unique email: if another row owns it, keep that id's email suffix
+    clash = conn.execute("SELECT id FROM partners WHERE email = ?", (email_n,)).fetchone()
+    if clash and clash["id"] != partner_id:
+        email_n = f"{partner_id[:12]}-{email_n}"
+    pw = secrets.token_urlsafe(32)
+    create_partner(conn, partner_id=partner_id, name=name_n, email=email_n, password=pw)
+    return {"id": partner_id, "name": name_n, "email": email_n, "auth": "clerk"}
+
+
 def seed_demo_partner(conn: sqlite3.Connection) -> dict[str, Any]:
     """Idempotent demo partner bound to business `demo`."""
     ensure_partner_schema(conn)

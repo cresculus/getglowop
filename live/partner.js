@@ -89,45 +89,33 @@
     return data;
   }
 
+  function goSignIn() {
+    location.replace((window.GlowClerkPartner && GlowClerkPartner.SIGN_IN) || "/partner/sign-in");
+  }
+
   async function initClerk() {
     try {
-      const cfg = await fetch("/api/config/public").then((r) => r.json());
+      if (!window.GlowClerkPartner) return false;
+      const cfg = await GlowClerkPartner.fetchPublicConfig();
       clerkEnabled = !!(cfg.clerk && cfg.clerk.enabled && cfg.clerk.publishableKey);
       if (!clerkEnabled) return false;
-      const pk = cfg.clerk.publishableKey;
-      await new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js";
-        s.async = true;
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-      const Clerk = window.Clerk;
-      if (!Clerk) return false;
-      window.__glowClerk = new Clerk(pk);
-      await window.__glowClerk.load();
-      const mount = $("clerkMount");
-      const box = $("clerkSignIn");
+      const clerk = await GlowClerkPartner.createClerk(cfg.clerk.publishableKey);
       const form = $("loginForm");
-      if (box) box.hidden = false;
       if (form) form.hidden = true;
-      if (window.__glowClerk.session) {
-        clerkToken = await window.__glowClerk.session.getToken();
+      const links = $("dashGateLinks");
+      if (links) links.hidden = false;
+      const lede = $("dashGateLede");
+      if (clerk.session) {
+        clerkToken = await GlowClerkPartner.sessionToken(clerk);
         const me = await api("/api/partner/me");
         showDash(me.partner);
         return true;
       }
-      if (mount) {
-        window.__glowClerk.mountSignIn(mount, {
-          afterSignInUrl: "/partner/",
-          afterSignUpUrl: "/partner/",
-        });
-      }
-      window.__glowClerk.addListener(async ({ session }) => {
+      if (lede) lede.textContent = "Sign in to open your partner dashboard.";
+      clerk.addListener(async ({ session }) => {
         if (!session) {
           clerkToken = null;
-          showLogin();
+          goSignIn();
           return;
         }
         clerkToken = await session.getToken();
@@ -138,6 +126,8 @@
           if ($("loginErr")) $("loginErr").textContent = String(err.message || err);
         }
       });
+      // Unauthenticated dashboard → dedicated sign-in page
+      goSignIn();
       return true;
     } catch (err) {
       console.warn("Clerk init skipped", err);
@@ -162,7 +152,7 @@
     setPView("home");
     refresh().catch((err) => {
       console.error(err);
-      $("loginErr").textContent = String(err.message || err);
+      if ($("loginErr")) $("loginErr").textContent = String(err.message || err);
     });
   }
 
@@ -174,6 +164,21 @@
     const homeBtn = $("homeBtn");
     if (homeBtn) homeBtn.hidden = true;
     $("partnerHello").hidden = true;
+    if (clerkEnabled) {
+      const form = $("loginForm");
+      if (form) form.hidden = true;
+      const links = $("dashGateLinks");
+      if (links) links.hidden = false;
+      const lede = $("dashGateLede");
+      if (lede) lede.textContent = "Sign in to open your partner dashboard.";
+    } else {
+      const form = $("loginForm");
+      if (form) form.hidden = false;
+      const links = $("dashGateLinks");
+      if (links) links.hidden = true;
+      const lede = $("dashGateLede");
+      if (lede) lede.textContent = "Lab password login (Clerk keys not set).";
+    }
   }
 
   async function renderHome() {
@@ -383,12 +388,15 @@
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       try {
-        if (window.__glowClerk) await window.__glowClerk.signOut({ redirectUrl: "/partner/" });
+        if (window.__glowClerk) {
+          await window.__glowClerk.signOut({ redirectUrl: "/partner/sign-in" });
+          return;
+        }
         await api("/api/partner/logout", { method: "POST", body: "{}" });
       } catch (_) {}
       clerkToken = null;
-      showLogin();
-      if (clerkEnabled) initClerk();
+      if (clerkEnabled) goSignIn();
+      else showLogin();
     });
   }
 
