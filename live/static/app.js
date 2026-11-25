@@ -1,7 +1,9 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const CALLS = ["all", "keep", "repair", "redeploy", "refresh", "recycle", "ghost"];
-  const VIEWS = ["fleet", "dashboard", "properties", "resources", "ingest"];
+  // Top nav order: Dashboard → Fleet → Resources → Properties.
+  // Ingest stays as a lab-only view (opened from Resources), not a primary tab.
+  const VIEWS = ["dashboard", "fleet", "resources", "properties", "ingest"];
 
   let devices = [];
   let summary = null;
@@ -575,6 +577,13 @@
     goFleet({ push: false });
   });
   $("propsToDash")?.addEventListener("click", () => setView("dashboard", { push: true }));
+  $("openLabIngest")?.addEventListener("click", () => setView("ingest", { push: true }));
+  document.querySelectorAll("[data-view]:not(.view-tab)").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const name = btn.getAttribute("data-view");
+      if (name) setView(name, { push: true });
+    });
+  });
   $("openProperties")?.addEventListener("click", () => {
     if (selectedId) openProperties(selectedId, { push: true });
   });

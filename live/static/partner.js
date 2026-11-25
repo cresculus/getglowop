@@ -10,16 +10,18 @@
 
   function syncDashLinks() {
     const t = primaryTenant();
-    const q = `from=partner&tenant=${encodeURIComponent(t)}&view=fleet`;
+    const base = `from=partner&tenant=${encodeURIComponent(t)}`;
     const fleet = $("navFleet");
+    const dash = $("navDash");
     const ingest = $("navIngest");
     const csv = $("navCsv");
-    if (fleet) fleet.href = `/app/?${q}`;
-    if (ingest) ingest.href = `/app/?from=partner&tenant=${encodeURIComponent(t)}&view=ingest`;
+    if (fleet) fleet.href = `/app/?${base}&view=fleet`;
+    if (dash) dash.href = `/app/?${base}&view=dashboard`;
+    if (ingest) ingest.href = `/app/?${base}&view=ingest`;
     if (csv) csv.href = `/api/export.csv?tenant=${encodeURIComponent(t)}`;
     document.querySelectorAll(".side-call[data-call]").forEach((a) => {
       const call = a.getAttribute("data-call");
-      a.href = `/app/?from=partner&tenant=${encodeURIComponent(t)}&view=fleet&call=${encodeURIComponent(call)}`;
+      a.href = `/app/?${base}&view=fleet&call=${encodeURIComponent(call)}`;
     });
   }
 

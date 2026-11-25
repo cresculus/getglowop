@@ -16,11 +16,10 @@
     <a class="wordmark" id="homeWordmark" href="/partner/" title="Partner home"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
     <button type="button" class="btn lime home-back" id="homeBack" title="Back">← Fleet report</button>
     <div class="views" role="tablist" aria-label="Views">
-      <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
       <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
-      <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
+      <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
       <button type="button" class="view-tab" data-view="resources" aria-selected="false">Resources</button>
-      <button type="button" class="view-tab" data-view="ingest" aria-selected="false">Ingest</button>
+      <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
     </div>
     <div class="rail">
       <label class="biz"><span>Biz</span><input id="tenant" value="demo" spellcheck="false" /></label>
@@ -141,13 +140,13 @@
         <div class="resources-body">
           <p class="view-lede resources-lede">
             What GlowOps collects, which connector supplies it, Graph permissions required, and what lands in the dashboard store.
-            Product path is <strong>Intune + Entra</strong>; the Windows agent is optional / lab.
+            Product path is <strong>Intune + Entra app registration</strong> — Graph sync pulls devices. No manual paste required for customers.
           </p>
 
           <div class="resources-grid">
             <section class="props-card">
               <h3>1 · Intune / Entra connector</h3>
-              <p class="hint">Primary. Entra app registration → Microsoft Graph <code>managedDevices</code> → same inventory schema → score → report.</p>
+              <p class="hint">Primary. Create an Entra app registration in the customer tenant → admin consent → GlowOps Graph sync reads <code>managedDevices</code> → same inventory schema → score → report. That replaces the old paste-JSON “Ingest” tab.</p>
               <table class="res-table">
                 <thead><tr><th>Signal</th><th>Source</th><th>Used for</th></tr></thead>
                 <tbody>
@@ -220,11 +219,17 @@
               </table>
               <h4>Also stored</h4>
               <ul class="props-list">
-                <li>Ingest events (who/what/count/time)</li>
+                <li>Ingest / sync events (who/what/count/time)</li>
                 <li>Partner sessions + MCP API keys (hashed)</li>
                 <li>Device join keys (hashed password, TTL, revoke)</li>
                 <li>Agent heartbeats (optional)</li>
               </ul>
+            </section>
+
+            <section class="props-card">
+              <h3>5 · Lab only · paste Graph JSON</h3>
+              <p class="hint">Not part of the customer product path. Until Graph sync is live in a tenant, operators can paste a Graph <code>managedDevices</code> export here for demos. Prefer Connect Intune / app registration for real fleets.</p>
+              <button type="button" class="btn ghost" id="openLabIngest">Open lab paste</button>
             </section>
           </div>
         </div>
@@ -234,17 +239,18 @@
       </div>
     </section>
 
-    <!-- INGEST -->
+    <!-- LAB INGEST (not in top nav — opened from Resources) -->
     <section class="view view-ingest" id="viewIngest" data-active="false" hidden>
       <div class="ingest-fit">
         <div>
-          <p class="pane-label">Graph / Intune</p>
-          <h1>Ingest JSON</h1>
-          <p class="lede">Paste managedDevices <code>value</code> into the business selected in the top bar.</p>
+          <p class="pane-label">Lab only</p>
+          <h1>Paste Graph JSON</h1>
+          <p class="lede">Temporary demo path. Customers use an Entra app registration + Graph sync — not this screen. Paste <code>managedDevices</code> <code>value</code> into the business in the top bar.</p>
         </div>
         <textarea id="ingestJson" spellcheck="false" placeholder='{"value":[{"deviceName":"…","serialNumber":"…","lastSyncDateTime":"…"}]}'></textarea>
         <div class="ingest-actions action-dock">
           <button type="button" class="btn lime" id="ingestBtn">Ingest</button>
+          <button type="button" class="btn ghost" data-view="resources">← Resources</button>
           <button type="button" class="btn ghost" data-back-fleet>← Fleet report</button>
           <span id="ingestStatus"></span>
         </div>
