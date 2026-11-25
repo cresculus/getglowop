@@ -753,7 +753,45 @@
   const viewParam = (params.get("view") || "").toLowerCase();
   const deviceParam = params.get("device");
 
-  load().then(() => {
+  async function initFleetAuth() {
+    const userEl = $("fleetUser");
+    const outBtn = $("fleetSignOut");
+    const people = $("managePeople");
+    if (!window.GlowClerkPartner) return;
+    try {
+      const cfg = await GlowClerkPartner.fetchPublicConfig();
+      if (!cfg.clerk?.enabled || !cfg.clerk.publishableKey) return;
+      const clerk = await GlowClerkPartner.createClerk(cfg.clerk.publishableKey);
+      if (!clerk.session) return;
+      const token = await GlowClerkPartner.sessionToken(clerk);
+      const res = await fetch("/api/partner/me", {
+        credentials: "same-origin",
+        headers: token ? { Authorization: "Bearer " + token } : {},
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const email = data.partner?.email || data.partner?.name || "Signed in";
+      if (userEl) {
+        userEl.hidden = false;
+        userEl.textContent = email;
+      }
+      if (people) people.hidden = false;
+      if (outBtn) {
+        outBtn.hidden = false;
+        outBtn.addEventListener("click", async () => {
+          try {
+            await clerk.signOut({ redirectUrl: "/partner/sign-in" });
+          } catch (_) {
+            location.href = "/partner/sign-in";
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("fleet auth", err);
+    }
+  }
+
+  Promise.all([load(), initFleetAuth()]).then(() => {
     if (deviceParam) openProperties(deviceParam, { push: false });
     else if (viewParam === "dashboard") setView("dashboard", { sync: true });
     else if (viewParam === "properties") setView("properties", { sync: true });

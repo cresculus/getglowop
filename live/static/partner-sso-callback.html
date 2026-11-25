@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Signing in · GlowOps</title>
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="/app/styles.css?v=clerk-9" />
+  <link rel="stylesheet" href="/app/partner.css?v=clerk-9" />
+</head>
+<body class="shell partner-shell partner-auth">
+  <main class="workspace login-fit">
+    <div class="login-card">
+      <p class="pane-label"><span class="live"></span> Partner console</p>
+      <h1>Signing in…</h1>
+      <p class="lede" id="lede">Finishing Google / Microsoft sign-in.</p>
+      <p class="hint" id="err"></p>
+    </div>
+  </main>
+  <script src="/app/clerk-partner.js?v=clerk-9"></script>
+  <script>
+    (async () => {
+      const err = document.getElementById("err");
+      try {
+        const cfg = await GlowClerkPartner.fetchPublicConfig();
+        const clerk = await GlowClerkPartner.createClerk(cfg.clerk.publishableKey);
+        if (typeof clerk.handleRedirectCallback === "function") {
+          await clerk.handleRedirectCallback({
+            afterSignInUrl: "/partner/",
+            afterSignUpUrl: "/partner/",
+          });
+        }
+        location.replace("/partner/");
+      } catch (e) {
+        err.textContent = String(e.message || e);
+        setTimeout(() => location.replace("/partner/sign-in"), 2500);
+      }
+    })();
+  </script>
+</body>
+</html>

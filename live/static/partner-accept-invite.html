@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accept invite · GlowOps</title>
+  <meta name="robots" content="noindex" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/styles.css?v=clerk-8" />
+  <link rel="stylesheet" href="/app/partner.css?v=clerk-8" />
+</head>
+<body class="shell partner-shell partner-auth">
+  <header class="topbar">
+    <a class="wordmark" href="/partner/"><span class="dot"></span>GLOW&nbsp;Ops</a>
+  </header>
+  <main class="workspace login-fit">
+    <div class="login-card">
+      <p class="pane-label"><span class="live"></span> Invite</p>
+      <h1>Accept invite</h1>
+      <p class="lede" id="inviteLede">Sign in with the invited email, then we attach you to the business.</p>
+      <div id="clerkMount" class="clerk-mount"></div>
+      <p class="hint" id="inviteErr"></p>
+      <p class="hint"><a href="/partner/">Partner home</a></p>
+    </div>
+  </main>
+  <script src="/app/clerk-partner.js?v=clerk-8"></script>
+  <script>
+    (async () => {
+      const params = new URLSearchParams(location.search);
+      const token = params.get("token") || "";
+      const err = document.getElementById("inviteErr");
+      const lede = document.getElementById("inviteLede");
+      if (!token) {
+        err.textContent = "Missing invite token.";
+        return;
+      }
+      try {
+        const cfg = await GlowClerkPartner.fetchPublicConfig();
+        if (!cfg.clerk?.enabled) {
+          err.textContent = "Clerk not configured.";
+          return;
+        }
+        const clerk = await GlowClerkPartner.createClerk(cfg.clerk.publishableKey);
+        const mount = document.getElementById("clerkMount");
+        async function accept() {
+          const t = await GlowClerkPartner.sessionToken(clerk);
+          if (!t) return;
+          const res = await fetch("/api/partner/invitations/accept", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + t,
+            },
+            body: JSON.stringify({ token }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "accept failed");
+          lede.textContent = `Joined ${data.businessId} as ${data.role}. Redirecting…`;
+          location.replace("/partner/?view=people");
+        }
+        if (clerk.session) {
+          mount.hidden = true;
+          lede.textContent = "Accepting invite…";
+          await accept();
+          return;
+        }
+        GlowClerkPartner.mountSignIn(clerk, mount);
+        clerk.addListener(async ({ session }) => {
+          if (session) {
+            mount.hidden = true;
+            lede.textContent = "Accepting invite…";
+            await accept();
+          }
+        });
+      } catch (e) {
+        err.textContent = String(e.message || e);
+      }
+    })();
+  </script>
+</body>
+</html>

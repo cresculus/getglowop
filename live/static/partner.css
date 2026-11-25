@@ -66,25 +66,21 @@
 .login-card-auth .lede { margin-bottom: 0.55rem; }
 .partner-auth .login-card,
 .login-card-auth { width: min(420px, 100%); }
-.auth-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.35rem;
-  margin: 0 0 0.65rem;
+.role-chip {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--line);
+  padding: 0.2rem 0.4rem;
+  background: var(--lime);
 }
-.auth-tab {
+.people-toolbar { margin: 0 0.85rem 0.75rem; align-items: center; }
+.role-select {
   border: 2px solid var(--line);
   background: var(--bg);
-  min-height: 36px;
-  font: 800 0.72rem/1 var(--mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  color: var(--ink);
-}
-.auth-tab[aria-selected="true"] {
-  background: var(--lime, #c8f531);
-  box-shadow: 2px 2px 0 var(--ink);
+  min-height: 32px;
+  font: 700 0.8rem/1 var(--font);
 }
 
 .partner-shell .workspace {

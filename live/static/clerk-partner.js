@@ -3,6 +3,7 @@
   const AFTER = "/partner/";
   const SIGN_IN = "/partner/sign-in";
   const SIGN_UP = "/partner/sign-up";
+  const SSO_CB = "/partner/sso-callback";
 
   function cleanKey(pk) {
     return String(pk || "")
@@ -34,14 +35,12 @@
 
   function loadScriptTag(src, pk) {
     return new Promise((resolve, reject) => {
-      // Remove any prior failed clerk script tags
       document.querySelectorAll("script[data-glow-clerk]").forEach((el) => el.remove());
       const s = document.createElement("script");
       s.async = true;
       s.crossOrigin = "anonymous";
       s.src = src;
       s.dataset.glowClerk = "1";
-      // Required when loading from *.clerk.accounts.dev — script auto-inits
       s.setAttribute("data-clerk-publishable-key", pk);
       s.onload = () => resolve(s);
       s.onerror = () => reject(new Error("script failed: " + src));
@@ -50,14 +49,10 @@
   }
 
   async function loadClerkScript(pk) {
-    // Already have a usable instance
     if (global.Clerk && typeof global.Clerk.load === "function" && typeof global.Clerk.mountSignIn === "function") {
       return;
     }
-    // Already have a constructor
-    if (typeof global.Clerk === "function") {
-      return;
-    }
+    if (typeof global.Clerk === "function") return;
 
     const host = frontendHostFromPk(pk);
     const urls = [
@@ -69,7 +64,6 @@
     for (const src of urls) {
       try {
         await loadScriptTag(src, pk);
-        // Give the UMD a tick to attach
         await new Promise((r) => setTimeout(r, 0));
         if (global.Clerk) return;
         lastErr = new Error("Clerk global missing after " + src);
@@ -86,27 +80,20 @@
       throw new Error("Missing publishableKey from /api/config/public");
     }
     await loadClerkScript(pk);
-
     const C = global.Clerk;
-    if (!C) {
-      throw new Error("Clerk global missing after script load");
-    }
+    if (!C) throw new Error("Clerk global missing after script load");
 
-    // FAPI / data-clerk-publishable-key style: window.Clerk is already an instance
     if (typeof C.load === "function" && typeof C.mountSignIn === "function") {
       await C.load();
       global.__glowClerk = C;
       return C;
     }
-
-    // Older/UMD constructor style: window.Clerk is a class
     if (typeof C === "function") {
       const clerk = new C(pk);
       await clerk.load();
       global.__glowClerk = clerk;
       return clerk;
     }
-
     throw new Error("Unexpected Clerk global shape: " + typeof C);
   }
 
@@ -115,21 +102,10 @@
     return clerk.session.getToken();
   }
 
-  async function partnerMe(token) {
-    const res = await fetch("/api/partner/me", {
-      credentials: "same-origin",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.partner || null;
-  }
-
-  /** Match GlowOps neubrutalist shell (lime / ink / Archivo). */
   function glowAppearance() {
     return {
       layout: {
-        socialButtonsPlacement: "bottom",
+        socialButtonsPlacement: "top",
         socialButtonsVariant: "blockButton",
         showOptionalFields: false,
       },
@@ -185,42 +161,74 @@
           minHeight: "42px",
         },
         footerActionLink: { color: "#0d130b", fontWeight: "800" },
-        identityPreviewEditButton: { color: "#0d130b" },
         dividerLine: { background: "#0d130b" },
-        dividerText: { color: "#39422f", fontFamily: '"IBM Plex Mono", monospace', fontSize: "0.65rem" },
+        dividerText: {
+          color: "#39422f",
+          fontFamily: '"IBM Plex Mono", monospace',
+          fontSize: "0.65rem",
+        },
       },
     };
   }
 
+  function mountOpts(extra) {
+    return Object.assign(
+      {
+        forceRedirectUrl: AFTER,
+        fallbackRedirectUrl: AFTER,
+        appearance: glowAppearance(),
+      },
+      extra || {}
+    );
+  }
+
   function mountSignIn(clerk, el) {
-    clerk.mountSignIn(el, {
-      routing: "hash",
-      signUpUrl: SIGN_UP,
-      afterSignInUrl: AFTER,
-      afterSignUpUrl: AFTER,
-      appearance: glowAppearance(),
-    });
+    clerk.mountSignIn(
+      el,
+      mountOpts({
+        routing: "path",
+        path: SIGN_IN,
+        signUpUrl: SIGN_UP,
+      })
+    );
   }
 
   function mountSignUp(clerk, el) {
-    clerk.mountSignUp(el, {
-      routing: "hash",
-      signInUrl: SIGN_IN,
-      afterSignInUrl: AFTER,
-      afterSignUpUrl: AFTER,
-      appearance: glowAppearance(),
-    });
+    clerk.mountSignUp(
+      el,
+      mountOpts({
+        routing: "path",
+        path: SIGN_UP,
+        signInUrl: SIGN_IN,
+      })
+    );
+  }
+
+  /** Prefer redirect over popup for Google/Microsoft (popups often look like a no-op). */
+  async function oauthRedirect(clerk, strategy) {
+    const origin = window.location.origin;
+    if (typeof clerk.authenticateWithRedirect === "function") {
+      await clerk.authenticateWithRedirect({
+        strategy,
+        redirectUrl: origin + SSO_CB,
+        redirectUrlComplete: origin + AFTER,
+      });
+      return;
+    }
+    // Fallback: navigate to dedicated sign-in (Clerk social buttons)
+    window.location.href = SIGN_IN;
   }
 
   global.GlowClerkPartner = {
     AFTER,
     SIGN_IN,
     SIGN_UP,
+    SSO_CB,
     fetchPublicConfig,
     createClerk,
     sessionToken,
-    partnerMe,
     mountSignIn,
     mountSignUp,
+    oauthRedirect,
   };
 })(window);

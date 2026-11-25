@@ -67,6 +67,19 @@ from partners import (  # noqa: E402
     revoke_session,
     seed_demo_partner,
 )
+from rbac import (  # noqa: E402
+    accept_invitation,
+    create_invitation,
+    ensure_rbac_schema,
+    list_invitations,
+    list_members,
+    partner_can,
+    partner_role_on_business,
+    permission_catalog,
+    revoke_invitation,
+    revoke_membership,
+    set_member_role,
+)
 import re  # noqa: E402
 
 DATA_DIR = Path(os.environ.get("GLOWOPS_DATA", str(ROOT / "data")))
@@ -107,8 +120,18 @@ def _prepare_db() -> Path:
 
 
 CONN = connect(_prepare_db())
+ensure_rbac_schema(CONN)
 seed_if_empty(CONN, "demo")
 DEMO_PARTNER = seed_demo_partner(CONN)
+# Ensure demo partner is owner on demo business
+try:
+    from rbac import grant_membership, get_membership
+
+    _demo_id = (DEMO_PARTNER.get("partner") or {}).get("id") or "partner_demo"
+    if not get_membership(CONN, _demo_id, "demo"):
+        grant_membership(CONN, business_id="demo", partner_id=_demo_id, role="owner")
+except Exception:
+    pass
 
 AGENT_EXE_NAME = "GlowOpsAgent.exe"
 AGENT_RELEASE_URL = os.environ.get(
@@ -381,7 +404,25 @@ class Handler(BaseHTTPRequestHandler):
             partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
-            status, body, ctype = _json_bytes({"partner": partner, "clerk": clerk_configured()})
+            businesses = list_partner_businesses(CONN, partner["id"])
+            roles = []
+            for b in businesses:
+                bid = b["business_id"]
+                roles.append(
+                    {
+                        "businessId": bid,
+                        "businessName": b.get("business_name") or bid,
+                        "role": partner_role_on_business(CONN, partner["id"], bid) or "owner",
+                    }
+                )
+            status, body, ctype = _json_bytes(
+                {
+                    "partner": partner,
+                    "clerk": clerk_configured(),
+                    "roles": roles,
+                    "permissions": permission_catalog(),
+                }
+            )
             return self._send(status, body, ctype)
 
         if path.rstrip("/") == "/api/partner/businesses":
@@ -450,6 +491,38 @@ class Handler(BaseHTTPRequestHandler):
             status, body, ctype = _json_bytes({"keys": list_enrollment_keys(CONN, partner["id"])})
             return self._send(status, body, ctype)
 
+        if path.rstrip("/") == "/api/partner/rbac/catalog":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            status, body, ctype = _json_bytes(
+                {
+                    "roles": ["owner", "admin", "operator", "viewer"],
+                    "permissions": permission_catalog(),
+                }
+            )
+            return self._send(status, body, ctype)
+
+        if path.rstrip("/") == "/api/partner/members":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            business_id = (qs.get("businessId") or qs.get("tenant") or [""])[0].strip()
+            if not business_id:
+                return self._send(400, b'{"error":"businessId required"}', "application/json")
+            if not partner_can(CONN, partner["id"], business_id, "members.read"):
+                return self._send(403, b'{"error":"forbidden"}', "application/json")
+            status, body, ctype = _json_bytes(
+                {
+                    "businessId": business_id,
+                    "myRole": partner_role_on_business(CONN, partner["id"], business_id),
+                    "members": list_members(CONN, business_id),
+                    "invitations": list_invitations(CONN, business_id),
+                    "canManage": partner_can(CONN, partner["id"], business_id, "members.manage"),
+                }
+            )
+            return self._send(status, body, ctype)
+
         if path.rstrip("/") in (f"/download/{AGENT_EXE_NAME}", "/download/agent.exe"):
             exe = _agent_exe_path()
             if exe:
@@ -491,6 +564,22 @@ class Handler(BaseHTTPRequestHandler):
             )
         if path.rstrip("/") == "/partner/sign-up":
             f = STATIC_DIR / "partner-sign-up.html"
+            return self._send(
+                200,
+                f.read_bytes(),
+                _content_type(f),
+                {"Cache-Control": "no-store, max-age=0"},
+            )
+        if path.rstrip("/") == "/partner/accept-invite":
+            f = STATIC_DIR / "partner-accept-invite.html"
+            return self._send(
+                200,
+                f.read_bytes(),
+                _content_type(f),
+                {"Cache-Control": "no-store, max-age=0"},
+            )
+        if path.rstrip("/") == "/partner/sso-callback":
+            f = STATIC_DIR / "partner-sso-callback.html"
             return self._send(
                 200,
                 f.read_bytes(),
@@ -567,17 +656,118 @@ class Handler(BaseHTTPRequestHandler):
 
         # ---- Partner auth ----
         if path == "/api/business":
-            tenant_id = str(payload.get("tenantId") or payload.get("businessId") or (qs.get("tenant") or ["demo"])[0]).strip()
+            tenant_id = str(
+                payload.get("tenantId") or payload.get("businessId") or (qs.get("tenant") or ["demo"])[0]
+            ).strip()
             name = str(payload.get("name") or payload.get("businessName") or "").strip()
             if not tenant_id:
                 return self._send(400, b'{"error":"tenantId required"}', "application/json")
             if not name:
                 return self._send(400, b'{"error":"name required"}', "application/json")
-            partner = partner_from_session(CONN, self._cookie("glowops_partner"))
-            if partner and not partner_may_access(CONN, partner["id"], tenant_id):
-                return self._send(403, b'{"error":"forbidden"}', "application/json")
+            partner = self._partner_principal()
+            if partner and not partner_can(CONN, partner["id"], tenant_id, "business.write"):
+                return self._send(403, b'{"error":"forbidden — need admin/owner"}', "application/json")
             biz = set_tenant_name(CONN, tenant_id, name)
             status, body, ctype = _json_bytes({"ok": True, "business": biz})
+            return self._send(status, body, ctype)
+
+        if path == "/api/partner/invitations":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"object required"}', "application/json")
+            business_id = str(payload.get("businessId") or payload.get("tenantId") or "").strip()
+            email = str(payload.get("email") or "").strip()
+            role = str(payload.get("role") or "viewer").strip()
+            if not business_id or not email:
+                return self._send(400, b'{"error":"businessId and email required"}', "application/json")
+            if not partner_can(CONN, partner["id"], business_id, "invite.create"):
+                return self._send(403, b'{"error":"forbidden — need admin/owner to invite"}', "application/json")
+            try:
+                invited = create_invitation(
+                    CONN,
+                    business_id=business_id,
+                    email=email,
+                    role=role,
+                    invited_by=partner["id"],
+                )
+            except ValueError as exc:
+                return self._send(400, json.dumps({"error": str(exc)}).encode(), "application/json")
+            status, body, ctype = _json_bytes(invited)
+            return self._send(status, body, ctype)
+
+        if path == "/api/partner/invitations/accept":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized — sign in first"}', "application/json")
+            token = str((payload or {}).get("token") or "").strip()
+            if not token:
+                return self._send(400, b'{"error":"token required"}', "application/json")
+            result = accept_invitation(
+                CONN,
+                token=token,
+                partner_id=partner["id"],
+                partner_email=partner.get("email") or "",
+            )
+            if not result:
+                return self._send(
+                    400,
+                    b'{"error":"invalid, expired, or email mismatch for invite"}',
+                    "application/json",
+                )
+            status, body, ctype = _json_bytes(result)
+            return self._send(status, body, ctype)
+
+        if path.startswith("/api/partner/invitations/") and path.endswith("/revoke"):
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            inv_id = path[len("/api/partner/invitations/") : -len("/revoke")]
+            business_id = str((payload or {}).get("businessId") or "").strip()
+            if not business_id:
+                return self._send(400, b'{"error":"businessId required"}', "application/json")
+            if not partner_can(CONN, partner["id"], business_id, "members.manage"):
+                return self._send(403, b'{"error":"forbidden"}', "application/json")
+            ok = revoke_invitation(CONN, inv_id, business_id)
+            status, body, ctype = _json_bytes({"ok": ok})
+            return self._send(status if ok else 404, body, ctype)
+
+        if path == "/api/partner/members/role":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            business_id = str((payload or {}).get("businessId") or "").strip()
+            target_id = str((payload or {}).get("partnerId") or "").strip()
+            role = str((payload or {}).get("role") or "").strip()
+            if not business_id or not target_id or not role:
+                return self._send(400, b'{"error":"businessId, partnerId, role required"}', "application/json")
+            if not partner_can(CONN, partner["id"], business_id, "members.manage"):
+                return self._send(403, b'{"error":"forbidden"}', "application/json")
+            updated = set_member_role(
+                CONN, business_id=business_id, partner_id=target_id, role=role, actor_id=partner["id"]
+            )
+            if not updated:
+                return self._send(400, b'{"error":"could not change role (last owner?)"}', "application/json")
+            status, body, ctype = _json_bytes({"ok": True, "membership": updated})
+            return self._send(status, body, ctype)
+
+        if path == "/api/partner/members/revoke":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            business_id = str((payload or {}).get("businessId") or "").strip()
+            target_id = str((payload or {}).get("partnerId") or "").strip()
+            if not business_id or not target_id:
+                return self._send(400, b'{"error":"businessId and partnerId required"}', "application/json")
+            if not partner_can(CONN, partner["id"], business_id, "members.manage"):
+                return self._send(403, b'{"error":"forbidden"}', "application/json")
+            ok = revoke_membership(
+                CONN, business_id=business_id, partner_id=target_id, actor_id=partner["id"]
+            )
+            if not ok:
+                return self._send(400, b'{"error":"could not remove member (last owner?)"}', "application/json")
+            status, body, ctype = _json_bytes({"ok": True})
             return self._send(status, body, ctype)
 
         if path == "/api/partner/businesses":
@@ -637,6 +827,12 @@ class Handler(BaseHTTPRequestHandler):
             partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            # MCP mint is partner-scoped; require admin on at least one business or any membership
+            businesses = list_partner_businesses(CONN, partner["id"])
+            if businesses and not any(
+                partner_can(CONN, partner["id"], b["business_id"], "settings.mcp") for b in businesses
+            ):
+                return self._send(403, b'{"error":"forbidden — need admin/owner for MCP keys"}', "application/json")
             label = "Default"
             if isinstance(payload, dict):
                 label = str(payload.get("label") or "Default")
@@ -662,8 +858,8 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(payload, dict):
                 return self._send(400, b'{"error":"object required"}', "application/json")
             business_id = str(payload.get("businessId") or "").strip()
-            if not business_id or not partner_may_access(CONN, partner["id"], business_id):
-                return self._send(403, b'{"error":"business not assigned to partner"}', "application/json")
+            if not business_id or not partner_can(CONN, partner["id"], business_id, "enroll.manage"):
+                return self._send(403, b'{"error":"forbidden — need operator+ to enroll"}', "application/json")
             ttl = int(payload.get("ttlHours") or 24)
             label = str(payload.get("label") or "Device join")
             minted = mint_enrollment_key(

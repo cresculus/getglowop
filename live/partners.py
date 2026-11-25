@@ -123,6 +123,13 @@ def bind_business(conn: sqlite3.Connection, partner_id: str, business_id: str, b
         (partner_id, business_id, business_name or business_id),
     )
     conn.commit()
+    try:
+        from rbac import get_membership, grant_membership
+
+        if not get_membership(conn, partner_id, business_id):
+            grant_membership(conn, business_id=business_id, partner_id=partner_id, role="owner")
+    except Exception:
+        pass
 
 
 def list_partner_businesses(conn: sqlite3.Connection, partner_id: str) -> list[dict[str, Any]]:

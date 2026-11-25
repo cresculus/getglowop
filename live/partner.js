@@ -55,6 +55,7 @@
       home: "pviewHome",
       enroll: "pviewEnroll",
       biz: "pviewBiz",
+      people: "pviewPeople",
       analyze: "pviewAnalyze",
       settings: "pviewSettings",
     };
@@ -71,10 +72,13 @@
     });
     if (name === "home") renderHome();
     if (name === "analyze") renderAnalyze();
+    if (name === "people") renderPeople();
   }
 
   let clerkToken = null;
   let clerkEnabled = false;
+  let meRoles = [];
+  let peopleCanManage = false;
 
   async function api(path, opts = {}) {
     const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
@@ -90,12 +94,8 @@
   }
 
   function mountClerkSignIn() {
-    const mount = $("clerkMount");
-    const clerk = window.__glowClerk;
-    if (!mount || !clerk || !clerkEnabled) return;
-    mount.innerHTML = "";
-    mount.hidden = false;
-    GlowClerkPartner.mountSignIn(clerk, mount);
+    // OAuth (Google/Microsoft) is more reliable on the dedicated path page
+    location.replace((window.GlowClerkPartner && GlowClerkPartner.SIGN_IN) || "/partner/sign-in");
   }
 
   async function afterClerkSession(session) {
@@ -108,7 +108,7 @@
     clerkToken = await session.getToken();
     try {
       const me = await api("/api/partner/me");
-      showDash(me.partner);
+      showDash(me.partner, me.roles || []);
     } catch (err) {
       if ($("loginErr")) {
         $("loginErr").textContent =
@@ -162,11 +162,12 @@
     }
   }
 
-  function showDash(me) {
+  function showDash(me, roles) {
     if (!me) {
       showLogin();
       return;
     }
+    meRoles = roles || [];
     document.body.classList.add("is-authed");
     loginView.hidden = true;
     dashView.hidden = false;
@@ -175,8 +176,19 @@
     if (homeBtn) homeBtn.hidden = false;
     $("partnerHello").hidden = false;
     $("partnerHello").textContent = me.email || me.name || "";
+    const chip = $("partnerRoleChip");
+    if (chip) {
+      const primary = meRoles[0];
+      if (primary) {
+        chip.hidden = false;
+        chip.textContent = `${primary.role} · ${primary.businessName || primary.businessId}`;
+      } else {
+        chip.hidden = true;
+      }
+    }
     renderConfig();
-    setPView("home");
+    const want = new URLSearchParams(location.search).get("view");
+    setPView(want === "people" ? "people" : "home");
     refresh().catch((err) => {
       console.error(err);
       if ($("loginErr")) $("loginErr").textContent = String(err.message || err);
@@ -191,6 +203,8 @@
     const homeBtn = $("homeBtn");
     if (homeBtn) homeBtn.hidden = true;
     $("partnerHello").hidden = true;
+    const chip = $("partnerRoleChip");
+    if (chip) chip.hidden = true;
     if (clerkEnabled) {
       const form = $("loginForm");
       if (form) form.hidden = true;
@@ -261,6 +275,105 @@
       }
     } catch (err) {
       list.innerHTML = `<li class="hint">${esc(err.message || err)}</li>`;
+    }
+  }
+
+  async function renderPeople() {
+    const sel = $("peopleBiz");
+    const membersBody = $("membersBody");
+    const invitesBody = $("invitesBody");
+    const catalog = $("rbacCatalog");
+    if (!sel || !membersBody) return;
+    if (!businessesCache.length) {
+      sel.innerHTML = "";
+      membersBody.innerHTML = `<tr><td colspan="4">Add a business first, then invite people.</td></tr>`;
+      if (invitesBody) invitesBody.innerHTML = "";
+      return;
+    }
+    const prev = sel.value;
+    sel.innerHTML = businessesCache
+      .map(
+        (b) =>
+          `<option value="${esc(b.business_id)}">${esc(b.business_name || b.business_id)}</option>`
+      )
+      .join("");
+    if (prev && businessesCache.some((b) => b.business_id === prev)) sel.value = prev;
+
+    const businessId = sel.value;
+    try {
+      const data = await api(`/api/partner/members?businessId=${encodeURIComponent(businessId)}`);
+      peopleCanManage = !!data.canManage;
+      const roleEl = $("peopleMyRole");
+      if (roleEl) roleEl.textContent = `Your role: ${data.myRole || "—"}`;
+      const chip = $("partnerRoleChip");
+      if (chip && data.myRole) {
+        const biz = businessesCache.find((b) => b.business_id === businessId);
+        chip.hidden = false;
+        chip.textContent = `${data.myRole} · ${biz?.business_name || businessId}`;
+      }
+      membersBody.innerHTML = (data.members || [])
+        .map((m) => {
+          const roleSelect = peopleCanManage
+            ? `<select data-role-partner="${esc(m.partnerId)}" class="role-select">
+                ${["owner", "admin", "operator", "viewer"]
+                  .map(
+                    (r) =>
+                      `<option value="${r}" ${r === m.role ? "selected" : ""}>${r}</option>`
+                  )
+                  .join("")}
+              </select>`
+            : esc(m.role);
+          const revokeBtn =
+            peopleCanManage
+              ? `<button type="button" class="btn ghost danger" data-revoke-member="${esc(
+                  m.partnerId
+                )}">Remove</button>`
+              : "";
+          return `<tr>
+            <td>${esc(m.email)}</td>
+            <td>${esc(m.name)}</td>
+            <td>${roleSelect}</td>
+            <td>${revokeBtn}</td>
+          </tr>`;
+        })
+        .join("") || `<tr><td colspan="4">No members yet.</td></tr>`;
+
+      if (invitesBody) {
+        invitesBody.innerHTML = (data.invitations || [])
+          .map((inv) => {
+            const revoke =
+              peopleCanManage && inv.status === "pending"
+                ? `<button type="button" class="btn ghost" data-revoke-invite="${esc(
+                    inv.id
+                  )}">Revoke</button>`
+                : "";
+            return `<tr>
+              <td>${esc(inv.email)}</td>
+              <td>${esc(inv.role)}</td>
+              <td>${esc(inv.status)}</td>
+              <td>${esc((inv.expiresAt || "").slice(0, 16))}</td>
+              <td>${revoke}</td>
+            </tr>`;
+          })
+          .join("") || `<tr><td colspan="5">No invites.</td></tr>`;
+      }
+
+      if (catalog) {
+        const cat = await api("/api/partner/rbac/catalog");
+        catalog.textContent = (cat.permissions || [])
+          .map((p) => `${p.permission}: ${(p.roles || []).join(", ")}`)
+          .join("\n");
+      }
+
+      const inviteForm = $("inviteForm");
+      if (inviteForm) {
+        const controls = inviteForm.querySelectorAll("input, select, button");
+        controls.forEach((el) => {
+          el.disabled = !peopleCanManage;
+        });
+      }
+    } catch (err) {
+      membersBody.innerHTML = `<tr><td colspan="4">${esc(err.message || err)}</td></tr>`;
     }
   }
 
@@ -372,6 +485,7 @@
 
     if ($("pviewHome")?.dataset.active === "true") renderHome();
     if ($("pviewAnalyze")?.dataset.active === "true") renderAnalyze();
+    if ($("pviewPeople")?.dataset.active === "true") renderPeople();
   }
 
   function esc(s) {
@@ -402,7 +516,7 @@
           method: "POST",
           body: JSON.stringify({ email: $("email").value, password: $("password").value }),
         });
-        showDash(me.partner);
+        showDash(me.partner, me.roles || []);
       } catch (err) {
         $("loginErr").textContent = String(err.message || err);
       } finally {
@@ -570,7 +684,108 @@
   initClerk().then((usedClerk) => {
     if (usedClerk) return;
     api("/api/partner/me")
-      .then((data) => showDash(data.partner))
+      .then((data) => showDash(data.partner, data.roles || []))
       .catch(() => showLogin());
+  });
+
+  const peopleBiz = $("peopleBiz");
+  if (peopleBiz) {
+    peopleBiz.addEventListener("change", () => renderPeople());
+  }
+
+  const inviteForm = $("inviteForm");
+  if (inviteForm) {
+    inviteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const st = $("inviteStatus");
+      const businessId = $("peopleBiz")?.value;
+      const email = ($("inviteEmail")?.value || "").trim();
+      const role = $("inviteRole")?.value || "viewer";
+      if (!businessId || !email) {
+        if (st) st.textContent = "Business and email required";
+        return;
+      }
+      if (st) st.textContent = "Creating invite…";
+      try {
+        const invited = await api("/api/partner/invitations", {
+          method: "POST",
+          body: JSON.stringify({ businessId, email, role }),
+        });
+        const link = `${location.origin}${invited.acceptPath}`;
+        if (st) st.textContent = `Invite created for ${invited.email} (${invited.role})`;
+        const box = $("freshInvite");
+        const code = $("freshInviteLink");
+        if (box && code) {
+          box.hidden = false;
+          code.textContent = link;
+        }
+        if ($("inviteEmail")) $("inviteEmail").value = "";
+        await renderPeople();
+      } catch (err) {
+        if (st) st.textContent = String(err.message || err);
+      }
+    });
+  }
+
+  const copyInvite = $("copyInvite");
+  if (copyInvite) {
+    copyInvite.addEventListener("click", async () => {
+      const v = $("freshInviteLink")?.textContent || "";
+      try {
+        await navigator.clipboard.writeText(v);
+        copyInvite.textContent = "Copied";
+      } catch (_) {}
+    });
+  }
+
+  document.addEventListener("change", async (e) => {
+    const sel = e.target.closest("[data-role-partner]");
+    if (!sel) return;
+    const businessId = $("peopleBiz")?.value;
+    const partnerId = sel.getAttribute("data-role-partner");
+    const role = sel.value;
+    try {
+      await api("/api/partner/members/role", {
+        method: "POST",
+        body: JSON.stringify({ businessId, partnerId, role }),
+      });
+      await renderPeople();
+    } catch (err) {
+      alert(String(err.message || err));
+      await renderPeople();
+    }
+  });
+
+  document.addEventListener("click", async (e) => {
+    const rm = e.target.closest("[data-revoke-member]");
+    if (rm) {
+      const businessId = $("peopleBiz")?.value;
+      const partnerId = rm.getAttribute("data-revoke-member");
+      if (!confirm("Remove this member from the business?")) return;
+      try {
+        await api("/api/partner/members/revoke", {
+          method: "POST",
+          body: JSON.stringify({ businessId, partnerId }),
+        });
+        await renderPeople();
+      } catch (err) {
+        alert(String(err.message || err));
+      }
+      return;
+    }
+    const ri = e.target.closest("[data-revoke-invite]");
+    if (ri) {
+      const businessId = $("peopleBiz")?.value;
+      const id = ri.getAttribute("data-revoke-invite");
+      try {
+        await api(`/api/partner/invitations/${encodeURIComponent(id)}/revoke`, {
+          method: "POST",
+          body: JSON.stringify({ businessId }),
+        });
+        await renderPeople();
+      } catch (err) {
+        alert(String(err.message || err));
+      }
+    }
   });
 })();
