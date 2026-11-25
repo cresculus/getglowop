@@ -120,14 +120,15 @@
       return;
     }
     grid.innerHTML = businessesCache
-      .map(
-        (b) => `<article class="analyze-card" data-biz="${esc(b.business_id)}">
+      .map((b) => {
+        const href = `/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet`;
+        return `<a class="analyze-card analyze-card-link" href="${href}" data-biz="${esc(b.business_id)}">
         <h3>${esc(b.business_name || b.business_id)}</h3>
         <div class="meta-line">${esc(b.business_id)}</div>
         <div class="kpis" id="an-${esc(b.business_id)}"><span>Loading…</span></div>
-        <a class="btn lime" href="/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet">Open report</a>
-      </article>`
-      )
+        <span class="btn lime open-report-label">Open report</span>
+      </a>`;
+      })
       .join("");
 
     await Promise.all(
@@ -167,14 +168,17 @@
         .join("");
     }
     $("bizList").innerHTML = businessesCache
-      .map(
-        (b) =>
-          `<li><span><b>${esc(b.business_name || b.business_id)}</b><div class="hint">${esc(
-            b.business_id
-          )}</div></span><a class="btn lime" href="/app/?from=partner&tenant=${encodeURIComponent(
-            b.business_id
-          )}&view=fleet">Open report</a></li>`
-      )
+      .map((b) => {
+        const href = `/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet`;
+        return `<li class="biz-tile">
+          <a class="biz-tile-link" href="${href}" title="Open report">
+            <span><b>${esc(b.business_name || b.business_id)}</b><div class="hint">${esc(
+              b.business_id
+            )}</div></span>
+            <span class="btn lime open-report-label">Open report</span>
+          </a>
+        </li>`;
+      })
       .join("");
     const active = (keys.keys || []).filter((k) => !k.revoked_at);
     $("keyCount").textContent = active.length;

@@ -137,7 +137,7 @@
   max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .view-lede {
-  margin: 0 0.85rem 0.55rem;
+  margin: 0 0.85rem 1.1rem;
   color: var(--muted);
   font-size: 0.88rem;
   max-width: 42rem;
@@ -200,33 +200,51 @@
 .pview[hidden], .pview[data-active="false"] { display: none !important; }
 
 .biz-list {
-  list-style: none; margin: 0; padding: 0.55rem 0.85rem; display: grid; gap: 0.45rem;
+  list-style: none; margin: 0; padding: 0.35rem 0.85rem 1.25rem; display: grid; gap: 1rem;
   overflow: auto; align-content: start;
 }
-.biz-list li {
-  display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
-  border: 2px solid var(--line); padding: 0.75rem 0.85rem; background: var(--bg);
-  min-height: 64px;
+.biz-list li.biz-tile {
+  border: 2px solid var(--line); background: var(--bg);
+  min-height: 72px;
+  box-shadow: 3px 3px 0 rgba(13, 19, 11, 0.12);
+  padding: 0;
 }
+.biz-tile-link {
+  display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
+  padding: 0.9rem 1rem; color: inherit; text-decoration: none; width: 100%;
+  cursor: pointer;
+}
+.biz-tile-link:hover { background: #f7ffe0; }
 .biz-list b { font-weight: 800; font-size: 0.95rem; }
+.open-report-label { pointer-events: none; }
 
 .analyze-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0.65rem;
-  padding: 0.55rem 0.85rem;
+  gap: 1.15rem;
+  padding: 0.35rem 0.85rem 1.25rem;
   overflow: auto;
   align-content: start;
 }
 .analyze-card {
   border: 2px solid var(--line);
   background: var(--bg);
-  padding: 0.85rem;
+  padding: 0.95rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
-  min-height: 140px;
+  gap: 0.65rem;
+  min-height: 150px;
   box-shadow: 4px 4px 0 var(--ink);
+}
+.analyze-card-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.analyze-card-link:hover {
+  background: #f7ffe0;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--ink);
 }
 .analyze-card h3 {
   margin: 0;
