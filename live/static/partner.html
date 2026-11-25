@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-6" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-6" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-6" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-7" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-7" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-7" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -57,8 +57,8 @@
     </section>
 
     <section id="dashView" class="partner-dash" hidden>
-      <aside class="side-nav" id="partnerNav" aria-label="Quick navigation">
-        <p class="nav-kicker">This console</p>
+      <aside class="side-nav" id="partnerNav" aria-label="Console">
+        <p class="nav-kicker">Console</p>
         <button type="button" class="side-link" data-pview="home">Home</button>
         <button type="button" class="side-link" data-pview="enroll">Enroll</button>
         <button type="button" class="side-link" data-pview="biz">Businesses</button>
@@ -66,25 +66,6 @@
         <button type="button" class="side-link" data-pview="analyze">Analyze</button>
         <button type="button" class="side-link" data-pview="resources">Resources</button>
         <button type="button" class="side-link" data-pview="settings">Settings</button>
-
-        <p class="nav-kicker">Open report</p>
-        <a class="side-link" id="navFleet" href="/app/?from=partner&view=fleet">Fleet report</a>
-        <a class="side-link" id="navDash" href="/app/?from=partner&view=dashboard">Dashboard</a>
-        <a class="side-link" href="/app/?from=partner&view=settings">Fleet settings</a>
-        <p class="nav-kicker">Lab</p>
-        <a class="side-link" id="navIngest" href="/app/?from=partner&view=ingest">Paste Graph JSON</a>
-
-        <p class="nav-kicker">Calls</p>
-        <a class="side-link side-call" data-call="repair" href="/app/?from=partner&call=repair">Repair</a>
-        <a class="side-link side-call" data-call="ghost" href="/app/?from=partner&call=ghost">Ghosts</a>
-        <a class="side-link side-call" data-call="recycle" href="/app/?from=partner&call=recycle">Recycle</a>
-        <a class="side-link side-call" data-call="refresh" href="/app/?from=partner&call=refresh">Refresh</a>
-        <a class="side-link side-call" data-call="redeploy" href="/app/?from=partner&call=redeploy">Redeploy</a>
-        <a class="side-link side-call" data-call="keep" href="/app/?from=partner&call=keep">Keep</a>
-
-        <p class="nav-kicker">Site</p>
-        <a class="side-link" href="/">Marketing site</a>
-
         <div class="nav-foot">
           <div><span>Businesses</span><strong id="bizCount">—</strong></div>
           <div><span>API keys</span><strong id="keyCount">—</strong></div>
@@ -218,7 +199,7 @@
 
         <div class="pview pview-left" id="pviewAnalyze" data-active="false" hidden>
           <div class="ledger-head ledger-head-left"><h1>Analyze</h1></div>
-          <p class="view-lede">Open the live report for a business.</p>
+          <p class="view-lede">Pick a business, then open its report or a call filter.</p>
           <div class="analyze-grid" id="analyzeGrid"></div>
         </div>
 
@@ -279,7 +260,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=lux-6"></script>
-  <script src="/app/partner.js?v=lux-6"></script>
+  <script src="/app/clerk-partner.js?v=lux-7"></script>
+  <script src="/app/partner.js?v=lux-7"></script>
 </body>
 </html>

@@ -4,27 +4,6 @@
   const dashView = $("dashView");
   let businessesCache = [];
 
-  function primaryTenant() {
-    return businessesCache[0]?.business_id || "";
-  }
-
-  function syncDashLinks() {
-    const t = primaryTenant();
-    const base = `from=partner&tenant=${encodeURIComponent(t)}`;
-    const fleet = $("navFleet");
-    const dash = $("navDash");
-    const ingest = $("navIngest");
-    const csv = $("navCsv");
-    if (fleet) fleet.href = `/app/?${base}&view=fleet`;
-    if (dash) dash.href = `/app/?${base}&view=dashboard`;
-    if (ingest) ingest.href = `/app/?${base}&view=ingest`;
-    if (csv) csv.href = `/api/export.csv?tenant=${encodeURIComponent(t)}`;
-    document.querySelectorAll(".side-call[data-call]").forEach((a) => {
-      const call = a.getAttribute("data-call");
-      a.href = `/app/?${base}&view=fleet&call=${encodeURIComponent(call)}`;
-    });
-  }
-
   function mcpBase() {
     return `${window.location.origin}/mcp`;
   }
@@ -411,17 +390,42 @@
     const grid = $("analyzeGrid");
     if (!grid) return;
     if (!businessesCache.length) {
-      grid.innerHTML = `<p class="view-lede">No businesses assigned yet.</p>`;
+      grid.innerHTML = `<p class="people-empty">Add a business first, then open its report here.</p>`;
       return;
     }
+    const calls = [
+      ["repair", "Repair"],
+      ["ghost", "Ghosts"],
+      ["recycle", "Recycle"],
+      ["refresh", "Refresh"],
+      ["redeploy", "Redeploy"],
+      ["keep", "Keep"],
+    ];
     grid.innerHTML = businessesCache
       .map((b) => {
-        const href = `/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet`;
-        return `<a class="analyze-card analyze-card-link" href="${href}" data-biz="${esc(b.business_id)}">
-        <h3>${esc(b.business_name || "Business")}</h3>
-        <div class="kpis" id="an-${esc(b.business_id)}"><span>Loading…</span></div>
-        <span class="btn lime open-report-label">Open report</span>
-      </a>`;
+        const tid = encodeURIComponent(b.business_id);
+        const base = `/app/?from=partner&tenant=${tid}`;
+        const callLinks = calls
+          .map(
+            ([id, label]) =>
+              `<a class="call-chip" href="${base}&view=fleet&call=${encodeURIComponent(id)}">${label}</a>`
+          )
+          .join("");
+        return `<article class="analyze-card" data-biz="${esc(b.business_id)}">
+          <div class="analyze-card-top">
+            <h3>${esc(b.business_name || "Business")}</h3>
+            <div class="kpis" id="an-${esc(b.business_id)}"><span>Loading…</span></div>
+          </div>
+          <div class="analyze-actions">
+            <a class="btn lime" href="${base}&view=fleet">Fleet report</a>
+            <a class="btn ghost" href="${base}&view=dashboard">Dashboard</a>
+            <a class="btn ghost" href="${base}&view=settings">Settings</a>
+          </div>
+          <div class="analyze-calls">
+            <span class="analyze-calls-label">Calls</span>
+            <div class="call-chips">${callLinks}</div>
+          </div>
+        </article>`;
       })
       .join("");
 
@@ -450,8 +454,7 @@
       api("/api/partner/enrollment-keys"),
     ]);
     businessesCache = biz.businesses || [];
-    syncDashLinks();
-    $("bizCount").textContent = businessesCache.length;
+    if ($("bizCount")) $("bizCount").textContent = businessesCache.length;
     const bizSelect = $("enrollBiz");
     if (bizSelect) {
       bizSelect.innerHTML = businessesCache
@@ -473,7 +476,7 @@
       })
       .join("");
     const active = (keys.keys || []).filter((k) => !k.revoked_at);
-    $("keyCount").textContent = active.length;
+    if ($("keyCount")) $("keyCount").textContent = active.length;
     $("keysBody").innerHTML = (keys.keys || [])
       .map((k) => {
         const revoked = !!k.revoked_at;
