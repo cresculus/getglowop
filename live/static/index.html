@@ -8,16 +8,24 @@
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css?v=ux-2" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-1" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-1" />
 </head>
 <body class="shell">
   <header class="topbar">
-    <div class="topbar-brand">
+    <div class="topbar-left">
       <a class="wordmark" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
-      <a class="btn lime partner-home-btn" id="partnerBack" href="/partner/"><span class="partner-full">← Partner</span><span class="partner-short" aria-hidden="true">Partner</span></a>
+      <nav class="crumb" aria-label="Context">
+        <a id="partnerBack" href="/partner/">Console</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <button type="button" class="crumb-biz" id="bizBadge" title="Open Settings to rename">
+          <span id="bizNameLabel">My business</span>
+        </button>
+        <input type="hidden" id="tenant" value="" />
+      </nav>
     </div>
-    <div class="views" role="tablist" aria-label="Views">
+    <div class="views desktop-nav" role="tablist" aria-label="Views">
       <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
       <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
       <button type="button" class="view-tab" data-view="resources" aria-selected="false">Resources</button>
@@ -25,12 +33,8 @@
       <button type="button" class="view-tab" data-view="settings" aria-selected="false">Settings</button>
     </div>
     <div class="rail">
-      <button type="button" class="biz-badge" id="bizBadge" title="Open Settings to rename">
-        <span>Business</span>
-        <strong id="bizNameLabel">My business</strong>
-        <input type="hidden" id="tenant" value="" />
-      </button>
-      <button type="button" class="btn ghost" id="refresh" title="Reload">↻</button>
+      <span class="meta-ago" id="updatedAgo">Updated just now</span>
+      <button type="button" class="btn ghost" id="refresh" title="Reload" aria-label="Refresh">↻</button>
       <a class="btn ghost" id="fleetSignIn" href="/partner/sign-in">Sign in</a>
       <div id="userButton" class="user-button-mount" hidden aria-label="Account"></div>
     </div>
@@ -39,15 +43,19 @@
   <main class="workspace">
     <!-- FLEET -->
     <section class="view view-fleet" id="viewFleet" data-active="true">
-      <aside class="pane stats" aria-label="Snapshot">
+      <aside class="pane stats" id="statsPane" aria-label="Snapshot">
         <p class="pane-label"><span class="live"></span> <span id="status">Loading…</span></p>
+        <button type="button" class="kpi-summary" id="kpiSummary">
+          <span id="kpiSummaryText">0 devices</span>
+          <span>Details</span>
+        </button>
         <div class="kpi-grid">
-          <div><span>Devices</span><strong id="kpi-count">—</strong></div>
-          <div><span>Avg GLOW</span><strong id="kpi-glow">—</strong></div>
-          <div><span>Ghosts</span><strong id="kpi-ghost">—</strong></div>
-          <div><span>Repair</span><strong id="kpi-repair">—</strong></div>
-          <div><span>Mfg kg</span><strong id="kpi-kg">—</strong></div>
-          <div><span>Avoid</span><strong id="kpi-avoid">—</strong></div>
+          <div><strong id="kpi-count">—</strong><span>Devices</span></div>
+          <div><strong id="kpi-glow">—</strong><span>Avg score</span></div>
+          <div><strong id="kpi-ghost">—</strong><span>Ghosts</span></div>
+          <div><strong id="kpi-repair">—</strong><span>Repair</span></div>
+          <div><strong id="kpi-kg">—</strong><span>Mfg kg</span></div>
+          <div><strong id="kpi-avoid">—</strong><span>Avoid</span></div>
         </div>
         <div class="call-bars" id="calls" role="tablist" aria-label="Filter by call"></div>
         <label class="search-inline">
@@ -57,7 +65,7 @@
 
       <section class="pane ledger" aria-label="Devices">
         <div class="ledger-head">
-          <h1>GLOW Op <em>Report</em></h1>
+          <h1>Fleet report</h1>
           <div class="pager">
             <button type="button" class="btn ghost" id="prevPage" aria-label="Previous">‹</button>
             <span id="pageInfo">1 / 1</span>
@@ -82,7 +90,9 @@
         </div>
       </section>
 
+      <button type="button" class="drawer-backdrop" id="detailBackdrop" hidden aria-label="Close detail"></button>
       <aside class="pane detail" id="detailPane" aria-label="Device detail">
+        <button type="button" class="btn ghost drawer-close" id="detailClose" hidden>Close</button>
         <p class="pane-label">Selected</p>
         <div id="detailEmpty" class="detail-empty">Select a device</div>
         <div id="detailBody" hidden>
@@ -104,7 +114,7 @@
     <section class="view view-dashboard" id="viewDashboard" data-active="false" hidden>
       <div class="dash-fit">
         <div class="ledger-head">
-          <h1>Fleet <em>Dashboard</em></h1>
+          <h1>Fleet dashboard</h1>
         </div>
         <div class="dash-grid" id="dashGrid"></div>
         <div class="action-dock">
@@ -281,7 +291,15 @@
     </section>
   </main>
 
-  <script src="/app/clerk-partner.js?v=ux-2"></script>
-  <script src="/app/app.js?v=ux-2"></script>
+  <nav class="bottom-nav" id="bottomNav" aria-label="Primary">
+    <button type="button" data-view="fleet" aria-selected="true">Fleet</button>
+    <button type="button" data-view="dashboard" aria-selected="false">Dashboard</button>
+    <button type="button" data-view="resources" aria-selected="false">Resources</button>
+    <button type="button" data-view="settings" aria-selected="false">Settings</button>
+    <button type="button" data-view="properties" aria-selected="false">Properties</button>
+  </nav>
+
+  <script src="/app/clerk-partner.js?v=lux-1"></script>
+  <script src="/app/app.js?v=lux-1"></script>
 </body>
 </html>

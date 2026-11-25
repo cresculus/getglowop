@@ -115,17 +115,73 @@
     $("kpi-repair").textContent = s.repairBeforeReplaceCount ?? 0;
     $("kpi-kg").textContent = s.manufacturingKgOnBooks ?? 0;
     $("kpi-avoid").textContent = s.avoidablePurchasesIfExtended ?? 0;
+    syncKpiSummary();
   }
 
   function renderFilters() {
     const by = (summary && summary.byCall) || {};
     const total = summary ? summary.deviceCount || 0 : devices.length;
+    const labels = {
+      all: "All",
+      keep: "Keep",
+      repair: "Repair",
+      redeploy: "Redeploy",
+      refresh: "Refresh",
+      recycle: "Recycle",
+      ghost: "Ghost",
+    };
     callsEl.innerHTML = CALLS.map((k) => {
       const count = k === "all" ? total : by[k] || 0;
       const pressed = activeCall === k ? "true" : "false";
-      const label = k === "all" ? "All" : k;
+      const label = labels[k] || k;
       return `<button type="button" class="chip" data-call="${k}" aria-pressed="${pressed}"><span>${label}</span><b>${count}</b></button>`;
     }).join("");
+  }
+
+  function syncKpiSummary() {
+    const el = $("kpiSummaryText");
+    if (!el) return;
+    const n = summary?.deviceCount ?? devices.length;
+    const attention =
+      (summary?.ghostCount || 0) + (summary?.repairBeforeReplaceCount || 0);
+    el.textContent =
+      attention > 0
+        ? `${n} devices · ${attention} need attention`
+        : `${n} devices`;
+  }
+
+  function setUpdatedAgo(text) {
+    const el = $("updatedAgo");
+    if (el) el.textContent = text || "Updated just now";
+  }
+
+  function isNarrowDetail() {
+    return window.matchMedia("(max-width: 960px)").matches;
+  }
+
+  function openDetailDrawer() {
+    const pane = $("detailPane");
+    const backdrop = $("detailBackdrop");
+    const closeBtn = $("detailClose");
+    if (!pane) return;
+    if (isNarrowDetail()) {
+      pane.classList.add("is-open");
+      if (backdrop) backdrop.hidden = false;
+      if (closeBtn) closeBtn.hidden = false;
+    } else {
+      pane.classList.remove("is-open");
+      if (backdrop) backdrop.hidden = true;
+      if (closeBtn) closeBtn.hidden = true;
+    }
+  }
+
+  function closeDetailDrawer() {
+    const pane = $("detailPane");
+    const backdrop = $("detailBackdrop");
+    const closeBtn = $("detailClose");
+    if (pane) pane.classList.remove("is-open");
+    if (backdrop) backdrop.hidden = true;
+    if (closeBtn) closeBtn.hidden = true;
   }
 
   function filtered() {
@@ -148,13 +204,14 @@
     const head = fit.querySelector("thead");
     const headH = head ? head.getBoundingClientRect().height : 28;
     const avail = Math.max(160, fit.clientHeight - headH - 8);
-    return Math.max(6, Math.floor(avail / 32));
+    return Math.max(6, Math.floor(avail / 40));
   }
 
-  function showDetail(d) {
+  function showDetail(d, { openDrawer = false } = {}) {
     if (!d) {
       $("detailEmpty").hidden = false;
       $("detailBody").hidden = true;
+      closeDetailDrawer();
       return;
     }
     $("detailEmpty").hidden = true;
@@ -178,6 +235,7 @@
     $("d-comp").textContent = d.compliance_state || "—";
     $("d-user").textContent = d.user_upn || "—";
     $("d-why").textContent = d.rationale || d.health_notes || "";
+    if (openDrawer || isNarrowDetail()) openDetailDrawer();
   }
 
   const TZ_KEY = "glowops_tz";
@@ -537,7 +595,7 @@
       .join("");
 
     const selected = rows.find((d) => String(d.id) === String(selectedId)) || slice[0] || null;
-    showDetail(selected);
+    showDetail(selected, { openDrawer: false });
   }
 
   function setView(name, { sync = true, push = false } = {}) {
@@ -558,9 +616,10 @@
       el.hidden = !on;
       el.dataset.active = on ? "true" : "false";
     });
-    document.querySelectorAll(".view-tab").forEach((tab) => {
+    document.querySelectorAll(".view-tab, #bottomNav button").forEach((tab) => {
       tab.setAttribute("aria-selected", tab.getAttribute("data-view") === name ? "true" : "false");
     });
+    if (name !== "fleet") closeDetailDrawer();
     if (name === "fleet") {
       requestAnimationFrame(() => {
         renderDevices();
@@ -629,6 +688,7 @@
         n === 0
           ? `Empty fleet · ${summary.businessName || t}`
           : `${n} scored · ${summary.businessName || t}`;
+      setUpdatedAgo("Updated just now");
     } catch (err) {
       statusEl.textContent = "Load failed";
       devices = [];
@@ -637,17 +697,30 @@
     }
   }
 
-  document.querySelectorAll(".view-tab").forEach((tab) => {
-    tab.addEventListener("click", () => {
-      const name = tab.getAttribute("data-view");
-      if (name === "properties") {
-        const id = selectedId || devices[0]?.id;
-        if (id) openProperties(id, { push: true });
-        else setView("properties", { push: true });
-        return;
-      }
-      setView(name, { push: true });
+  function bindViewTabs(selector) {
+    document.querySelectorAll(selector).forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const name = tab.getAttribute("data-view");
+        if (name === "properties") {
+          const id = selectedId || devices[0]?.id;
+          if (id) openProperties(id, { push: true });
+          else setView("properties", { push: true });
+          return;
+        }
+        setView(name, { push: true });
+      });
     });
+  }
+  bindViewTabs(".view-tab");
+  bindViewTabs("#bottomNav button");
+
+  $("detailClose")?.addEventListener("click", () => closeDetailDrawer());
+  $("detailBackdrop")?.addEventListener("click", () => closeDetailDrawer());
+  $("kpiSummary")?.addEventListener("click", () => {
+    $("statsPane")?.classList.toggle("is-expanded");
+  });
+  window.addEventListener("resize", () => {
+    if (!isNarrowDetail()) closeDetailDrawer();
   });
 
   document.querySelectorAll("[data-back-fleet]").forEach((btn) => {
@@ -699,17 +772,21 @@
   });
 
   tbody.addEventListener("click", (e) => {
-    const propsBtn = e.target.closest("[data-props]");
-    if (propsBtn) {
+    const propsOnly = e.target.closest(".btn-props[data-props]");
+    if (propsOnly) {
       e.preventDefault();
       e.stopPropagation();
-      openProperties(propsBtn.getAttribute("data-props"));
+      openProperties(propsOnly.getAttribute("data-props"));
       return;
     }
     const tr = e.target.closest("tr[data-id]");
     if (!tr) return;
-    // Clicking the row (not only the Properties button) opens properties.
-    openProperties(tr.getAttribute("data-id"));
+    selectedId = tr.getAttribute("data-id");
+    const d = findDevice(selectedId);
+    document.querySelectorAll("#tbody tr").forEach((row) => {
+      row.classList.toggle("is-selected", row.getAttribute("data-id") === selectedId);
+    });
+    showDetail(d, { openDrawer: true });
   });
 
   $("detailBody")?.addEventListener("click", (e) => {

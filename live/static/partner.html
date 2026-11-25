@@ -8,14 +8,20 @@
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css?v=ux-1" />
-  <link rel="stylesheet" href="/app/partner.css?v=ux-1" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-1" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-1" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-1" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
-    <a class="wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
-    <div class="views top-nav" id="partnerTopNav" role="tablist" aria-label="Partner primary">
+    <div class="topbar-left">
+      <a class="wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
+      <nav class="crumb" aria-label="Context">
+        <span>Console</span>
+      </nav>
+    </div>
+    <div class="views top-nav desktop-nav" id="partnerTopNav" role="tablist" aria-label="Partner primary">
       <button type="button" class="view-tab" data-pview="home" aria-selected="true">Home</button>
       <button type="button" class="view-tab" data-pview="enroll" aria-selected="false">Enroll</button>
       <button type="button" class="view-tab" data-pview="biz" aria-selected="false">Businesses</button>
@@ -245,7 +251,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=ux-1"></script>
-  <script src="/app/partner.js?v=ux-1"></script>
+  <script src="/app/clerk-partner.js?v=lux-1"></script>
+  <script src="/app/partner.js?v=lux-1"></script>
 </body>
 </html>
