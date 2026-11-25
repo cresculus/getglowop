@@ -349,12 +349,64 @@
     `;
   }
 
-  async function openProperties(id) {
+  function fromPartner() {
+    return new URLSearchParams(window.location.search).get("from") === "partner";
+  }
+
+  function buildAppUrl(view, deviceId) {
+    const params = new URLSearchParams(window.location.search);
+    params.set("tenant", tenant());
+    if (fromPartner()) params.set("from", "partner");
+    else params.delete("from");
+    if (view && view !== "fleet") params.set("view", view);
+    else params.delete("view");
+    if (deviceId && view === "properties") params.set("device", String(deviceId));
+    else params.delete("device");
+    // Keep call filter in the URL when on fleet
+    if (view === "fleet" && activeCall && activeCall !== "all") params.set("call", activeCall);
+    else if (view !== "fleet") {
+      /* leave call param if present so returning to fleet restores it */
+    }
+    const qs = params.toString();
+    return `/app/${qs ? `?${qs}` : ""}`;
+  }
+
+  function syncUrl(view, deviceId, { push = false } = {}) {
+    const url = buildAppUrl(view, deviceId);
+    const state = { view, deviceId: deviceId || null };
+    if (push) history.pushState(state, "", url);
+    else history.replaceState(state, "", url);
+  }
+
+  function updateHomeBack() {
+    const btn = $("homeBack");
+    if (!btn) return;
+    if (currentView === "fleet") {
+      btn.textContent = "← Partner";
+      btn.title = "Partner home";
+      btn.dataset.mode = "partner";
+    } else {
+      btn.textContent = "← Fleet report";
+      btn.title = "Back to device list";
+      btn.dataset.mode = "fleet";
+    }
+  }
+
+  function goFleet({ push = false } = {}) {
+    setView("fleet", { sync: false });
+    syncUrl("fleet", null, { push });
+    updateHomeBack();
+  }
+
+  async function openProperties(id, { push = true } = {}) {
     selectedId = String(id);
     const local = findDevice(selectedId);
     propertiesDevice = local;
     renderProperties(local, null);
-    setView("properties");
+    const shouldPush = push && currentView !== "properties";
+    setView("properties", { sync: false });
+    syncUrl("properties", selectedId, { push: shouldPush });
+    updateHomeBack();
     try {
       const res = await fetch(
         `/api/devices/${encodeURIComponent(selectedId)}?tenant=${encodeURIComponent(tenant())}`
@@ -421,7 +473,7 @@
     showDetail(selected);
   }
 
-  function setView(name) {
+  function setView(name, { sync = true, push = false } = {}) {
     if (!VIEWS.includes(name)) name = "fleet";
     currentView = name;
     const map = {
@@ -452,6 +504,11 @@
       const d = propertiesDevice || findDevice(selectedId);
       renderProperties(d, propertiesDevice);
     }
+    if (sync) {
+      const deviceId = name === "properties" ? selectedId : null;
+      syncUrl(name, deviceId, { push });
+    }
+    updateHomeBack();
   }
 
   async function load() {
@@ -486,20 +543,39 @@
       const name = tab.getAttribute("data-view");
       if (name === "properties") {
         const id = selectedId || devices[0]?.id;
-        if (id) openProperties(id);
-        else setView("properties");
+        if (id) openProperties(id, { push: true });
+        else setView("properties", { push: true });
         return;
       }
-      setView(name);
+      setView(name, { push: true });
     });
   });
 
   document.querySelectorAll("[data-back-fleet]").forEach((btn) => {
-    btn.addEventListener("click", () => setView("fleet"));
+    btn.addEventListener("click", () => goFleet({ push: false }));
   });
-  $("propsToDash")?.addEventListener("click", () => setView("dashboard"));
+  $("homeBack")?.addEventListener("click", () => {
+    const mode = $("homeBack")?.dataset?.mode || "fleet";
+    if (mode === "partner" || currentView === "fleet") {
+      window.location.href = "/partner/";
+      return;
+    }
+    goFleet({ push: false });
+  });
+  $("propsToDash")?.addEventListener("click", () => setView("dashboard", { push: true }));
   $("openProperties")?.addEventListener("click", () => {
-    if (selectedId) openProperties(selectedId);
+    if (selectedId) openProperties(selectedId, { push: true });
+  });
+  window.addEventListener("popstate", (e) => {
+    const st = e.state || {};
+    const params = new URLSearchParams(window.location.search);
+    const view = st.view || params.get("view") || "fleet";
+    const device = st.deviceId || params.get("device");
+    if (view === "properties" && device) {
+      openProperties(device, { push: false });
+      return;
+    }
+    setView(VIEWS.includes(view) ? view : "fleet", { sync: false });
   });
 
   callsEl.addEventListener("click", (e) => {
@@ -587,7 +663,7 @@
       if (!res.ok) throw new Error(data.error || "ingest failed");
       st.textContent = `Ingested ${data.ingested}`;
       await load();
-      setView("fleet");
+      goFleet({ push: false });
     } catch (err) {
       st.textContent = String(err.message || err);
     }
@@ -627,11 +703,11 @@
   const deviceParam = params.get("device");
 
   load().then(() => {
-    if (deviceParam) openProperties(deviceParam);
-    else if (viewParam === "dashboard") setView("dashboard");
-    else if (viewParam === "properties") setView("properties");
-    else if (viewParam === "resources") setView("resources");
-    else if (viewParam === "ingest") setView("ingest");
-    else setView("fleet");
+    if (deviceParam) openProperties(deviceParam, { push: false });
+    else if (viewParam === "dashboard") setView("dashboard", { sync: true });
+    else if (viewParam === "properties") setView("properties", { sync: true });
+    else if (viewParam === "resources") setView("resources", { sync: true });
+    else if (viewParam === "ingest") setView("ingest", { sync: true });
+    else setView("fleet", { sync: true });
   });
 })();

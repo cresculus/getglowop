@@ -10,16 +10,16 @@
 
   function syncDashLinks() {
     const t = primaryTenant();
-    const q = `from=partner&tenant=${encodeURIComponent(t)}`;
+    const q = `from=partner&tenant=${encodeURIComponent(t)}&view=fleet`;
     const fleet = $("navFleet");
     const ingest = $("navIngest");
     const csv = $("navCsv");
     if (fleet) fleet.href = `/app/?${q}`;
-    if (ingest) ingest.href = `/app/?${q}&view=ingest`;
+    if (ingest) ingest.href = `/app/?from=partner&tenant=${encodeURIComponent(t)}&view=ingest`;
     if (csv) csv.href = `/api/export.csv?tenant=${encodeURIComponent(t)}`;
     document.querySelectorAll(".side-call[data-call]").forEach((a) => {
       const call = a.getAttribute("data-call");
-      a.href = `/app/?${q}&call=${encodeURIComponent(call)}`;
+      a.href = `/app/?from=partner&tenant=${encodeURIComponent(t)}&view=fleet&call=${encodeURIComponent(call)}`;
     });
   }
 
@@ -123,7 +123,7 @@
         <h3>${esc(b.business_name || b.business_id)}</h3>
         <div class="meta-line">${esc(b.business_id)}</div>
         <div class="kpis" id="an-${esc(b.business_id)}"><span>Loading…</span></div>
-        <a class="btn lime" href="/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}">Open report</a>
+        <a class="btn lime" href="/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet">Open report</a>
       </article>`
       )
       .join("");
@@ -171,7 +171,7 @@
             b.business_id
           )}</div></span><a class="btn lime" href="/app/?from=partner&tenant=${encodeURIComponent(
             b.business_id
-          )}">Open report</a></li>`
+          )}&view=fleet">Open report</a></li>`
       )
       .join("");
     const active = (keys.keys || []).filter((k) => !k.revoked_at);

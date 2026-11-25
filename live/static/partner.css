@@ -47,17 +47,23 @@
 }
 .hint { color: var(--muted); font-size: 0.8rem; margin: 0.2rem 0 0; }
 
+.partner-shell .workspace {
+  padding: 0.55rem;
+  background: var(--bg);
+}
 .partner-dash:not([hidden]) {
   height: 100%;
   display: grid;
   grid-template-columns: 168px minmax(0, 1fr);
+  gap: 0.55rem;
   min-height: 0;
   overflow: hidden;
 }
 .partner-dash .main-pane {
-  border-right: 0;
+  border: 2px solid var(--line);
   min-height: 0;
   background: var(--surface);
+  box-shadow: 3px 3px 0 rgba(13, 19, 11, 0.12);
 }
 
 .side-nav {
@@ -66,7 +72,8 @@
   gap: 0.28rem;
   padding: 0.55rem;
   background: #f3f6ea;
-  border-right: 2px solid var(--line);
+  border: 2px solid var(--line);
+  box-shadow: 3px 3px 0 rgba(13, 19, 11, 0.12);
   min-height: 0;
   overflow: hidden;
 }
@@ -86,7 +93,7 @@
   box-sizing: border-box;
   text-align: left;
   text-decoration: none;
-  border: 1.5px solid var(--line);
+  border: 2px solid var(--line);
   background: var(--surface);
   padding: 0.42rem 0.55rem;
   cursor: pointer;
@@ -108,7 +115,7 @@
   padding-top: 0.35rem;
 }
 .nav-foot div {
-  border: 1.5px solid var(--line);
+  border: 2px solid var(--line);
   background: var(--surface);
   padding: 0.4rem 0.45rem;
 }
@@ -252,7 +259,12 @@
   overflow: hidden; white-space: pre-wrap;
 }
 .btn.danger { background: var(--red-bg); }
-.partner-dash .table-fit { flex: 1; min-height: 0; overflow: hidden; padding: 0 0.35rem; }
+.partner-dash .table-fit {
+  flex: 1; min-height: 0; overflow: auto;
+  margin: 0.55rem 0.85rem;
+  border: 2px solid var(--line);
+  background: var(--bg);
+}
 .partner-dash .settings-keys { max-height: 40%; }
 .partner-dash table { font-size: 0.78rem; }
 .partner-dash tbody tr { height: 1.9rem; cursor: default; }
@@ -264,8 +276,6 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    border-right: 0;
-    border-bottom: 2px solid var(--line);
     max-height: 28vh;
     overflow: auto;
   }

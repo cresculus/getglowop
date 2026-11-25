@@ -14,7 +14,7 @@
 <body class="shell">
   <header class="topbar">
     <a class="wordmark" id="homeWordmark" href="/partner/" title="Partner home"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
-    <a class="btn lime home-back" id="homeBack" href="/partner/">← Partner home</a>
+    <button type="button" class="btn lime home-back" id="homeBack" title="Back">← Fleet report</button>
     <div class="views" role="tablist" aria-label="Views">
       <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
       <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
@@ -105,7 +105,7 @@
         </div>
         <div class="dash-grid" id="dashGrid"></div>
         <div class="action-dock">
-          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
+          <button type="button" class="btn ghost" data-back-fleet>← Fleet report</button>
         </div>
       </div>
     </section>
@@ -123,7 +123,7 @@
           <p class="detail-empty">Pick a device from Fleet, then open Properties.</p>
         </div>
         <div class="action-dock">
-          <button type="button" class="btn ghost" data-back-fleet>Back</button>
+          <button type="button" class="btn ghost" data-back-fleet>← Fleet report</button>
           <button type="button" class="btn lime" id="propsToDash">Dashboard</button>
         </div>
       </div>
@@ -229,7 +229,7 @@
           </div>
         </div>
         <div class="action-dock">
-          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
+          <button type="button" class="btn ghost" data-back-fleet>← Fleet report</button>
         </div>
       </div>
     </section>
@@ -245,7 +245,7 @@
         <textarea id="ingestJson" spellcheck="false" placeholder='{"value":[{"deviceName":"…","serialNumber":"…","lastSyncDateTime":"…"}]}'></textarea>
         <div class="ingest-actions action-dock">
           <button type="button" class="btn lime" id="ingestBtn">Ingest</button>
-          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
+          <button type="button" class="btn ghost" data-back-fleet>← Fleet report</button>
           <span id="ingestStatus"></span>
         </div>
       </div>

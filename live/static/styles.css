@@ -98,6 +98,8 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
   min-height: 0;
   height: 100%;
   overflow: hidden;
+  padding: 0.55rem;
+  background: var(--bg);
 }
 .view {
   height: 100%;
@@ -111,21 +113,24 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
   grid-template-columns: 200px minmax(0, 1fr) 260px;
   height: 100%;
   min-height: 0;
+  gap: 0.55rem;
 }
 .pane {
   min-height: 0;
   overflow: hidden;
-  border-right: 2px solid var(--line);
+  border: 2px solid var(--line);
   background: var(--surface);
   display: flex;
   flex-direction: column;
+  box-shadow: 3px 3px 0 rgba(13, 19, 11, 0.12);
 }
-.pane.detail { border-right: 0; background: #f7f9f2; }
+.pane.detail { background: #f7f9f2; }
 .pane-label {
   margin: 0; padding: 0.55rem 0.7rem 0.35rem;
   font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--muted);
   display: flex; align-items: center; gap: 0.4rem;
+  border-bottom: 1px solid var(--line-soft);
 }
 .pane-label .live,
 .live {
@@ -138,7 +143,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
   padding: 0 0.55rem 0.55rem;
 }
 .kpi-grid div {
-  border: 1.5px solid var(--line); padding: 0.35rem 0.45rem; background: var(--bg);
+  border: 2px solid var(--line); padding: 0.35rem 0.45rem; background: var(--bg);
 }
 .kpi-grid span {
   display: block; font-family: var(--mono); font-size: 0.58rem;
@@ -152,7 +157,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
 }
 .chip {
   display: flex; justify-content: space-between; align-items: center;
-  border: 1.5px solid var(--line); background: transparent;
+  border: 2px solid var(--line); background: transparent;
   min-height: 28px; padding: 0 0.5rem; cursor: pointer;
   font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--ink-2); width: 100%;
@@ -169,7 +174,8 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
 .ledger-head {
   display: flex; align-items: center; justify-content: space-between;
   gap: 0.75rem; padding: 0.45rem 0.7rem;
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: 2px solid var(--line);
+  background: #f7f9f2;
 }
 .biz.tz select {
   border: 0; outline: 0; background: transparent;
@@ -197,6 +203,9 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
   flex: 1; min-height: 0; overflow: auto;
   display: block;
   position: relative;
+  margin: 0.55rem;
+  border: 2px solid var(--line);
+  background: var(--bg);
 }
 .table-fit table { min-height: 0; }
 .table-fit .empty {
@@ -217,6 +226,7 @@ th, td {
 th {
   font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--muted); background: #f3f6ea;
+  border-bottom: 2px solid var(--line);
 }
 tbody tr { cursor: pointer; height: 2rem; }
 tbody tr:hover { background: #f4f7ec; }
@@ -260,7 +270,10 @@ tbody tr.is-selected { background: var(--lime); }
   margin: auto; color: var(--muted); font-family: var(--mono);
   font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
 }
-#detailBody { padding: 0 0.75rem 0.75rem; overflow: auto; min-height: 0; }
+#detailBody {
+  margin: 0.55rem; padding: 0.65rem 0.75rem 0.75rem; overflow: auto; min-height: 0;
+  border: 2px solid var(--line); background: var(--surface); flex: 1;
+}
 #detailBody h2 {
   margin: 0 0 0.15rem; font-size: 1.15rem; font-weight: 900;
   letter-spacing: -0.02em; text-transform: uppercase;
@@ -281,10 +294,11 @@ tbody tr.is-selected { background: var(--lime); }
 .row-actions { width: 7.5rem; }
 .btn-props { min-height: 26px; font-size: 0.58rem; padding: 0 0.4rem; }
 
-.view-dashboard, .view-properties, .view-resources { background: var(--bg); }
+.view-dashboard, .view-properties, .view-resources { background: transparent; }
 .resources-fit {
   height: 100%; min-height: 0; overflow: hidden;
   display: flex; flex-direction: column; background: var(--surface);
+  border: 2px solid var(--line); box-shadow: 3px 3px 0 rgba(13, 19, 11, 0.12);
 }
 .resources-body {
   flex: 1; min-height: 0; overflow: auto;
@@ -297,6 +311,7 @@ tbody tr.is-selected { background: var(--lime); }
 }
 .res-table {
   width: 100%; border-collapse: collapse; font-size: 0.72rem; margin: 0.35rem 0 0.55rem;
+  border: 2px solid var(--line); background: var(--surface);
 }
 .res-table th, .res-table td {
   text-align: left; padding: 0.28rem 0.35rem; border-bottom: 1px solid var(--line-soft);
@@ -314,6 +329,8 @@ tbody tr.is-selected { background: var(--lime); }
   height: 100%; min-height: 0; overflow: hidden;
   display: flex; flex-direction: column;
   background: var(--surface);
+  border: 2px solid var(--line);
+  box-shadow: 3px 3px 0 rgba(13, 19, 11, 0.12);
 }
 .dash-grid {
   flex: 1; min-height: 0; overflow: auto;
@@ -327,13 +344,16 @@ tbody tr.is-selected { background: var(--lime); }
 .props-hero {
   display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: 0.85rem; margin-bottom: 0.85rem;
+  border: 2px solid var(--line);
+  background: #f7f9f2;
+  padding: 0.75rem 0.85rem;
 }
 .props-model { margin: 0.2rem 0 0.55rem; color: var(--ink-2); }
 .props-kpis {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem;
 }
 .props-kpis div, .dash-kpis div {
-  border: 1.5px solid var(--line); background: var(--bg); padding: 0.45rem 0.5rem;
+  border: 2px solid var(--line); background: var(--bg); padding: 0.45rem 0.5rem;
 }
 .props-kpis span, .dash-kpis span {
   display: block; font-family: var(--mono); font-size: 0.55rem;
@@ -347,10 +367,13 @@ tbody tr.is-selected { background: var(--lime); }
 }
 .props-card {
   border: 2px solid var(--line); background: var(--bg); padding: 0.7rem 0.8rem;
+  box-shadow: 2px 2px 0 rgba(13, 19, 11, 0.1);
 }
 .props-card h3 {
-  margin: 0 0 0.55rem; font-size: 0.78rem; text-transform: uppercase;
+  margin: 0 0 0.55rem; padding-bottom: 0.35rem;
+  font-size: 0.78rem; text-transform: uppercase;
   letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--line);
 }
 .props-card h4 {
   margin: 0.55rem 0 0.25rem; font-size: 0.68rem; text-transform: uppercase;
@@ -368,17 +391,17 @@ tbody tr.is-selected { background: var(--lime); }
 .props-list { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; font-size: 0.8rem; }
 .dash-bars { display: grid; gap: 0.4rem; }
 .dash-bar { display: grid; grid-template-columns: 5.5rem 1fr 2rem; gap: 0.4rem; align-items: center; font-size: 0.72rem; text-transform: uppercase; }
-.dash-bar .track { height: 10px; border: 1.5px solid var(--line); background: #eef2e6; }
+.dash-bar .track { height: 10px; border: 2px solid var(--line); background: #eef2e6; }
 .dash-bar .track i { display: block; height: 100%; background: var(--lime); }
 .dash-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
 .dash-device {
   width: 100%; display: grid; grid-template-columns: 1fr auto auto; gap: 0.45rem; align-items: center;
-  border: 1.5px solid var(--line); background: var(--surface); padding: 0.45rem 0.55rem; cursor: pointer; text-align: left;
+  border: 2px solid var(--line); background: var(--surface); padding: 0.45rem 0.55rem; cursor: pointer; text-align: left;
 }
 .dash-device:hover { background: #f7ffe0; }
 .dash-device em { font-style: normal; font-weight: 900; font-family: var(--font); }
 
-.view-ingest { background: var(--bg); }
+.view-ingest { background: transparent; }
 .ingest-fit {
   height: 100%;
   display: grid;
@@ -388,6 +411,9 @@ tbody tr.is-selected { background: var(--lime); }
   max-width: 900px;
   margin: 0 auto;
   min-height: 0;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  box-shadow: 3px 3px 0 rgba(13, 19, 11, 0.12);
 }
 .ingest-fit h1 {
   margin: 0.15rem 0 0.25rem; font-size: clamp(1.8rem, 4vw, 2.6rem);
@@ -418,7 +444,6 @@ tbody tr.is-selected { background: var(--lime); }
   body.shell { overflow: auto; height: auto; min-height: 100dvh; }
   .workspace, .view, .view-fleet { height: auto; }
   .view-fleet { grid-template-columns: 1fr; }
-  .pane { border-right: 0; border-bottom: 2px solid var(--line); }
   .table-fit { max-height: 50vh; overflow: auto; }
   .pane.detail { display: flex; }
   .row-actions { width: 5.5rem; }
