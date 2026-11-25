@@ -14,14 +14,15 @@
 <body class="shell">
   <header class="topbar">
     <a class="wordmark" id="homeWordmark" href="/partner/" title="Partner home"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
-    <button type="button" class="btn lime home-back" id="homeBack" title="Back">← Fleet report</button>
+    <button type="button" class="btn lime home-back" id="homeBack" title="Back to Fleet" hidden>← Fleet</button>
     <div class="views" role="tablist" aria-label="Views">
-      <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
       <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
+      <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
       <button type="button" class="view-tab" data-view="resources" aria-selected="false">Resources</button>
       <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
     </div>
     <div class="rail">
+      <a class="btn ghost" id="partnerHome" href="/partner/" title="Partner console">Partner</a>
       <label class="biz"><span>Biz</span><input id="tenant" value="demo" spellcheck="false" /></label>
       <label class="biz tz"><span>TZ</span>
         <select id="tzSelect" title="Display time zone"></select>

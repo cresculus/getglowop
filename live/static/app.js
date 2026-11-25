@@ -1,9 +1,9 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const CALLS = ["all", "keep", "repair", "redeploy", "refresh", "recycle", "ghost"];
-  // Top nav order: Dashboard → Fleet → Resources → Properties.
-  // Ingest stays as a lab-only view (opened from Resources), not a primary tab.
-  const VIEWS = ["dashboard", "fleet", "resources", "properties", "ingest"];
+  // Top nav order: Fleet (primary) → Dashboard → Resources → Properties.
+  // Ingest stays lab-only (Resources), not a primary tab.
+  const VIEWS = ["fleet", "dashboard", "resources", "properties", "ingest"];
 
   let devices = [];
   let summary = null;
@@ -395,13 +395,15 @@
   function updateHomeBack() {
     const btn = $("homeBack");
     if (!btn) return;
+    // Fleet is home for the report. Never turn this control into "Partner".
+    // Partner lives on the wordmark + rail "Partner" link.
     if (currentView === "fleet") {
-      btn.textContent = "← Partner";
-      btn.title = "Partner home";
-      btn.dataset.mode = "partner";
+      btn.hidden = true;
+      btn.dataset.mode = "fleet";
     } else {
-      btn.textContent = "← Fleet report";
-      btn.title = "Back to device list";
+      btn.hidden = false;
+      btn.textContent = "← Fleet";
+      btn.title = "Back to Fleet device list";
       btn.dataset.mode = "fleet";
     }
   }
@@ -569,11 +571,6 @@
     btn.addEventListener("click", () => goFleet({ push: false }));
   });
   $("homeBack")?.addEventListener("click", () => {
-    const mode = $("homeBack")?.dataset?.mode || "fleet";
-    if (mode === "partner" || currentView === "fleet") {
-      window.location.href = "/partner/";
-      return;
-    }
     goFleet({ push: false });
   });
   $("propsToDash")?.addEventListener("click", () => setView("dashboard", { push: true }));
