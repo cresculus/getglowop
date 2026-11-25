@@ -1,5 +1,7 @@
 # SaaS stack bootstrap — Clerk + Supabase + Railway
 
+**Master start-to-finish (domain → deploy → auth → DB):** `docs/MASTER-deploy-playbook.md`.
+
 **Reusable playbook** for a new product app (GlowOps pattern).  
 One product = one Clerk app + one Supabase project + one Railway service.  
 **Never** reuse another product’s Clerk app, Supabase project, or env vars.
