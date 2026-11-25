@@ -172,6 +172,30 @@ def partner_may_access(conn: sqlite3.Connection, partner_id: str, business_id: s
     return row is not None
 
 
+def unbind_business(conn: sqlite3.Connection, partner_id: str, business_id: str) -> bool:
+    """Remove this partner from a business console (does not wipe fleet data)."""
+    ensure_partner_schema(conn)
+    if not partner_id or not business_id or business_id == "demo":
+        return False
+    cur = conn.execute(
+        "DELETE FROM partner_businesses WHERE partner_id = ? AND business_id = ?",
+        (partner_id, business_id),
+    )
+    try:
+        conn.execute(
+            """
+            UPDATE business_memberships
+            SET revoked_at = ?, updated_at = ?
+            WHERE partner_id = ? AND business_id = ? AND revoked_at IS NULL
+            """,
+            (_iso(), _iso(), partner_id, business_id),
+        )
+    except sqlite3.OperationalError:
+        pass
+    conn.commit()
+    return cur.rowcount > 0
+
+
 def authenticate_partner(conn: sqlite3.Connection, email: str, password: str) -> dict[str, Any] | None:
     ensure_partner_schema(conn)
     row = conn.execute(

@@ -525,15 +525,24 @@
       .map((b) => {
         const href = `/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet`;
         const name = b.business_name || "Business";
+        const id = b.business_id;
         return `<li class="biz-tile">
-          <a class="biz-tile-link" href="${href}" title="Open report">
-            <span><b>${esc(name)}</b></span>
-            <span class="btn lime open-report-label">Open report</span>
-          </a>
-          <form class="biz-rename" data-biz-rename="${esc(b.business_id)}">
-            <input type="text" maxlength="120" value="${esc(name)}" aria-label="Business name" />
-            <button type="submit" class="btn ghost">Save name</button>
-          </form>
+          <div class="biz-tile-row">
+            <a class="biz-tile-link" href="${href}" title="Open report">
+              <span><b>${esc(name)}</b></span>
+              <span class="btn lime open-report-label">Open report</span>
+            </a>
+            <details class="biz-manage">
+              <summary class="btn ghost">Manage</summary>
+              <div class="biz-manage-menu" role="menu">
+                <button type="button" role="menuitem" data-biz-rename="${esc(id)}" data-biz-name="${esc(name)}">Rename</button>
+                <a role="menuitem" href="${href}">Open report</a>
+                <a role="menuitem" href="/partner/?view=enroll&tenant=${encodeURIComponent(id)}">Enroll devices</a>
+                <a role="menuitem" href="/partner/?view=people&tenant=${encodeURIComponent(id)}">People</a>
+                <button type="button" role="menuitem" class="danger" data-biz-remove="${esc(id)}" data-biz-name="${esc(name)}">Remove from console</button>
+              </div>
+            </details>
+          </div>
         </li>`;
       })
       .join("");
@@ -667,33 +676,51 @@
 
   const bizList = $("bizList");
   if (bizList) {
-    bizList.addEventListener("submit", async (e) => {
-      const form = e.target.closest("[data-biz-rename]");
-      if (!form) return;
-      e.preventDefault();
-      const businessId = form.getAttribute("data-biz-rename");
-      const input = form.querySelector("input");
-      const btn = form.querySelector("button");
-      const name = (input?.value || "").trim();
-      if (!businessId || !name) return;
-      const prev = btn?.textContent || "Save name";
-      if (btn) btn.textContent = "Saving…";
-      try {
-        await api("/api/business", {
-          method: "POST",
-          body: JSON.stringify({ tenantId: businessId, businessId, name }),
-        });
-        if (btn) btn.textContent = "Saved";
-        await refresh();
-        renderHome();
-        setTimeout(() => {
-          if (btn) btn.textContent = prev;
-        }, 1200);
-      } catch (err) {
-        if (btn) btn.textContent = String(err.message || err).slice(0, 24);
-        setTimeout(() => {
-          if (btn) btn.textContent = prev;
-        }, 2000);
+    bizList.addEventListener("click", async (e) => {
+      const renameBtn = e.target.closest("[data-biz-rename]");
+      if (renameBtn) {
+        e.preventDefault();
+        const businessId = renameBtn.getAttribute("data-biz-rename");
+        const current = renameBtn.getAttribute("data-biz-name") || "";
+        const next = window.prompt("New business name", current);
+        if (next == null) return;
+        const name = next.trim();
+        if (!name || !businessId) return;
+        try {
+          await api("/api/business", {
+            method: "POST",
+            body: JSON.stringify({ tenantId: businessId, businessId, name }),
+          });
+          await refresh();
+          renderHome();
+        } catch (err) {
+          alert(String(err.message || err));
+        }
+        return;
+      }
+      const removeBtn = e.target.closest("[data-biz-remove]");
+      if (removeBtn) {
+        e.preventDefault();
+        const businessId = removeBtn.getAttribute("data-biz-remove");
+        const label = removeBtn.getAttribute("data-biz-name") || "this business";
+        if (
+          !businessId ||
+          !confirm(
+            `Remove “${label}” from your partner console?\n\nFleet data stays on the platform; you lose access until invited again.`
+          )
+        ) {
+          return;
+        }
+        try {
+          await api("/api/partner/businesses/unbind", {
+            method: "POST",
+            body: JSON.stringify({ businessId }),
+          });
+          await refresh();
+          renderHome();
+        } catch (err) {
+          alert(String(err.message || err));
+        }
       }
     });
   }

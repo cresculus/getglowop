@@ -684,21 +684,98 @@
 .biz-tile-link:hover { background: #f7ffe0; }
 .biz-list b { font-weight: var(--w-strong); font-size: 0.95rem; }
 .open-report-label { pointer-events: none; }
-.biz-rename {
-  display: flex;
-  gap: 0.45rem;
+.ledger-head-biz {
+  display: flex !important;
   align-items: center;
-  padding: 0 1rem 0.85rem;
-  border-top: 1px solid var(--line);
+  justify-content: space-between !important;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
-.biz-rename input {
-  flex: 1;
-  min-width: 0;
-  font: inherit;
-  padding: 0.4rem 0.55rem;
+.ledger-head-biz .ledger-head-copy { min-width: 0; }
+.biz-add-top {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.biz-add-top input {
+  min-height: 34px;
+  min-width: 12rem;
+  width: min(240px, 42vw);
   border: 1px solid var(--line);
   border-radius: var(--radius-s);
   background: var(--bg);
+  padding: 0 0.55rem;
+  font: 500 0.85rem/1.2 var(--font);
+}
+.biz-add-status {
+  margin: 0 0.85rem 0.35rem;
+  min-height: 1.1em;
+}
+.biz-tile-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+.biz-tile-row .biz-tile-link {
+  flex: 1;
+  min-width: 0;
+}
+.biz-manage {
+  position: relative;
+  flex: 0 0 auto;
+  border-left: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 0.55rem;
+  background: var(--surface);
+}
+.biz-manage > summary {
+  list-style: none;
+  cursor: pointer;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+.biz-manage > summary::-webkit-details-marker { display: none; }
+.biz-manage-menu {
+  position: absolute;
+  right: 0.35rem;
+  top: calc(100% - 0.15rem);
+  z-index: 20;
+  min-width: 11.5rem;
+  display: grid;
+  gap: 0;
+  padding: 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(13, 19, 11, 0.08);
+}
+.biz-manage-menu a,
+.biz-manage-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 500 0.8rem/1.2 var(--font);
+  padding: 0.45rem 0.55rem;
+  border-radius: calc(var(--radius-s) - 2px);
+  text-decoration: none;
+  cursor: pointer;
+}
+.biz-manage-menu a:hover,
+.biz-manage-menu button:hover {
+  background: #f7ffe0;
+}
+.biz-manage-menu .danger {
+  color: #9b2c2c;
+}
+.biz-manage-menu .danger:hover {
+  background: #fff1f0;
 }
 
 .analyze-grid {

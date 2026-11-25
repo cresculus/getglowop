@@ -911,6 +911,23 @@ class Handler(BaseHTTPRequestHandler):
             status, body, ctype = _json_bytes({"ok": True})
             return self._send(status, body, ctype)
 
+        if path == "/api/partner/businesses/unbind":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            from partners import unbind_business
+
+            business_id = str((payload or {}).get("businessId") or (payload or {}).get("tenantId") or "").strip()
+            if not business_id:
+                return self._send(400, b'{"error":"businessId required"}', "application/json")
+            if not partner_can(CONN, partner["id"], business_id, "business.write"):
+                return self._send(403, b'{"error":"forbidden - need admin/owner"}', "application/json")
+            ok = unbind_business(CONN, partner["id"], business_id)
+            if not ok:
+                return self._send(404, b'{"error":"business not linked"}', "application/json")
+            status, body, ctype = _json_bytes({"ok": True, "businessId": business_id})
+            return self._send(status, body, ctype)
+
         if path == "/api/partner/businesses":
             partner = self._partner_principal()
             if not partner:

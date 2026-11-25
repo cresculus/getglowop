@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-14" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-14" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-14" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-15" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-15" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-15" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -168,14 +168,18 @@
         </div>
 
         <div class="pview pview-left" id="pviewBiz" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left"><h1>Businesses</h1></div>
-          <p class="view-lede">Customer fleets for this partner. Add one, then enroll devices into it.</p>
+          <div class="ledger-head ledger-head-biz">
+            <div class="ledger-head-copy">
+              <h1>Businesses</h1>
+            </div>
+            <form id="addBizForm" class="biz-add-top">
+              <input id="newBizName" placeholder="New business name" maxlength="80" required />
+              <button class="btn lime" type="submit">Add business</button>
+            </form>
+          </div>
+          <p class="view-lede">Customer fleets for this partner. Open a report or use Manage for rename / remove.</p>
+          <p class="hint biz-add-status" id="addBizStatus"></p>
           <ul class="biz-list" id="bizList"></ul>
-          <form id="addBizForm" class="mint-dock">
-            <input id="newBizName" placeholder="Business name (e.g. Acme Schools)" maxlength="80" required />
-            <button class="btn lime" type="submit">Add business</button>
-            <span class="hint" id="addBizStatus"></span>
-          </form>
         </div>
 
         <div class="pview pview-left people-view" id="pviewPeople" data-active="false" hidden>
@@ -300,7 +304,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=lux-14"></script>
-  <script src="/app/partner.js?v=lux-14"></script>
+  <script src="/app/clerk-partner.js?v=lux-15"></script>
+  <script src="/app/partner.js?v=lux-15"></script>
 </body>
 </html>
