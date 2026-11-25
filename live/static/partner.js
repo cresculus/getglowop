@@ -285,7 +285,7 @@
     kpis.innerHTML = `
       <div><span>Businesses</span><strong>…</strong></div>
       <div><span>Devices</span><strong>…</strong></div>
-      <div><span>Avg GLOW</span><strong>…</strong></div>
+      <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span><strong>…</strong></div>
       <div><span>Ghosts</span><strong>…</strong></div>
       <div><span>Repair</span><strong>…</strong></div>
       <div><span>Mfg kg</span><strong>…</strong></div>`;
@@ -298,7 +298,7 @@
       kpis.innerHTML = `
         <div><span>Businesses</span><strong>${esc(p.businessCount ?? 0)}</strong></div>
         <div><span>Devices</span><strong>${esc(p.deviceCount ?? 0)}</strong></div>
-        <div><span>Avg GLOW</span><strong>${esc(p.avgGlowScore ?? "—")}</strong></div>
+        <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span><strong>${esc(p.avgGlowScore ?? "—")}</strong></div>
         <div><span>Ghosts</span><strong>${esc(p.ghostCount ?? 0)}</strong></div>
         <div><span>Repair</span><strong>${esc(p.repairCount ?? 0)}</strong></div>
         <div><span>Mfg kg</span><strong>${esc(p.manufacturingKgOnBooks ?? 0)}</strong></div>`;
@@ -319,7 +319,7 @@
             return `<li>
               <a class="home-biz-row" href="${href}">
                 <strong>${esc(b.businessName || "Business")}</strong>
-                <span>${esc(b.deviceCount)} devices · GLOW ${esc(b.avgGlowScore ?? "—")} · ghosts ${esc(b.ghostCount)}</span>
+                <span>${esc(b.deviceCount)} devices · GLOW™ ${esc(b.avgGlowScore ?? "—")} · ghosts ${esc(b.ghostCount)}</span>
               </a>
             </li>`;
           })
@@ -494,7 +494,7 @@
           const s = await api(`/api/summary?tenant=${encodeURIComponent(b.business_id)}`);
           slot.innerHTML = `
             <div><span>Devices</span> <strong>${s.deviceCount ?? 0}</strong></div>
-            <div><span>Avg GLOW</span> <strong>${s.avgGlowScore ?? "—"}</strong></div>
+            <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span> <strong>${s.avgGlowScore ?? "—"}</strong></div>
             <div><span>Ghosts</span> <strong>${s.ghostCount ?? 0}</strong></div>
             <div><span>Repair</span> <strong>${s.repairBeforeReplaceCount ?? 0}</strong></div>`;
         } catch {

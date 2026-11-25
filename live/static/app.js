@@ -91,6 +91,18 @@
     return "high";
   }
 
+  /** GLOW™ = Green Lifecycle score (common-law TM claim until ® registration). */
+  const GLOW_BLURB =
+    "GLOW™ is GlowOps’ Green Lifecycle score (0–100). It rates how long a device can stay in productive service before refresh—using age, check-in, health, and persona. Higher favors keep/extend; lower points to repair, redeploy, or refresh.";
+
+  function glowMarkHtml({ info = false, avg = false } = {}) {
+    const label = avg ? "Avg GLOW" : "GLOW";
+    const tip = info
+      ? `<button type="button" class="glow-info" title="${esc(GLOW_BLURB)}" aria-label="What is GLOW score?">i</button>`
+      : "";
+    return `<span class="glow-mark">${label}<sup class="tm" aria-label="trademark">™</sup>${tip}</span>`;
+  }
+
   function esc(s) {
     return String(s ?? "")
       .replace(/&/g, "&amp;")
@@ -287,6 +299,10 @@
     return `<div class="prop-row"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
   }
 
+  function propRowHtml(labelHtml, value) {
+    return `<div class="prop-row"><span>${labelHtml}</span><strong>${esc(value)}</strong></div>`;
+  }
+
   function inventoryBits(full, d) {
     const inv =
       full?.inventory ||
@@ -366,7 +382,7 @@
         </div>
         <div class="props-kpis">
           <div><span>Call</span><strong><span class="pill ${call}">${call}</span></strong></div>
-          <div><span>GLOW</span><strong class="${glowClass(d.glow_score)}">${esc(d.glow_score ?? "—")}</strong></div>
+          <div><span>${glowMarkHtml({ info: true })}</span><strong class="${glowClass(d.glow_score)}">${esc(d.glow_score ?? "—")}</strong></div>
           <div><span>Battery</span><strong>${esc(batt)}</strong></div>
           <div><span>RAM used</span><strong>${res.ramUsedPercent != null ? res.ramUsedPercent + "%" : "—"}</strong></div>
           <div><span>CPU load</span><strong>${res.cpuLoadPercent != null ? res.cpuLoadPercent + "%" : "—"}</strong></div>
@@ -388,7 +404,7 @@
         <section class="props-card">
           <h3>Lifecycle</h3>
           ${propRow("Call", call)}
-          ${propRow("GLOW score", d.glow_score)}
+          ${propRowHtml(glowMarkHtml({ info: true }) + " score", d.glow_score)}
           ${propRow("Age (years)", d.age_years)}
           ${propRow("Check-in (days)", d.check_in_days)}
           ${propRow("Enrolled", formatWhen(d.enrolled_at))}
@@ -462,7 +478,7 @@
         <h3>Fleet snapshot</h3>
         <div class="props-kpis dash-kpis">
           <div><span>Devices</span><strong>${summary?.deviceCount ?? 0}</strong></div>
-          <div><span>Avg GLOW</span><strong>${summary?.avgGlowScore ?? "—"}</strong></div>
+          <div><span>${glowMarkHtml({ avg: true, info: true })}</span><strong>${summary?.avgGlowScore ?? "—"}</strong></div>
           <div><span>Ghosts</span><strong>${summary?.ghostCount ?? 0}</strong></div>
           <div><span>Repair</span><strong>${summary?.repairBeforeReplaceCount ?? 0}</strong></div>
           <div><span>Mfg kg</span><strong>${summary?.manufacturingKgOnBooks ?? 0}</strong></div>
