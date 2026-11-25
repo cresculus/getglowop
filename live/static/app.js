@@ -1,7 +1,7 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const CALLS = ["all", "keep", "repair", "redeploy", "refresh", "recycle", "ghost"];
-  const VIEWS = ["fleet", "dashboard", "properties", "ingest"];
+  const VIEWS = ["fleet", "dashboard", "properties", "resources", "ingest"];
 
   let devices = [];
   let summary = null;
@@ -355,6 +355,7 @@
       fleet: "viewFleet",
       dashboard: "viewDashboard",
       properties: "viewProperties",
+      resources: "viewResources",
       ingest: "viewIngest",
     };
     Object.entries(map).forEach(([key, id]) => {

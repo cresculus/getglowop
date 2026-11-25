@@ -262,7 +262,35 @@ tbody tr.is-selected { background: var(--lime); }
 .row-actions { width: 7.5rem; }
 .btn-props { min-height: 26px; font-size: 0.58rem; padding: 0 0.4rem; }
 
-.view-dashboard, .view-properties { background: var(--bg); }
+.view-dashboard, .view-properties, .view-resources { background: var(--bg); }
+.resources-fit {
+  height: 100%; min-height: 0; overflow: hidden;
+  display: flex; flex-direction: column; background: var(--surface);
+}
+.resources-body {
+  flex: 1; min-height: 0; overflow: auto;
+  padding: 0.55rem 0.85rem 0.85rem;
+}
+.resources-lede { margin: 0 0 0.75rem; max-width: 52rem; }
+.resources-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem; align-content: start;
+}
+.res-table {
+  width: 100%; border-collapse: collapse; font-size: 0.72rem; margin: 0.35rem 0 0.55rem;
+}
+.res-table th, .res-table td {
+  text-align: left; padding: 0.28rem 0.35rem; border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+.res-table th {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.props-card .hint { margin: 0 0 0.45rem; color: var(--muted); font-size: 0.78rem; line-height: 1.35; }
+@media (max-width: 960px) {
+  .resources-grid { grid-template-columns: 1fr; }
+}
 .dash-fit, .props-fit {
   height: 100%; min-height: 0; overflow: hidden;
   display: flex; flex-direction: column;

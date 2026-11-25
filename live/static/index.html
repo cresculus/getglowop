@@ -18,6 +18,7 @@
       <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
       <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
       <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
+      <button type="button" class="view-tab" data-view="resources" aria-selected="false">Resources</button>
       <button type="button" class="view-tab" data-view="ingest" aria-selected="false">Ingest</button>
     </div>
     <div class="rail">
@@ -119,6 +120,109 @@
         </div>
         <div class="props-body" id="propsBody">
           <p class="detail-empty">Pick a device from Fleet, then open Properties.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="view view-resources" id="viewResources" data-active="false" hidden>
+      <div class="resources-fit">
+        <div class="ledger-head">
+          <div>
+            <p class="pane-label">Data &amp; connectors</p>
+            <h1>Resources</h1>
+          </div>
+          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
+        </div>
+        <div class="resources-body">
+          <p class="view-lede resources-lede">
+            What GlowOps collects, which connector supplies it, Graph permissions required, and what lands in the dashboard store.
+            Product path is <strong>Intune + Entra</strong>; the Windows agent is optional / lab.
+          </p>
+
+          <div class="resources-grid">
+            <section class="props-card">
+              <h3>1 · Intune / Entra connector</h3>
+              <p class="hint">Primary. Entra app registration → Microsoft Graph <code>managedDevices</code> → same inventory schema → score → report.</p>
+              <table class="res-table">
+                <thead><tr><th>Signal</th><th>Source</th><th>Used for</th></tr></thead>
+                <tbody>
+                  <tr><td>Manufacturer / model / serial</td><td>Graph</td><td>Identity, warranty, PCF</td></tr>
+                  <tr><td>Hostname / OS / version</td><td>Graph</td><td>Persona, OS-fit refresh</td></tr>
+                  <tr><td>Last sync / check-in</td><td>Graph</td><td>Ghost flag</td></tr>
+                  <tr><td>Compliance / ownership</td><td>Graph</td><td>Security veto on keep</td></tr>
+                  <tr><td>Enroll date (age proxy)</td><td>Graph</td><td>GLOW age</td></tr>
+                  <tr><td>Battery health</td><td>EA Graph <em>or</em> health probe</td><td>Repair-before-replace</td></tr>
+                  <tr><td>Disk health</td><td>Weak in Graph</td><td>Notes only unless probe/agent</td></tr>
+                </tbody>
+              </table>
+              <h4>Entra app permissions (application)</h4>
+              <ul class="props-list">
+                <li><code>DeviceManagementManagedDevices.Read.All</code> — managed device inventory (required)</li>
+                <li><code>DeviceManagementConfiguration.Read.All</code> — optional policy context</li>
+                <li><code>Reports.Read.All</code> — optional bulk exports</li>
+                <li>Endpoint Analytics / battery Graph APIs — only when licensed</li>
+              </ul>
+              <p class="hint">Admin consent required. Start with managed-devices read only; expand least-privilege.</p>
+            </section>
+
+            <section class="props-card">
+              <h3>2 · Optional Intune health probe</h3>
+              <p class="hint">Not a resident agent. Deployed as Intune Proactive Remediation / platform script when the tenant lacks Endpoint Analytics.</p>
+              <ul class="props-list">
+                <li>Reads battery WMI locally on the device</li>
+                <li>Posts a small health patch (merge by serial / Azure AD device id)</li>
+                <li>Auth: business enrollment key or Intune-side attribute path</li>
+              </ul>
+            </section>
+
+            <section class="props-card">
+              <h3>3 · Windows agent / collector (lab)</h3>
+              <p class="hint">Local WMI/CIM one-shot (or GlowOpsAgent.exe join). Sideburned for Intune customers; useful in lab and non-Intune fleets.</p>
+              <table class="res-table">
+                <thead><tr><th>Collected</th><th>How</th></tr></thead>
+                <tbody>
+                  <tr><td>Make / model / serial / chassis / hostname</td><td>Win32_ComputerSystem, BIOS, enclosure</td></tr>
+                  <tr><td>OS caption / build / install date / user</td><td>Win32_OperatingSystem</td></tr>
+                  <tr><td>CPU name / cores / load %</td><td>Win32_Processor</td></tr>
+                  <tr><td>RAM total / free / used %</td><td>OS visible memory</td></tr>
+                  <tr><td>Disks + predictive failure</td><td>DiskDrive / PhysicalDisk / WMI predict</td></tr>
+                  <tr><td>Volume size / free space</td><td>Win32_LogicalDisk</td></tr>
+                  <tr><td>Battery health %</td><td>Battery WMI classes</td></tr>
+                  <tr><td>BitLocker / TPM / pending reboot</td><td>BitLocker cmdlet, TPM CIM, CBS/WU keys</td></tr>
+                </tbody>
+              </table>
+              <h4>Permissions on the PC</h4>
+              <ul class="props-list">
+                <li>Standard user can collect most inventory</li>
+                <li>Elevation improves BitLocker / some battery / predict-failure classes</li>
+                <li>Join uses partner <strong>enrollment key + password</strong> (expiring, join-only)</li>
+              </ul>
+            </section>
+
+            <section class="props-card">
+              <h3>4 · Stored in the dashboard</h3>
+              <p class="hint">Per-business (tenant) SQLite today → Postgres/RLS later. Scored inventory powers Fleet, Dashboard, Properties, CSV, MCP.</p>
+              <table class="res-table">
+                <thead><tr><th>Field group</th><th>Examples</th></tr></thead>
+                <tbody>
+                  <tr><td>Identity</td><td>device id, name, serial, manufacturer, model, Intune / Azure ids</td></tr>
+                  <tr><td>Lifecycle</td><td>enrolled, last sync, age years, check-in days, source</td></tr>
+                  <tr><td>Health</td><td>battery %, compliance, health notes, BitLocker/TPM/reboot when present</td></tr>
+                  <tr><td>Storage / resources</td><td>disks, volumes, CPU/RAM snapshot (agent/probe)</td></tr>
+                  <tr><td>Score</td><td>call (keep/repair/…), GLOW score, rationale, mfg kg</td></tr>
+                  <tr><td>Raw</td><td>original ingest JSON (including full collector doc when sent)</td></tr>
+                </tbody>
+              </table>
+              <h4>Also stored</h4>
+              <ul class="props-list">
+                <li>Ingest events (who/what/count/time)</li>
+                <li>Partner sessions + MCP API keys (hashed)</li>
+                <li>Device join keys (hashed password, TTL, revoke)</li>
+                <li>Agent heartbeats (optional)</li>
+              </ul>
+            </section>
+          </div>
         </div>
       </div>
     </section>
