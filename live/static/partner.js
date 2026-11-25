@@ -77,14 +77,48 @@
   let meRoles = [];
   let peopleCanManage = false;
 
+  async function refreshClerkToken() {
+    try {
+      const clerk = window.__glowClerk;
+      if (clerk?.session && typeof clerk.session.getToken === "function") {
+        const fresh = await clerk.session.getToken();
+        if (fresh) clerkToken = fresh;
+      } else if (window.GlowClerkPartner?.sessionToken && clerk) {
+        const fresh = await window.GlowClerkPartner.sessionToken(clerk);
+        if (fresh) clerkToken = fresh;
+      }
+    } catch (_) {
+      /* keep prior token */
+    }
+    return clerkToken;
+  }
+
   async function api(path, opts = {}) {
     const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
+    // Clerk session JWTs expire quickly — refresh before every Partner API call.
+    await refreshClerkToken();
     if (clerkToken) headers.Authorization = `Bearer ${clerkToken}`;
     const res = await fetch(path, {
       credentials: "same-origin",
       ...opts,
       headers,
     });
+    // One retry on 401 after forcing a fresh token (common after idle / long mint form).
+    if (res.status === 401 && window.__glowClerk?.session) {
+      clerkToken = null;
+      await refreshClerkToken();
+      if (clerkToken) {
+        headers.Authorization = `Bearer ${clerkToken}`;
+        const retry = await fetch(path, {
+          credentials: "same-origin",
+          ...opts,
+          headers,
+        });
+        const retryData = await retry.json().catch(() => ({}));
+        if (!retry.ok) throw new Error(retryData.error || retryData.message || `HTTP ${retry.status}`);
+        return retryData;
+      }
+    }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
     return data;
