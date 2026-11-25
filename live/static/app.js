@@ -1,9 +1,9 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const CALLS = ["all", "keep", "repair", "redeploy", "refresh", "recycle", "ghost"];
-  // Top nav order: Fleet (primary) → Dashboard → Resources → Properties.
-  // Ingest stays lab-only (Resources), not a primary tab.
-  const VIEWS = ["fleet", "dashboard", "resources", "properties", "ingest"];
+  // Top nav: Fleet → Dashboard → Resources → Properties → Settings.
+  // Ingest stays lab-only (opened from Resources).
+  const VIEWS = ["fleet", "dashboard", "resources", "properties", "settings", "ingest"];
 
   let devices = [];
   let summary = null;
@@ -15,7 +15,8 @@
   let propertiesDevice = null;
 
   const tenantEl = $("tenant");
-  const bizNameEl = $("bizName");
+  const bizNameLabel = $("bizNameLabel");
+  const bizNameInput = $("bizNameInput");
   const statusEl = $("status");
   const tbody = $("tbody");
   const callsEl = $("calls");
@@ -38,38 +39,48 @@
   function setBizNameDisplay(name) {
     const label = (name || tenant() || "Business").trim();
     bizNameSaved = label;
-    if (bizNameEl) bizNameEl.value = label;
+    if (bizNameLabel) bizNameLabel.textContent = label;
+    if (bizNameInput && document.activeElement !== bizNameInput) {
+      bizNameInput.value = label;
+    }
   }
 
-  async function saveBizName() {
-    if (!bizNameEl) return;
-    const next = (bizNameEl.value || "").trim();
-    if (!next || next === bizNameSaved) {
-      bizNameEl.value = bizNameSaved;
+  async function saveBizNameFromSettings(nextRaw) {
+    const next = (nextRaw || "").trim();
+    const st = $("bizRenameStatus");
+    if (!next) {
+      if (st) st.textContent = "Enter a name.";
       return;
     }
-    const wrap = bizNameEl.closest(".biz");
-    wrap?.classList.add("is-saving");
-    wrap?.classList.remove("is-saved");
+    if (next === bizNameSaved) {
+      if (st) st.textContent = "No change.";
+      return;
+    }
+    if (!tenant()) {
+      if (st) st.textContent = "Sign in first — no business selected.";
+      return;
+    }
+    if (st) st.textContent = "Saving…";
     try {
       const res = await fetch("/api/business", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: apiHeaders({ "Content-Type": "application/json" }),
         credentials: "same-origin",
         body: JSON.stringify({ tenantId: tenant(), name: next }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "rename failed");
       setBizNameDisplay(data.business?.name || next);
-      wrap?.classList.add("is-saved");
-      setTimeout(() => wrap?.classList.remove("is-saved"), 1200);
-      if (statusEl) statusEl.textContent = `${summary?.deviceCount ?? devices.length} scored · ${bizNameSaved}`;
+      if (st) st.textContent = "Saved.";
+      if (statusEl && summary) {
+        const n = summary.deviceCount ?? devices.length;
+        statusEl.textContent =
+          n === 0 ? `Empty fleet · ${bizNameSaved}` : `${n} scored · ${bizNameSaved}`;
+      }
     } catch (err) {
       console.error(err);
-      bizNameEl.value = bizNameSaved;
-      alert(String(err.message || err));
-    } finally {
-      wrap?.classList.remove("is-saving");
+      if (bizNameInput) bizNameInput.value = bizNameSaved;
+      if (st) st.textContent = String(err.message || err);
     }
   }
 
@@ -537,6 +548,7 @@
       dashboard: "viewDashboard",
       properties: "viewProperties",
       resources: "viewResources",
+      settings: "viewSettings",
       ingest: "viewIngest",
     };
     Object.entries(map).forEach(([key, id]) => {
@@ -713,15 +725,16 @@
   });
 
   $("refresh").addEventListener("click", load);
-  bizNameEl?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      saveBizName();
-      bizNameEl.blur();
-    }
+  $("bizRenameForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    saveBizNameFromSettings(bizNameInput?.value);
   });
-  bizNameEl?.addEventListener("blur", () => {
-    saveBizName();
+  $("bizBadge")?.addEventListener("click", () => setView("settings", { push: true }));
+  $("bizBadge")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setView("settings", { push: true });
+    }
   });
   window.addEventListener("resize", () => {
     if (currentView === "fleet") renderDevices();
@@ -794,17 +807,38 @@
   const viewParam = (params.get("view") || "").toLowerCase();
   const deviceParam = params.get("device");
 
-  async function initFleetAuth() {
-    const userEl = $("fleetUser");
-    const outBtn = $("fleetSignOut");
+  function setSignedInChrome(email) {
+    const signIn = $("fleetSignIn");
+    const settingsSignIn = $("settingsSignIn");
+    const who = $("settingsWho");
     const people = $("managePeople");
+    if (signIn) signIn.hidden = true;
+    if (settingsSignIn) settingsSignIn.hidden = true;
+    if (who) who.textContent = email ? `Signed in as ${email}` : "Signed in.";
+    if (people) people.hidden = false;
+  }
+
+  function setSignedOutChrome() {
+    const signIn = $("fleetSignIn");
+    const settingsSignIn = $("settingsSignIn");
+    const who = $("settingsWho");
+    const people = $("managePeople");
+    const ub = $("userButton");
+    if (signIn) signIn.hidden = false;
+    if (settingsSignIn) settingsSignIn.hidden = false;
+    if (who) who.textContent = "Not signed in.";
+    if (people) people.hidden = true;
+    if (ub) ub.hidden = true;
+  }
+
+  async function initFleetAuth() {
+    setSignedOutChrome();
     if (!window.GlowClerkPartner) return false;
     try {
       const cfg = await GlowClerkPartner.fetchPublicConfig();
       if (!cfg.clerk?.enabled || !cfg.clerk.publishableKey) return false;
       const clerk = await GlowClerkPartner.createClerk(cfg.clerk.publishableKey);
       if (!clerk.session) {
-        // Signed-out visitors: do not show seeded demo as "their" account.
         if (!tenantParam) {
           tenantEl.value = "";
           statusEl.textContent = "Sign in to open your fleet dashboard";
@@ -820,23 +854,9 @@
       const data = await res.json();
       signedIn = true;
       const email = data.partner?.email || data.partner?.name || "Signed in";
-      if (userEl) {
-        userEl.hidden = false;
-        userEl.textContent = email;
-      }
-      if (people) people.hidden = false;
-      if (outBtn) {
-        outBtn.hidden = false;
-        outBtn.addEventListener("click", async () => {
-          try {
-            await clerk.signOut({ redirectUrl: "/partner/sign-in" });
-          } catch (_) {
-            location.href = "/partner/sign-in";
-          }
-        });
-      }
+      setSignedInChrome(email);
+      GlowClerkPartner.mountUserButton(clerk, $("userButton"));
 
-      // Prefer URL tenant only if it belongs to this partner; else primary empty business.
       const roles = Array.isArray(data.roles) ? data.roles : [];
       const allowed = new Set(roles.map((r) => r.businessId).filter(Boolean));
       let bizId = data.primaryBusinessId || roles[0]?.businessId || "";
@@ -873,6 +893,7 @@
       else if (viewParam === "dashboard") setView("dashboard", { sync: true });
       else if (viewParam === "properties") setView("properties", { sync: true });
       else if (viewParam === "resources") setView("resources", { sync: true });
+      else if (viewParam === "settings") setView("settings", { sync: true });
       else if (viewParam === "ingest") setView("ingest", { sync: true });
       else setView("fleet", { sync: true });
     });

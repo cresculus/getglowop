@@ -391,16 +391,36 @@
 .partner-dash .pane-label { padding-left: 0.85rem; }
 
 @media (max-width: 860px) {
-  .partner-dash:not([hidden]) { grid-template-columns: 1fr; }
+  .partner-dash:not([hidden]) {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+  .partner-dash .main-pane {
+    min-height: 60vh;
+    overflow: auto;
+  }
   .side-nav {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    max-height: 28vh;
-    overflow: auto;
+    max-height: none;
+    overflow: visible;
   }
   .nav-kicker { width: 100%; margin-top: 0.25rem; }
   .nav-foot { display: none; }
-  .side-link { width: auto; flex: 1 1 auto; }
-  .partner-shell #partnerTopNav { margin-left: 0.25rem; }
+  .side-link { width: auto; flex: 1 1 calc(50% - 0.35rem); }
+  .partner-shell #partnerTopNav {
+    margin-left: 0;
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+  .partner-shell .topbar { align-items: flex-start; }
+  .partner-shell .rail { width: 100%; justify-content: flex-end; }
+  .who { max-width: 42vw; }
+  .settings-section { margin-left: 0.55rem; margin-right: 0.55rem; }
+  .partner-dash .table-fit { margin: 0.45rem; }
+  .mint-inline, .mint-dock { gap: 0.4rem; }
+  .mint-inline input, .mint-dock input { width: min(100%, 200px); }
 }

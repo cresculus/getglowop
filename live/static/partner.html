@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css?v=empty-1" />
-  <link rel="stylesheet" href="/app/partner.css?v=empty-1" />
+  <link rel="stylesheet" href="/app/styles.css?v=ux-1" />
+  <link rel="stylesheet" href="/app/partner.css?v=ux-1" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -27,6 +27,7 @@
       <button type="button" class="btn ghost" id="homeBtn" data-pview="home" hidden>Home</button>
       <span class="who" id="partnerHello" hidden></span>
       <span class="who role-chip" id="partnerRoleChip" hidden></span>
+      <div id="partnerUserButton" class="user-button-mount" hidden></div>
       <button type="button" class="btn ghost" id="logoutBtn" hidden>Sign out</button>
     </nav>
   </header>
@@ -60,8 +61,7 @@
         <p class="nav-kicker">Open report</p>
         <a class="side-link" id="navFleet" href="/app/?from=partner&view=fleet">Fleet report</a>
         <a class="side-link" id="navDash" href="/app/?from=partner&view=dashboard">Dashboard</a>
-        <a class="side-link" id="navCsv" href="/app/?from=partner&view=fleet">Open dashboard</a>
-        <a class="side-link" href="/download/GlowOpsAgent.exe">Agent EXE</a>
+        <a class="side-link" href="/app/?from=partner&view=settings">Fleet settings</a>
         <p class="nav-kicker">Lab</p>
         <a class="side-link" id="navIngest" href="/app/?from=partner&view=ingest">Paste Graph JSON</a>
 
@@ -245,7 +245,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=empty-1"></script>
-  <script src="/app/partner.js?v=empty-1"></script>
+  <script src="/app/clerk-partner.js?v=ux-1"></script>
+  <script src="/app/partner.js?v=ux-1"></script>
 </body>
 </html>

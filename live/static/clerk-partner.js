@@ -237,6 +237,17 @@
     );
   }
 
+  /** Clerk UserButton (Cresculus-style): avatar → Manage account / Sign out. */
+  function mountUserButton(clerk, el) {
+    if (!el || !clerk || typeof clerk.mountUserButton !== "function") return;
+    el.hidden = false;
+    clerk.mountUserButton(el, {
+      afterSignOutUrl: SIGN_IN,
+      appearance: glowAppearance(),
+      userProfileMode: "modal",
+    });
+  }
+
   /** Prefer redirect over popup for Google/Microsoft (popups often look like a no-op). */
   async function oauthRedirect(clerk, strategy) {
     const origin = window.location.origin;
@@ -262,6 +273,7 @@
     sessionToken,
     mountSignIn,
     mountSignUp,
+    mountUserButton,
     oauthRedirect,
   };
 })(window);

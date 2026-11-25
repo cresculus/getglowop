@@ -171,7 +171,6 @@
     document.body.classList.add("is-authed");
     loginView.hidden = true;
     dashView.hidden = false;
-    $("logoutBtn").hidden = false;
     const homeBtn = $("homeBtn");
     if (homeBtn) homeBtn.hidden = false;
     $("partnerHello").hidden = false;
@@ -185,6 +184,14 @@
       } else {
         chip.hidden = true;
       }
+    }
+    const ub = $("partnerUserButton");
+    if (window.__glowClerk && window.GlowClerkPartner && ub) {
+      GlowClerkPartner.mountUserButton(window.__glowClerk, ub);
+      $("logoutBtn").hidden = true;
+    } else {
+      if (ub) ub.hidden = true;
+      $("logoutBtn").hidden = false;
     }
     renderConfig();
     const want = new URLSearchParams(location.search).get("view");
@@ -200,6 +207,11 @@
     loginView.hidden = false;
     dashView.hidden = true;
     $("logoutBtn").hidden = true;
+    const ub = $("partnerUserButton");
+    if (ub) {
+      ub.hidden = true;
+      ub.innerHTML = "";
+    }
     const homeBtn = $("homeBtn");
     if (homeBtn) homeBtn.hidden = true;
     $("partnerHello").hidden = true;

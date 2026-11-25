@@ -9,33 +9,30 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css?v=empty-1" />
+  <link rel="stylesheet" href="/app/styles.css?v=ux-1" />
 </head>
 <body class="shell">
   <header class="topbar">
-    <a class="wordmark" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
-    <a class="btn lime partner-home-btn" id="partnerBack" href="/partner/">← Partner home</a>
+    <div class="topbar-brand">
+      <a class="wordmark" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
+      <a class="btn lime partner-home-btn" id="partnerBack" href="/partner/"><span class="partner-full">← Partner</span><span class="partner-short" aria-hidden="true">Partner</span></a>
+    </div>
     <div class="views" role="tablist" aria-label="Views">
       <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
       <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
       <button type="button" class="view-tab" data-view="resources" aria-selected="false">Resources</button>
       <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
+      <button type="button" class="view-tab" data-view="settings" aria-selected="false">Settings</button>
     </div>
     <div class="rail">
-      <label class="biz biz-name" title="Business display name — Enter or leave field to save">
+      <button type="button" class="biz-badge" id="bizBadge" title="Open Settings to rename">
         <span>Business</span>
-        <input id="bizName" value="My business" spellcheck="false" />
+        <strong id="bizNameLabel">My business</strong>
         <input type="hidden" id="tenant" value="" />
-      </label>
-      <label class="biz tz"><span>TZ</span>
-        <select id="tzSelect" title="Display time zone"></select>
-      </label>
+      </button>
       <button type="button" class="btn ghost" id="refresh" title="Reload">↻</button>
-      <a class="btn ghost" id="exportCsv" href="/api/export.csv">CSV</a>
-      <a class="btn ghost" href="/download/GlowOpsAgent.exe">Agent</a>
-      <a class="btn ghost" id="managePeople" href="/partner/?view=people" hidden>People</a>
-      <span class="who" id="fleetUser" hidden></span>
-      <button type="button" class="btn ghost" id="fleetSignOut" hidden>Sign out</button>
+      <a class="btn ghost" id="fleetSignIn" href="/partner/sign-in">Sign in</a>
+      <div id="userButton" class="user-button-mount" hidden></div>
     </div>
   </header>
 
@@ -153,7 +150,7 @@
           <div class="resources-grid">
             <section class="props-card">
               <h3>1 · Intune / Entra connector</h3>
-              <p class="hint">Primary. Create an Entra app registration in the customer tenant → admin consent → GlowOps Graph sync reads <code>managedDevices</code> → same inventory schema → score → report. That replaces the old paste-JSON “Ingest” tab.</p>
+              <p class="hint">Primary. Create an Entra app registration in the customer tenant → admin consent → GlowOps Graph sync reads <code>managedDevices</code> → same inventory schema → score → report.</p>
               <table class="res-table">
                 <thead><tr><th>Signal</th><th>Source</th><th>Used for</th></tr></thead>
                 <tbody>
@@ -189,53 +186,17 @@
             <section class="props-card">
               <h3>3 · Windows agent / collector (lab)</h3>
               <p class="hint">Local WMI/CIM one-shot (or GlowOpsAgent.exe join). Sideburned for Intune customers; useful in lab and non-Intune fleets.</p>
-              <table class="res-table">
-                <thead><tr><th>Collected</th><th>How</th></tr></thead>
-                <tbody>
-                  <tr><td>Make / model / serial / chassis / hostname</td><td>Win32_ComputerSystem, BIOS, enclosure</td></tr>
-                  <tr><td>OS caption / build / install date / user</td><td>Win32_OperatingSystem</td></tr>
-                  <tr><td>CPU name / cores / load %</td><td>Win32_Processor</td></tr>
-                  <tr><td>RAM total / free / used %</td><td>OS visible memory</td></tr>
-                  <tr><td>Disks + predictive failure</td><td>DiskDrive / PhysicalDisk / WMI predict</td></tr>
-                  <tr><td>Volume size / free space</td><td>Win32_LogicalDisk</td></tr>
-                  <tr><td>Battery health %</td><td>Battery WMI classes</td></tr>
-                  <tr><td>BitLocker / TPM / pending reboot</td><td>BitLocker cmdlet, TPM CIM, CBS/WU keys</td></tr>
-                </tbody>
-              </table>
-              <h4>Permissions on the PC</h4>
-              <ul class="props-list">
-                <li>Standard user can collect most inventory</li>
-                <li>Elevation improves BitLocker / some battery / predict-failure classes</li>
-                <li>Join uses partner <strong>enrollment key + password</strong> (expiring, join-only)</li>
-              </ul>
+              <p class="hint">Download the agent from <strong>Settings</strong> when you need a lab join — it is not a top-bar action.</p>
             </section>
 
             <section class="props-card">
               <h3>4 · Stored in the dashboard</h3>
-              <p class="hint">Per-business (tenant) SQLite today → Postgres/RLS later. Scored inventory powers Fleet, Dashboard, Properties, CSV, MCP.</p>
-              <table class="res-table">
-                <thead><tr><th>Field group</th><th>Examples</th></tr></thead>
-                <tbody>
-                  <tr><td>Identity</td><td>device id, name, serial, manufacturer, model, Intune / Azure ids</td></tr>
-                  <tr><td>Lifecycle</td><td>enrolled, last sync, age years, check-in days, source</td></tr>
-                  <tr><td>Health</td><td>battery %, compliance, health notes, BitLocker/TPM/reboot when present</td></tr>
-                  <tr><td>Storage / resources</td><td>disks, volumes, CPU/RAM snapshot (agent/probe)</td></tr>
-                  <tr><td>Score</td><td>call (keep/repair/…), GLOW score, rationale, mfg kg</td></tr>
-                  <tr><td>Raw</td><td>original ingest JSON (including full collector doc when sent)</td></tr>
-                </tbody>
-              </table>
-              <h4>Also stored</h4>
-              <ul class="props-list">
-                <li>Ingest / sync events (who/what/count/time)</li>
-                <li>Partner sessions + MCP API keys (hashed)</li>
-                <li>Device join keys (hashed password, TTL, revoke)</li>
-                <li>Agent heartbeats (optional)</li>
-              </ul>
+              <p class="hint">Per-business inventory powers Fleet, Dashboard, Properties, and exports. CSV export lives in Settings for the active business.</p>
             </section>
 
             <section class="props-card">
               <h3>5 · Lab only · paste Graph JSON</h3>
-              <p class="hint">Not part of the customer product path. Until Graph sync is live in a tenant, operators can paste a Graph <code>managedDevices</code> export here for demos. Prefer Connect Intune / app registration for real fleets.</p>
+              <p class="hint">Not part of the customer product path. Until Graph sync is live, operators can paste a Graph <code>managedDevices</code> export.</p>
               <button type="button" class="btn ghost" id="openLabIngest">Open lab paste</button>
             </section>
           </div>
@@ -246,13 +207,68 @@
       </div>
     </section>
 
-    <!-- LAB INGEST (not in top nav — opened from Resources) -->
+    <!-- SETTINGS -->
+    <section class="view view-settings" id="viewSettings" data-active="false" hidden>
+      <div class="settings-fit">
+        <div class="ledger-head">
+          <div>
+            <p class="pane-label">This business</p>
+            <h1>Settings</h1>
+          </div>
+        </div>
+        <div class="settings-body">
+          <section class="props-card">
+            <h3>Business name</h3>
+            <p class="hint">Display name for the active business. The top bar shows this as a label — rename it here.</p>
+            <form id="bizRenameForm" class="settings-row">
+              <input id="bizNameInput" type="text" maxlength="120" autocomplete="organization" spellcheck="false" />
+              <button class="btn lime" type="submit">Save name</button>
+            </form>
+            <p class="hint" id="bizRenameStatus"></p>
+          </section>
+
+          <section class="props-card">
+            <h3>Display time zone</h3>
+            <p class="hint">Used for last check-in and sync ages in Fleet and Properties.</p>
+            <label class="settings-row">
+              <span class="mono-label">TZ</span>
+              <select id="tzSelect" title="Display time zone"></select>
+            </label>
+          </section>
+
+          <section class="props-card">
+            <h3>Export &amp; agent</h3>
+            <p class="hint">CSV exports devices for <strong>this</strong> business only (empty until you sync or enroll).</p>
+            <div class="settings-actions">
+              <a class="btn ghost" id="exportCsv" href="/api/export.csv">Download CSV</a>
+              <a class="btn ghost" href="/download/GlowOpsAgent.exe">Download Agent EXE</a>
+              <a class="btn ghost" id="managePeople" href="/partner/?view=people" hidden>People · RBAC</a>
+            </div>
+          </section>
+
+          <section class="props-card">
+            <h3>Account</h3>
+            <p class="hint">Use the avatar menu (top right) for <strong>Manage account</strong> and <strong>Sign out</strong> — same Clerk pattern as Cresculus.</p>
+            <p class="hint" id="settingsWho">Not signed in.</p>
+            <div class="settings-actions">
+              <a class="btn lime" id="settingsSignIn" href="/partner/sign-in">Sign in</a>
+              <a class="btn ghost" href="/partner/">Partner console</a>
+            </div>
+          </section>
+        </div>
+        <div class="action-dock">
+          <button type="button" class="btn ghost" data-back-fleet>← Fleet report</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAB INGEST -->
     <section class="view view-ingest" id="viewIngest" data-active="false" hidden>
       <div class="ingest-fit">
         <div>
           <p class="pane-label">Lab only</p>
           <h1>Paste Graph JSON</h1>
-          <p class="lede">Temporary demo path. Customers use an Entra app registration + Graph sync — not this screen. Paste <code>managedDevices</code> <code>value</code> into the business in the top bar.</p>
+          <p class="lede">Temporary demo path. Customers use an Entra app registration + Graph sync — not this screen.</p>
         </div>
         <textarea id="ingestJson" spellcheck="false" placeholder='{"value":[{"deviceName":"…","serialNumber":"…","lastSyncDateTime":"…"}]}'></textarea>
         <div class="ingest-actions action-dock">
@@ -265,7 +281,7 @@
     </section>
   </main>
 
-  <script src="/app/clerk-partner.js?v=empty-1"></script>
-  <script src="/app/app.js?v=empty-1"></script>
+  <script src="/app/clerk-partner.js?v=ux-1"></script>
+  <script src="/app/app.js?v=ux-1"></script>
 </body>
 </html>
