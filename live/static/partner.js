@@ -52,11 +52,13 @@
 
   function setPView(name) {
     const map = {
+      home: "pviewHome",
       enroll: "pviewEnroll",
       biz: "pviewBiz",
       analyze: "pviewAnalyze",
       settings: "pviewSettings",
     };
+    if (!map[name]) name = "home";
     Object.entries(map).forEach(([key, id]) => {
       const el = $(id);
       if (!el) return;
@@ -67,6 +69,7 @@
     document.querySelectorAll("[data-pview]").forEach((tab) => {
       tab.setAttribute("aria-selected", tab.getAttribute("data-pview") === name ? "true" : "false");
     });
+    if (name === "home") renderHome();
     if (name === "analyze") renderAnalyze();
   }
 
@@ -95,7 +98,7 @@
     $("partnerHello").hidden = false;
     $("partnerHello").textContent = me.email || me.name || "";
     renderConfig();
-    setPView("enroll");
+    setPView("home");
     refresh().catch((err) => {
       console.error(err);
       $("loginErr").textContent = String(err.message || err);
@@ -110,6 +113,59 @@
     const homeBtn = $("homeBtn");
     if (homeBtn) homeBtn.hidden = true;
     $("partnerHello").hidden = true;
+  }
+
+  async function renderHome() {
+    const kpis = $("homeKpis");
+    const bars = $("homeCallBars");
+    const list = $("homeBizList");
+    if (!kpis || !bars || !list) return;
+    kpis.innerHTML = `
+      <div><span>Businesses</span><strong>…</strong></div>
+      <div><span>Devices</span><strong>…</strong></div>
+      <div><span>Avg GLOW</span><strong>…</strong></div>
+      <div><span>Ghosts</span><strong>…</strong></div>
+      <div><span>Repair</span><strong>…</strong></div>
+      <div><span>Mfg kg</span><strong>…</strong></div>`;
+    bars.innerHTML = "";
+    list.innerHTML = "<li>Loading portfolio…</li>";
+    try {
+      const p = await api("/api/partner/portfolio");
+      const by = p.byCall || {};
+      const total = Math.max(1, p.deviceCount || 1);
+      kpis.innerHTML = `
+        <div><span>Businesses</span><strong>${esc(p.businessCount ?? 0)}</strong></div>
+        <div><span>Devices</span><strong>${esc(p.deviceCount ?? 0)}</strong></div>
+        <div><span>Avg GLOW</span><strong>${esc(p.avgGlowScore ?? "—")}</strong></div>
+        <div><span>Ghosts</span><strong>${esc(p.ghostCount ?? 0)}</strong></div>
+        <div><span>Repair</span><strong>${esc(p.repairCount ?? 0)}</strong></div>
+        <div><span>Mfg kg</span><strong>${esc(p.manufacturingKgOnBooks ?? 0)}</strong></div>`;
+      bars.innerHTML = ["keep", "repair", "redeploy", "refresh", "recycle", "ghost"]
+        .map((c) => {
+          const n = by[c] || 0;
+          const pct = Math.round((100 * n) / total);
+          return `<div class="dash-bar"><span>${c}</span><div class="track"><i style="width:${pct}%"></i></div><b>${n}</b></div>`;
+        })
+        .join("");
+      const rows = p.businesses || [];
+      if (!rows.length) {
+        list.innerHTML = `<li class="hint">No businesses yet — add one under Businesses.</li>`;
+      } else {
+        list.innerHTML = rows
+          .map((b) => {
+            const href = `/app/?from=partner&tenant=${encodeURIComponent(b.businessId)}&view=fleet`;
+            return `<li>
+              <a class="home-biz-row" href="${href}">
+                <strong>${esc(b.businessName || b.businessId)}</strong>
+                <span>${esc(b.deviceCount)} devices · GLOW ${esc(b.avgGlowScore ?? "—")} · ghosts ${esc(b.ghostCount)}</span>
+              </a>
+            </li>`;
+          })
+          .join("");
+      }
+    } catch (err) {
+      list.innerHTML = `<li class="hint">${esc(err.message || err)}</li>`;
+    }
   }
 
   async function renderAnalyze() {
@@ -218,6 +274,7 @@
       })
       .join("");
 
+    if ($("pviewHome")?.dataset.active === "true") renderHome();
     if ($("pviewAnalyze")?.dataset.active === "true") renderAnalyze();
   }
 
@@ -268,6 +325,34 @@
         await api("/api/partner/logout", { method: "POST", body: "{}" });
       } catch (_) {}
       showLogin();
+    });
+  }
+
+  const addBizForm = $("addBizForm");
+  if (addBizForm) {
+    addBizForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const st = $("addBizStatus");
+      const name = ($("newBizName")?.value || "").trim();
+      const id = ($("newBizId")?.value || "").trim();
+      if (!name) {
+        if (st) st.textContent = "Name required";
+        return;
+      }
+      if (st) st.textContent = "Adding…";
+      try {
+        const created = await api("/api/partner/businesses", {
+          method: "POST",
+          body: JSON.stringify({ name, businessId: id || undefined }),
+        });
+        if (st) st.textContent = `Added ${created.business?.business_name || name}`;
+        if ($("newBizName")) $("newBizName").value = "";
+        if ($("newBizId")) $("newBizId").value = "";
+        await refresh();
+        renderHome();
+      } catch (err) {
+        if (st) st.textContent = String(err.message || err);
+      }
     });
   }
 

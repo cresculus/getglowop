@@ -48,6 +48,7 @@ from enrollment import (  # noqa: E402
 )
 from partners import (  # noqa: E402
     authenticate_partner,
+    bind_business,
     create_session,
     list_mcp_keys,
     list_partner_businesses,
@@ -59,6 +60,7 @@ from partners import (  # noqa: E402
     revoke_session,
     seed_demo_partner,
 )
+import re  # noqa: E402
 
 DATA_DIR = Path(os.environ.get("GLOWOPS_DATA", str(ROOT / "data")))
 DB_PATH = DATA_DIR / "glowops.db"
@@ -354,6 +356,49 @@ class Handler(BaseHTTPRequestHandler):
             )
             return self._send(status, body, ctype)
 
+        if path.rstrip("/") == "/api/partner/portfolio":
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            businesses = list_partner_businesses(CONN, partner["id"])
+            rolls = {
+                "businessCount": len(businesses),
+                "deviceCount": 0,
+                "ghostCount": 0,
+                "repairCount": 0,
+                "avgGlowScore": None,
+                "manufacturingKgOnBooks": 0,
+                "byCall": {"keep": 0, "repair": 0, "redeploy": 0, "refresh": 0, "recycle": 0, "ghost": 0},
+                "businesses": [],
+            }
+            glow_sum = 0
+            glow_n = 0
+            for b in businesses:
+                bid = b["business_id"]
+                s = fleet_summary(CONN, bid)
+                rolls["deviceCount"] += int(s.get("deviceCount") or 0)
+                rolls["ghostCount"] += int(s.get("ghostCount") or 0)
+                rolls["repairCount"] += int(s.get("repairBeforeReplaceCount") or 0)
+                rolls["manufacturingKgOnBooks"] += int(s.get("manufacturingKgOnBooks") or 0)
+                for call, n in (s.get("byCall") or {}).items():
+                    rolls["byCall"][call] = rolls["byCall"].get(call, 0) + int(n or 0)
+                if s.get("avgGlowScore") is not None and s.get("deviceCount"):
+                    glow_sum += int(s["avgGlowScore"]) * int(s["deviceCount"])
+                    glow_n += int(s["deviceCount"])
+                rolls["businesses"].append(
+                    {
+                        "businessId": bid,
+                        "businessName": b.get("business_name") or s.get("businessName") or bid,
+                        "deviceCount": s.get("deviceCount") or 0,
+                        "avgGlowScore": s.get("avgGlowScore"),
+                        "ghostCount": s.get("ghostCount") or 0,
+                        "repairCount": s.get("repairBeforeReplaceCount") or 0,
+                    }
+                )
+            rolls["avgGlowScore"] = round(glow_sum / glow_n) if glow_n else None
+            status, body, ctype = _json_bytes(rolls)
+            return self._send(status, body, ctype)
+
         if path.rstrip("/") == "/api/partner/mcp-keys":
             partner = self._session_partner()
             if not partner:
@@ -480,6 +525,34 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(403, b'{"error":"forbidden"}', "application/json")
             biz = set_tenant_name(CONN, tenant_id, name)
             status, body, ctype = _json_bytes({"ok": True, "business": biz})
+            return self._send(status, body, ctype)
+
+        if path == "/api/partner/businesses":
+            partner = self._session_partner()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"object required"}', "application/json")
+            name = str(payload.get("name") or payload.get("businessName") or "").strip()
+            raw_id = str(payload.get("businessId") or payload.get("id") or "").strip().lower()
+            if not name and not raw_id:
+                return self._send(400, b'{"error":"name required"}', "application/json")
+            if not name:
+                name = raw_id
+            slug_src = raw_id or name
+            business_id = re.sub(r"[^a-z0-9]+", "-", slug_src.lower()).strip("-")[:48]
+            if not business_id:
+                return self._send(400, b'{"error":"could not build business id"}', "application/json")
+            if business_id in ("*", "all"):
+                return self._send(400, b'{"error":"reserved business id"}', "application/json")
+            set_tenant_name(CONN, business_id, name)
+            bind_business(CONN, partner["id"], business_id, name)
+            status, body, ctype = _json_bytes(
+                {
+                    "ok": True,
+                    "business": {"business_id": business_id, "business_name": name},
+                }
+            )
             return self._send(status, body, ctype)
 
         if path == "/api/partner/login":

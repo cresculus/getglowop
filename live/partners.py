@@ -127,7 +127,14 @@ def bind_business(conn: sqlite3.Connection, partner_id: str, business_id: str, b
 
 def list_partner_businesses(conn: sqlite3.Connection, partner_id: str) -> list[dict[str, Any]]:
     rows = conn.execute(
-        "SELECT business_id, business_name FROM partner_businesses WHERE partner_id = ? ORDER BY business_id",
+        """
+        SELECT pb.business_id,
+               COALESCE(NULLIF(t.name, ''), NULLIF(pb.business_name, ''), pb.business_id) AS business_name
+        FROM partner_businesses pb
+        LEFT JOIN tenants t ON t.id = pb.business_id
+        WHERE pb.partner_id = ?
+        ORDER BY business_name COLLATE NOCASE, pb.business_id
+        """,
         (partner_id,),
     ).fetchall()
     return [dict(r) for r in rows]

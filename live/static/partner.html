@@ -9,19 +9,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css" />
-  <link rel="stylesheet" href="/app/partner.css" />
+  <link rel="stylesheet" href="/app/styles.css?v=partner-home-2" />
+  <link rel="stylesheet" href="/app/partner.css?v=partner-home-2" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
     <a class="wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
     <div class="views top-nav" id="partnerTopNav" role="tablist" aria-label="Partner primary">
-      <button type="button" class="view-tab" data-pview="enroll" aria-selected="true">Enroll</button>
+      <button type="button" class="view-tab" data-pview="home" aria-selected="true">Home</button>
+      <button type="button" class="view-tab" data-pview="enroll" aria-selected="false">Enroll</button>
       <button type="button" class="view-tab" data-pview="biz" aria-selected="false">Businesses</button>
       <button type="button" class="view-tab" data-pview="analyze" aria-selected="false">Analyze</button>
     </div>
     <nav class="rail">
-      <button type="button" class="btn ghost" id="homeBtn" data-pview="enroll" hidden>Home</button>
+      <button type="button" class="btn ghost" id="homeBtn" data-pview="home" hidden>Home</button>
       <span class="who" id="partnerHello" hidden></span>
       <button type="button" class="btn ghost" id="logoutBtn" hidden>Log out</button>
     </nav>
@@ -32,7 +33,7 @@
       <div class="login-card">
         <p class="pane-label"><span class="live"></span> Partner console</p>
         <h1>Sign in</h1>
-        <p class="lede">Enroll devices to a business, then analyze the GLOW Op Report. MCP lives under Settings.</p>
+        <p class="lede">Add businesses, enroll devices, then open each fleet report. MCP lives under Settings.</p>
         <form id="loginForm" class="login-form">
           <label>Email<input id="email" type="email" required autocomplete="username" value="partner@getglowop.com" /></label>
           <label>Password<input id="password" type="password" required autocomplete="current-password" value="GlowOps-Partner-2026!" /></label>
@@ -45,7 +46,8 @@
     <section id="dashView" class="partner-dash" hidden>
       <aside class="side-nav" id="partnerNav" aria-label="Quick navigation">
         <p class="nav-kicker">This console</p>
-        <button type="button" class="side-link" data-pview="enroll">Home · Enroll</button>
+        <button type="button" class="side-link" data-pview="home">Home</button>
+        <button type="button" class="side-link" data-pview="enroll">Enroll</button>
         <button type="button" class="side-link" data-pview="biz">Businesses</button>
         <button type="button" class="side-link" data-pview="analyze">Analyze</button>
         <button type="button" class="side-link" data-pview="settings">Settings · MCP</button>
@@ -76,11 +78,36 @@
       </aside>
 
       <section class="pane main-pane">
-        <div class="pview pview-left" id="pviewEnroll" data-active="true">
+        <div class="pview pview-left" id="pviewHome" data-active="true">
+          <div class="ledger-head ledger-head-left">
+            <h1>Partner <em>Home</em></h1>
+          </div>
+          <p class="view-lede">Portfolio view across every business you manage — devices, GLOW, ghosts, repair.</p>
+          <div class="home-kpis" id="homeKpis">
+            <div><span>Businesses</span><strong>—</strong></div>
+            <div><span>Devices</span><strong>—</strong></div>
+            <div><span>Avg GLOW</span><strong>—</strong></div>
+            <div><span>Ghosts</span><strong>—</strong></div>
+            <div><span>Repair</span><strong>—</strong></div>
+            <div><span>Mfg kg</span><strong>—</strong></div>
+          </div>
+          <div class="home-split">
+            <section class="props-card home-calls">
+              <h3>Calls across portfolio</h3>
+              <div class="dash-bars" id="homeCallBars"></div>
+            </section>
+            <section class="props-card home-biz-roll">
+              <h3>Businesses</h3>
+              <ul class="home-biz-list" id="homeBizList"></ul>
+            </section>
+          </div>
+        </div>
+
+        <div class="pview pview-left" id="pviewEnroll" data-active="false" hidden>
           <div class="ledger-head ledger-head-left">
             <h1>Enroll devices</h1>
           </div>
-          <p class="view-lede">Mint a join key + password, put them in the GlowOps Agent on the PC, and the device lands in that business.</p>
+          <p class="view-lede">Mint a join key + password for an existing business, put them in the GlowOps Agent on the PC, and the device lands in that business. Add new businesses under Businesses first.</p>
           <div id="freshEnroll" class="fresh-key enroll-secret" hidden>
             <div>
               <p><strong>Copy into the GlowOps Agent menu</strong> — password shown once. Expires automatically; join-only.</p>
@@ -113,8 +140,14 @@
 
         <div class="pview pview-left" id="pviewBiz" data-active="false" hidden>
           <div class="ledger-head ledger-head-left"><h1>Businesses</h1></div>
-          <p class="view-lede">Customer fleets assigned to this partner. Isolation stays per business — not one shared tenant.</p>
+          <p class="view-lede">Customer fleets assigned to this partner. Isolation stays per business — not one shared tenant. Add a business here, then enroll devices into it.</p>
           <ul class="biz-list" id="bizList"></ul>
+          <form id="addBizForm" class="mint-dock">
+            <input id="newBizName" placeholder="Business name (e.g. Acme Schools)" maxlength="80" required />
+            <input id="newBizId" placeholder="Optional id slug" maxlength="48" />
+            <button class="btn lime" type="submit">Add business</button>
+            <span class="hint" id="addBizStatus"></span>
+          </form>
         </div>
 
         <div class="pview pview-left" id="pviewAnalyze" data-active="false" hidden>
@@ -150,6 +183,6 @@
       </section>
     </section>
   </main>
-  <script src="/app/partner.js"></script>
+  <script src="/app/partner.js?v=partner-home-2"></script>
 </body>
 </html>
