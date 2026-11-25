@@ -52,11 +52,6 @@
       <section class="pane ledger" aria-label="Devices">
         <div class="ledger-head">
           <h1>GLOW Op <em>Report</em></h1>
-          <div class="pager">
-            <button type="button" class="btn ghost" id="prevPage" aria-label="Previous">‹</button>
-            <span id="pageInfo">1 / 1</span>
-            <button type="button" class="btn ghost" id="nextPage" aria-label="Next">›</button>
-          </div>
         </div>
         <div class="table-fit">
           <table>
@@ -73,6 +68,11 @@
             <tbody id="tbody"></tbody>
           </table>
           <p class="empty" id="empty" hidden>No devices match.</p>
+        </div>
+        <div class="action-dock pager">
+          <button type="button" class="btn ghost" id="prevPage" aria-label="Previous">‹</button>
+          <span id="pageInfo">1 / 1</span>
+          <button type="button" class="btn ghost" id="nextPage" aria-label="Next">›</button>
         </div>
       </section>
 
@@ -99,9 +99,11 @@
       <div class="dash-fit">
         <div class="ledger-head">
           <h1>Fleet <em>Dashboard</em></h1>
-          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
         </div>
         <div class="dash-grid" id="dashGrid"></div>
+        <div class="action-dock">
+          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
+        </div>
       </div>
     </section>
 
@@ -113,13 +115,13 @@
             <p class="pane-label">Device properties</p>
             <h1 id="p-title">—</h1>
           </div>
-          <div class="pager">
-            <button type="button" class="btn ghost" data-back-fleet>Fleet</button>
-            <button type="button" class="btn lime" id="propsToDash">Dashboard</button>
-          </div>
         </div>
         <div class="props-body" id="propsBody">
           <p class="detail-empty">Pick a device from Fleet, then open Properties.</p>
+        </div>
+        <div class="action-dock">
+          <button type="button" class="btn ghost" data-back-fleet>Back</button>
+          <button type="button" class="btn lime" id="propsToDash">Dashboard</button>
         </div>
       </div>
     </section>
@@ -132,7 +134,6 @@
             <p class="pane-label">Data &amp; connectors</p>
             <h1>Resources</h1>
           </div>
-          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
         </div>
         <div class="resources-body">
           <p class="view-lede resources-lede">
@@ -224,6 +225,9 @@
             </section>
           </div>
         </div>
+        <div class="action-dock">
+          <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
+        </div>
       </div>
     </section>
 
@@ -236,7 +240,7 @@
           <p class="lede">Paste managedDevices <code>value</code> into the business selected in the top bar.</p>
         </div>
         <textarea id="ingestJson" spellcheck="false" placeholder='{"value":[{"deviceName":"…","serialNumber":"…","lastSyncDateTime":"…"}]}'></textarea>
-        <div class="ingest-actions">
+        <div class="ingest-actions action-dock">
           <button type="button" class="btn lime" id="ingestBtn">Ingest</button>
           <button type="button" class="btn ghost" data-back-fleet>Back to fleet</button>
           <span id="ingestStatus"></span>

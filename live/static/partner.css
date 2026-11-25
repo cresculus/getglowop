@@ -154,6 +154,30 @@
   padding: 0.55rem 0.85rem;
   border-top: 2px solid var(--line);
   background: #f7f9f2;
+  justify-content: flex-start;
+}
+.partner-dash .ledger-head,
+.partner-dash .pane-label,
+.partner-dash .view-lede,
+.partner-dash .fresh-key,
+.partner-dash .config-block,
+.partner-dash .table-fit,
+.partner-dash .analyze-grid,
+.partner-dash .biz-list {
+  margin-left: 0;
+  text-align: left;
+}
+.partner-dash .fresh-key {
+  justify-content: flex-start;
+  max-width: 42rem;
+}
+.partner-dash .config-block {
+  max-width: 42rem;
+  align-self: flex-start;
+}
+.partner-dash table th,
+.partner-dash table td {
+  text-align: left;
 }
 .mint-inline input,
 .mint-dock input {
@@ -192,10 +216,11 @@
   overflow: auto; align-content: start; justify-items: stretch; max-width: 42rem;
 }
 .biz-list li {
-  display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
+  display: flex; justify-content: flex-start; align-items: center; gap: 0.75rem;
   border: 2px solid var(--line); padding: 0.75rem 0.85rem; background: var(--bg);
   min-height: 64px;
 }
+.biz-list li .btn { margin-left: 0; }
 .biz-list b { font-weight: 800; font-size: 0.95rem; }
 
 .analyze-grid {

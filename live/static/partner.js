@@ -165,7 +165,7 @@
         (b) =>
           `<li><span><b>${esc(b.business_name || b.business_id)}</b><div class="hint">${esc(
             b.business_id
-          )}</div></span><a class="btn ghost" href="/app/?tenant=${encodeURIComponent(
+          )}</div></span><a class="btn lime" href="/app/?tenant=${encodeURIComponent(
             b.business_id
           )}">Analyze</a></li>`
       )
