@@ -34,7 +34,7 @@ html, body {
 }
 body.shell {
   display: grid;
-  grid-template-rows: var(--top) 1fr;
+  grid-template-rows: var(--topbar-h, var(--top)) 1fr;
   height: 100dvh;
   background: var(--bg);
   color: var(--ink);
@@ -48,43 +48,54 @@ code, .mono { font-family: var(--mono); }
 em { font-family: var(--serif); font-style: italic; font-weight: 500; text-transform: none; }
 
 .topbar {
-  min-height: var(--top);
-  height: auto;
-  display: flex; align-items: center; gap: 0.55rem;
-  flex-wrap: wrap;
-  padding: 0.35rem 0.75rem 0.35rem 1rem;
+  --topbar-h: 52px;
+  height: var(--topbar-h);
+  min-height: var(--topbar-h);
+  max-height: var(--topbar-h);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.65rem;
+  padding: 0 0.75rem 0 1rem;
   padding-left: max(1rem, env(safe-area-inset-left));
   padding-right: max(0.75rem, env(safe-area-inset-right));
   border-bottom: 2px solid var(--line);
   background: color-mix(in srgb, var(--bg) 90%, white);
-  z-index: 5;
+  z-index: 20;
+  overflow: visible;
 }
 .topbar-brand {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  flex: 0 0 auto;
+  min-width: 0;
+  height: 100%;
 }
 .wordmark {
   display: inline-flex; align-items: center; gap: 0.45rem;
   font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; font-size: 0.95rem;
+  white-space: nowrap;
 }
 .wordmark .dot {
   width: 0.55em; height: 0.55em; background: var(--lime);
   border: 2px solid var(--line); box-shadow: 0 0 8px rgba(160, 230, 40, 0.7);
+  flex: 0 0 auto;
 }
 .views {
   display: flex;
+  align-items: stretch;
   border: 2px solid var(--line);
   background: var(--surface);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  max-width: 100%;
+  min-width: 0;
+  height: 34px;
   scrollbar-width: none;
 }
 .views::-webkit-scrollbar { display: none; }
 .view-tab {
-  border: 0; background: transparent; min-height: 32px; padding: 0 0.75rem;
+  border: 0; background: transparent; min-height: 0; height: 100%;
+  padding: 0 0.75rem;
   font: 800 0.72rem/1 var(--font); text-transform: uppercase; letter-spacing: 0.04em;
   cursor: pointer; color: var(--muted);
   white-space: nowrap;
@@ -92,17 +103,19 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
 }
 .view-tab[aria-selected="true"] { background: var(--lime); color: var(--ink); }
 .rail {
-  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  height: 100%;
+  min-width: 0;
 }
 .partner-home-btn {
   flex: 0 0 auto;
   white-space: nowrap;
-  min-height: 36px;
+  min-height: 34px;
+  height: 34px;
   padding: 0 0.75rem;
   font-size: 0.78rem;
   box-shadow: 3px 3px 0 var(--ink);
@@ -115,41 +128,69 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
   gap: 0.05rem;
   border: 2px solid var(--line);
   background: var(--surface-2);
-  padding: 0.15rem 0.55rem;
-  min-height: 32px;
-  max-width: min(12rem, 42vw);
+  padding: 0.1rem 0.55rem;
+  height: 34px;
+  max-width: 10.5rem;
   cursor: pointer;
   user-select: none;
   text-align: left;
   font: inherit;
   color: inherit;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 .biz-badge:hover { background: #f7ffe0; }
 .biz-badge span {
   font-family: var(--mono);
-  font-size: 0.55rem;
+  font-size: 0.52rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
   line-height: 1;
 }
 .biz-badge strong {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Clerk UserButton — keep trigger locked in the rail, never drop below the bar */
 .user-button-mount {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
-  min-height: 32px;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  overflow: visible;
+  position: relative;
+  z-index: 30;
 }
-.user-button-mount .cl-userButtonBox,
-.user-button-mount .cl-avatarBox {
+.user-button-mount .cl-rootBox,
+.user-button-mount .cl-userButton-root,
+.user-button-mount .cl-userButtonBox {
+  width: 34px !important;
+  height: 34px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.user-button-mount .cl-userButtonTrigger {
+  width: 34px !important;
+  height: 34px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.user-button-mount .cl-avatarBox,
+.user-button-mount .cl-userButtonAvatarBox,
+.user-button-mount img {
   width: 32px !important;
   height: 32px !important;
+  margin: 0 !important;
 }
 .biz {
   display: flex; align-items: center; gap: 0.35rem;
@@ -588,12 +629,14 @@ tbody tr.is-selected { background: var(--lime); }
   .pane.detail { display: none; }
   .partner-full { display: none; }
   .partner-short { display: inline; }
-  .topbar { gap: 0.4rem; }
-  .views { order: 3; width: 100%; }
-  .rail { gap: 0.3rem; }
+  .topbar {
+    --topbar-h: 48px;
+    column-gap: 0.4rem;
+  }
+  .biz-badge { max-width: 8.5rem; }
+  .view-tab { padding: 0 0.55rem; }
 }
 @media (max-width: 720px) {
-  :root { --top: auto; }
   body.shell {
     overflow: auto;
     height: auto;
@@ -603,7 +646,23 @@ tbody tr.is-selected { background: var(--lime); }
   .topbar {
     position: sticky;
     top: 0;
-    padding-top: max(0.4rem, env(safe-area-inset-top));
+    --topbar-h: 88px;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 44px 40px;
+    row-gap: 0.35rem;
+    padding-top: max(0.35rem, env(safe-area-inset-top));
+    padding-bottom: 0.35rem;
+  }
+  .topbar-brand { grid-column: 1; grid-row: 1; }
+  .rail { grid-column: 2; grid-row: 1; }
+  .views {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    height: 34px;
   }
   .workspace {
     height: auto;

@@ -140,18 +140,21 @@ def jwt_unsafe_decode(token: str) -> dict[str, Any] | None:
 
 
 def partner_from_claims(claims: dict[str, Any]) -> dict[str, Any]:
-    email = (
-        claims.get("email")
-        or (claims.get("email_addresses") or [{}])[0].get("email_address")
-        if isinstance(claims.get("email_addresses"), list)
-        else None
-    )
+    email = (claims.get("email") or claims.get("primary_email_address") or "").strip()
     if not email:
-        email = claims.get("primary_email_address") or ""
+        addrs = claims.get("email_addresses")
+        if isinstance(addrs, list) and addrs:
+            first = addrs[0] if isinstance(addrs[0], dict) else {}
+            email = (first.get("email_address") or "").strip()
+    name = (claims.get("name") or claims.get("full_name") or "").strip()
+    if not name and email:
+        name = email.split("@")[0]
+    if not name:
+        name = "Partner"
     return {
         "id": f"clerk_{claims.get('sub') or claims.get('id') or 'unknown'}",
-        "name": claims.get("name") or claims.get("full_name") or (email.split("@")[0] if email else "Partner"),
-        "email": email or "unknown",
+        "name": name,
+        "email": email or "",
         "clerkUserId": claims.get("sub"),
         "auth": "clerk",
     }

@@ -853,7 +853,12 @@
       if (!res.ok) return false;
       const data = await res.json();
       signedIn = true;
-      const email = data.partner?.email || data.partner?.name || "Signed in";
+      const clerkEmail =
+        clerk.user?.primaryEmailAddress?.emailAddress ||
+        clerk.user?.emailAddresses?.[0]?.emailAddress ||
+        "";
+      const email =
+        clerkEmail || data.partner?.email || data.partner?.name || "Signed in";
       setSignedInChrome(email);
       GlowClerkPartner.mountUserButton(clerk, $("userButton"));
 
