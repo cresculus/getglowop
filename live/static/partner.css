@@ -48,9 +48,24 @@
 .hint { color: var(--muted); font-size: 0.8rem; margin: 0.2rem 0 0; }
 .auth-switch { margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
 .auth-switch a { color: var(--ink); font-weight: 700; }
-.clerk-mount { min-height: 240px; margin-top: 0.35rem; }
+.clerk-mount {
+  min-height: 280px;
+  margin-top: 0.25rem;
+  width: 100%;
+}
+.clerk-mount .cl-rootBox,
+.clerk-mount .cl-card {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+/* Flatten Clerk-in-card: our shell already has the brutalist frame */
+.login-card-auth {
+  width: min(420px, 100%);
+  padding-bottom: 0.85rem;
+}
+.login-card-auth .lede { margin-bottom: 0.55rem; }
 .partner-auth .login-card,
-.login-card-auth { width: min(460px, 100%); }
+.login-card-auth { width: min(420px, 100%); }
 .auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -125,12 +125,80 @@
     return data.partner || null;
   }
 
+  /** Match GlowOps neubrutalist shell (lime / ink / Archivo). */
+  function glowAppearance() {
+    return {
+      layout: {
+        socialButtonsPlacement: "bottom",
+        socialButtonsVariant: "blockButton",
+        showOptionalFields: false,
+      },
+      variables: {
+        colorPrimary: "#0d130b",
+        colorBackground: "#ffffff",
+        colorInputBackground: "#edf1e8",
+        colorInputText: "#0d130b",
+        colorText: "#0d130b",
+        colorTextSecondary: "#39422f",
+        colorDanger: "#c43c2c",
+        borderRadius: "0px",
+        fontFamily: '"Archivo", system-ui, sans-serif",
+        fontFamilyButtons: '"Archivo", system-ui, sans-serif',
+        fontWeight: { normal: 600, medium: 700, bold: 800 },
+      },
+      elements: {
+        rootBox: { width: "100%" },
+        card: {
+          boxShadow: "none",
+          border: "2px solid #0d130b",
+          borderRadius: "0",
+          padding: "1rem 1rem 0.85rem",
+        },
+        headerTitle: {
+          fontSize: "1.15rem",
+          fontWeight: "900",
+          textTransform: "uppercase",
+          letterSpacing: "-0.02em",
+        },
+        headerSubtitle: { display: "none" },
+        socialButtonsBlockButton: {
+          border: "2px solid #0d130b",
+          borderRadius: "0",
+          boxShadow: "2px 2px 0 #0d130b",
+          fontWeight: "800",
+        },
+        formFieldInput: {
+          border: "2px solid #0d130b",
+          borderRadius: "0",
+          minHeight: "40px",
+          boxShadow: "none",
+        },
+        formButtonPrimary: {
+          backgroundColor: "#bff747",
+          color: "#0d130b",
+          border: "2px solid #0d130b",
+          borderRadius: "0",
+          boxShadow: "3px 3px 0 #0d130b",
+          fontWeight: "900",
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
+          minHeight: "42px",
+        },
+        footerActionLink: { color: "#0d130b", fontWeight: "800" },
+        identityPreviewEditButton: { color: "#0d130b" },
+        dividerLine: { background: "#0d130b" },
+        dividerText: { color: "#39422f", fontFamily: '"IBM Plex Mono", monospace', fontSize: "0.65rem" },
+      },
+    };
+  }
+
   function mountSignIn(clerk, el) {
     clerk.mountSignIn(el, {
       routing: "hash",
       signUpUrl: SIGN_UP,
       afterSignInUrl: AFTER,
       afterSignUpUrl: AFTER,
+      appearance: glowAppearance(),
     });
   }
 
@@ -140,6 +208,7 @@
       signInUrl: SIGN_IN,
       afterSignInUrl: AFTER,
       afterSignUpUrl: AFTER,
+      appearance: glowAppearance(),
     });
   }
 
