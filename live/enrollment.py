@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import os
 import secrets
 import sqlite3
 import string
@@ -140,12 +141,14 @@ def mint_enrollment_key(
         ),
     )
     conn.commit()
+    dashboard_url = (os.environ.get("GLOWOPS_PUBLIC_URL") or "https://getglowop.com").rstrip("/")
     return {
         "id": key_id,
         "businessId": business_id,
         "label": label,
         "joinKey": code,
         "joinPassword": password,
+        "dashboardUrl": dashboard_url,
         "scope": "device-join",
         "expiresAt": _iso(expires),
         "ttlHours": ttl,

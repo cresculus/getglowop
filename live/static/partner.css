@@ -409,6 +409,17 @@
   flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-family: var(--mono); font-size: 0.72rem;
 }
+.enroll-url-card {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  max-width: 42rem;
+}
+.enroll-url-card .hint { margin: 0; }
 .fresh-key.enroll-secret { align-items: flex-start; flex-wrap: wrap; }
 .fresh-key.enroll-secret p { margin: 0.15rem 0; }
 .enroll-secret-body {

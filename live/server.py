@@ -461,7 +461,7 @@ class Handler(BaseHTTPRequestHandler):
             status, body, ctype = _json_bytes(
                 {
                     "clerk": public_clerk_config(),
-                    "publicUrl": os.environ.get("GLOWOPS_PUBLIC_URL") or "",
+                    "publicUrl": (os.environ.get("GLOWOPS_PUBLIC_URL") or "https://getglowop.com").rstrip("/"),
                     "authRequired": os.environ.get("GLOWOPS_REQUIRE_AUTH") == "1",
                 }
             )

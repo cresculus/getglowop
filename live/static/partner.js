@@ -4,8 +4,20 @@
   const dashView = $("dashView");
   let businessesCache = [];
 
+  const DEFAULT_DASH_URL = "https://getglowop.com";
+  let dashboardUrl = DEFAULT_DASH_URL;
+
   function mcpBase() {
     return `${window.location.origin}/mcp`;
+  }
+
+  function setEnrollDashUrl(url) {
+    const next = (url || DEFAULT_DASH_URL).trim().replace(/\/+$/, "") || DEFAULT_DASH_URL;
+    dashboardUrl = next;
+    ["enrollDashUrl", "freshDashUrl"].forEach((id) => {
+      const el = $(id);
+      if (el) el.textContent = next;
+    });
   }
 
   function setContextChip(role, businessName) {
@@ -661,6 +673,7 @@
             label: $("enrollLabel").value || "Device join",
           }),
         });
+        setEnrollDashUrl(minted.dashboardUrl || dashboardUrl);
         $("freshEnroll").hidden = false;
         $("freshJoinKey").textContent = minted.joinKey;
         $("freshJoinPass").textContent = minted.joinPassword;
@@ -691,7 +704,11 @@
   const copyEnroll = $("copyEnroll");
   if (copyEnroll) {
     copyEnroll.addEventListener("click", async () => {
-      const text = `Join Key: ${$("freshJoinKey").textContent}\nJoin Password: ${$("freshJoinPass").textContent}`;
+      const text = [
+        `Dashboard URL: ${$("freshDashUrl")?.textContent || dashboardUrl}`,
+        `Join Key: ${$("freshJoinKey").textContent}`,
+        `Join Password: ${$("freshJoinPass").textContent}`,
+      ].join("\n");
       await copyText(text, copyEnroll);
     });
   }
@@ -773,6 +790,13 @@
   }
 
   showLogin();
+  setEnrollDashUrl(DEFAULT_DASH_URL);
+  fetch("/api/config/public")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((cfg) => {
+      if (cfg?.publicUrl) setEnrollDashUrl(cfg.publicUrl);
+    })
+    .catch(() => {});
   initClerk().then((usedClerk) => {
     if (usedClerk) return;
     api("/api/partner/me")

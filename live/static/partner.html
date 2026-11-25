@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-10" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-10" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-10" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-11" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-11" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-11" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -102,10 +102,23 @@
           <div class="ledger-head ledger-head-left">
             <h1>Enroll devices</h1>
           </div>
-          <p class="view-lede">Mint a join key for a business, then use it in the agent or a silent fleet push.</p>
+          <p class="view-lede">Mint a join key for a business, then paste it into the agent. Dashboard URL is always GlowOps unless you run a lab host.</p>
+          <div class="enroll-url-card">
+            <div class="secret-row">
+              <span class="secret-label">Dashboard URL</span>
+              <code id="enrollDashUrl">https://getglowop.com</code>
+              <button type="button" class="btn ghost secret-copy" id="copyDashUrl" data-copy-target="enrollDashUrl">Copy</button>
+            </div>
+            <p class="hint">Agent defaults to this URL — only change it for a private lab dashboard.</p>
+          </div>
           <div id="freshEnroll" class="fresh-key enroll-secret" hidden>
             <div class="enroll-secret-body">
               <p><strong>Copy into the GlowOps Agent menu</strong> — password shown once. Expires automatically; join-only.</p>
+              <div class="secret-row">
+                <span class="secret-label">Dashboard URL</span>
+                <code id="freshDashUrl">https://getglowop.com</code>
+                <button type="button" class="btn ghost secret-copy" id="copyFreshDashUrl" data-copy-target="freshDashUrl">Copy</button>
+              </div>
               <div class="secret-row">
                 <span class="secret-label">Key</span>
                 <code id="freshJoinKey"></code>
@@ -117,7 +130,7 @@
                 <button type="button" class="btn ghost secret-copy" id="copyJoinPass" data-copy-target="freshJoinPass">Copy</button>
               </div>
               <p class="hint" id="freshJoinExp"></p>
-              <button type="button" class="btn ghost" id="copyEnroll">Copy both</button>
+              <button type="button" class="btn ghost" id="copyEnroll">Copy all</button>
             </div>
           </div>
           <div class="table-fit">
@@ -268,7 +281,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=lux-10"></script>
-  <script src="/app/partner.js?v=lux-10"></script>
+  <script src="/app/clerk-partner.js?v=lux-11"></script>
+  <script src="/app/partner.js?v=lux-11"></script>
 </body>
 </html>
