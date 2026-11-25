@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-5" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-5" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-5" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-6" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-6" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-6" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -163,56 +163,57 @@
           </form>
         </div>
 
-        <div class="pview pview-left" id="pviewPeople" data-active="false" hidden>
+        <div class="pview pview-left people-view" id="pviewPeople" data-active="false" hidden>
           <div class="ledger-head ledger-head-left"><h1>People</h1></div>
           <p class="view-lede">Invite people and set roles on a business.</p>
-          <div class="people-toolbar mint-dock">
-            <select id="peopleBiz" title="Business"></select>
-            <span class="hint" id="peopleMyRole">Your role: —</span>
+          <div class="people-body">
+            <div class="people-toolbar">
+              <label class="field">
+                <span>Business</span>
+                <select id="peopleBiz" title="Business"></select>
+              </label>
+              <span class="people-role-hint" id="peopleMyRole">Your role: —</span>
+            </div>
+
+            <section class="people-card">
+              <h3>Invite</h3>
+              <form id="inviteForm" class="invite-row">
+                <label class="field grow">
+                  <span>Email</span>
+                  <input id="inviteEmail" type="email" placeholder="user@company.com" required maxlength="120" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>Role</span>
+                  <select id="inviteRole" title="Role">
+                    <option value="viewer">Viewer</option>
+                    <option value="operator">Operator</option>
+                    <option value="admin" selected>Admin</option>
+                  </select>
+                </label>
+                <button class="btn lime invite-submit" type="submit">Send invite</button>
+              </form>
+              <p class="hint" id="inviteStatus"></p>
+              <div id="freshInvite" class="fresh-key" hidden>
+                <code id="freshInviteLink"></code>
+                <button type="button" class="btn ghost" id="copyInvite">Copy link</button>
+              </div>
+            </section>
+
+            <section class="people-card">
+              <h3>Members</h3>
+              <div class="people-list" id="membersBody"></div>
+            </section>
+
+            <section class="people-card">
+              <h3>Pending invites</h3>
+              <div class="people-list" id="invitesBody"></div>
+            </section>
+
+            <section class="people-card">
+              <h3>Permission matrix</h3>
+              <div class="perm-grid" id="rbacCatalog"></div>
+            </section>
           </div>
-          <section class="settings-section props-card">
-            <h3>Invite</h3>
-            <form id="inviteForm" class="mint-inline settings-mint">
-              <input id="inviteEmail" type="email" placeholder="user@company.com" required maxlength="120" />
-              <select id="inviteRole" title="Role">
-                <option value="viewer">viewer</option>
-                <option value="operator">operator</option>
-                <option value="admin" selected>admin</option>
-              </select>
-              <button class="btn lime" type="submit">Send invite</button>
-            </form>
-            <p class="hint" id="inviteStatus"></p>
-            <div id="freshInvite" class="fresh-key" hidden>
-              <code id="freshInviteLink"></code>
-              <button type="button" class="btn ghost" id="copyInvite">Copy link</button>
-            </div>
-          </section>
-          <section class="settings-section props-card">
-            <h3>Members</h3>
-            <div class="table-fit settings-keys">
-              <table>
-                <thead>
-                  <tr><th>Email</th><th>Name</th><th>Role</th><th></th></tr>
-                </thead>
-                <tbody id="membersBody"></tbody>
-              </table>
-            </div>
-          </section>
-          <section class="settings-section props-card">
-            <h3>Pending invites</h3>
-            <div class="table-fit settings-keys">
-              <table>
-                <thead>
-                  <tr><th>Email</th><th>Role</th><th>Status</th><th>Expires</th><th></th></tr>
-                </thead>
-                <tbody id="invitesBody"></tbody>
-              </table>
-            </div>
-          </section>
-          <section class="settings-section props-card">
-            <h3>Permission matrix</h3>
-            <pre class="config-block" id="rbacCatalog"></pre>
-          </section>
         </div>
 
         <div class="pview pview-left" id="pviewAnalyze" data-active="false" hidden>
@@ -278,7 +279,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=lux-5"></script>
-  <script src="/app/partner.js?v=lux-5"></script>
+  <script src="/app/clerk-partner.js?v=lux-6"></script>
+  <script src="/app/partner.js?v=lux-6"></script>
 </body>
 </html>

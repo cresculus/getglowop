@@ -300,9 +300,21 @@
     const invitesBody = $("invitesBody");
     const catalog = $("rbacCatalog");
     if (!sel || !membersBody) return;
+    function displayEmail(email) {
+      const e = (email || "").trim();
+      if (!e || e.endsWith("@getglowop.internal") || e.endsWith("@clerk.local")) return "Signed-in account";
+      return e;
+    }
+    function displayName(name, email) {
+      const n = (name || "").trim();
+      if (n && n.toLowerCase() !== "partner") return n;
+      const e = displayEmail(email);
+      return e === "Signed-in account" ? "You" : e.split("@")[0];
+    }
+
     if (!businessesCache.length) {
       sel.innerHTML = "";
-      membersBody.innerHTML = `<tr><td colspan="4">Add a business first, then invite people.</td></tr>`;
+      membersBody.innerHTML = `<p class="people-empty">Add a business first, then invite people.</p>`;
       if (invitesBody) invitesBody.innerHTML = "";
       return;
     }
@@ -328,7 +340,7 @@
       membersBody.innerHTML = (data.members || [])
         .map((m) => {
           const roleSelect = peopleCanManage
-            ? `<select data-role-partner="${esc(m.partnerId)}" class="role-select">
+            ? `<select data-role-partner="${esc(m.partnerId)}" class="role-select" aria-label="Role">
                 ${["owner", "admin", "operator", "viewer"]
                   .map(
                     (r) =>
@@ -336,21 +348,20 @@
                   )
                   .join("")}
               </select>`
-            : esc(m.role);
-          const revokeBtn =
-            peopleCanManage
-              ? `<button type="button" class="btn ghost danger" data-revoke-member="${esc(
-                  m.partnerId
-                )}">Remove</button>`
-              : "";
-          return `<tr>
-            <td>${esc(m.email)}</td>
-            <td>${esc(m.name)}</td>
-            <td>${roleSelect}</td>
-            <td>${revokeBtn}</td>
-          </tr>`;
+            : `<span class="p-meta">${esc(m.role)}</span>`;
+          const revokeBtn = peopleCanManage
+            ? `<button type="button" class="btn ghost danger" data-revoke-member="${esc(
+                m.partnerId
+              )}">Remove</button>`
+            : "";
+          return `<div class="people-row">
+            <span class="p-email" title="${esc(m.email || "")}">${esc(displayEmail(m.email))}</span>
+            <span class="p-name">${esc(displayName(m.name, m.email))}</span>
+            ${roleSelect}
+            ${revokeBtn || "<span></span>"}
+          </div>`;
         })
-        .join("") || `<tr><td colspan="4">No members yet.</td></tr>`;
+        .join("") || `<p class="people-empty">No members yet.</p>`;
 
       if (invitesBody) {
         invitesBody.innerHTML = (data.invitations || [])
@@ -360,23 +371,28 @@
                 ? `<button type="button" class="btn ghost" data-revoke-invite="${esc(
                     inv.id
                   )}">Revoke</button>`
-                : "";
-            return `<tr>
-              <td>${esc(inv.email)}</td>
-              <td>${esc(inv.role)}</td>
-              <td>${esc(inv.status)}</td>
-              <td>${esc((inv.expiresAt || "").slice(0, 16))}</td>
-              <td>${revoke}</td>
-            </tr>`;
+                : "<span></span>";
+            return `<div class="people-row invite">
+              <span class="p-email">${esc(inv.email)}</span>
+              <span class="p-meta">${esc(inv.role)}</span>
+              <span class="p-meta">${esc(inv.status)}</span>
+              <span class="p-meta">${esc((inv.expiresAt || "").slice(0, 10))}</span>
+              ${revoke}
+            </div>`;
           })
-          .join("") || `<tr><td colspan="5">No invites.</td></tr>`;
+          .join("") || `<p class="people-empty">No pending invites.</p>`;
       }
 
       if (catalog) {
         const cat = await api("/api/partner/rbac/catalog");
-        catalog.textContent = (cat.permissions || [])
-          .map((p) => `${p.permission}: ${(p.roles || []).join(", ")}`)
-          .join("\n");
+        catalog.innerHTML = (cat.permissions || [])
+          .map(
+            (p) =>
+              `<div class="perm-item"><strong>${esc(p.permission)}</strong><span>${esc(
+                (p.roles || []).join(" · ")
+              )}</span></div>`
+          )
+          .join("") || `<p class="people-empty">No permissions listed.</p>`;
       }
 
       const inviteForm = $("inviteForm");
@@ -387,7 +403,7 @@
         });
       }
     } catch (err) {
-      membersBody.innerHTML = `<tr><td colspan="4">${esc(err.message || err)}</td></tr>`;
+      membersBody.innerHTML = `<p class="people-empty">${esc(err.message || err)}</p>`;
     }
   }
 

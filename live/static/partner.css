@@ -104,12 +104,169 @@
   padding: 0.18rem 0.5rem;
   line-height: 1.2;
 }
-.people-toolbar { margin: 0 0.85rem 0.75rem; align-items: center; }
+.people-view .people-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  gap: 0.85rem;
+  align-content: start;
+  padding: 0 0.85rem 1.35rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.people-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--surface-2);
+}
+.people-role-hint {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  padding-bottom: 0.55rem;
+}
+.people-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  padding: 1rem 1.1rem 1.1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.people-card h3 {
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8125rem;
+  font-weight: var(--w-strong);
+}
+.people-card .field,
+.people-toolbar .field {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+}
+.people-card .field > span,
+.people-toolbar .field > span {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.people-card .field.grow { flex: 1 1 16rem; }
+.invite-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.65rem;
+  width: 100%;
+}
+.invite-row input,
+.invite-row select,
+.people-toolbar select,
 .role-select {
-  border: var(--border-w) solid var(--line);
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-s);
+  background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23697160' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 0.7rem center;
+  background-size: 10px;
+  min-height: 40px;
+  padding: 0 2rem 0 0.75rem;
+  font: 500 0.875rem/1.2 var(--font);
+  color: var(--ink);
+  width: 100%;
+}
+.invite-row input {
+  background-image: none;
+  padding-right: 0.75rem;
+}
+.invite-row select { min-width: 8.5rem; }
+.people-toolbar select { min-width: 14rem; width: auto; }
+.invite-submit {
+  min-height: 40px;
+  padding: 0 1.1rem;
+  flex: 0 0 auto;
+}
+.people-list {
+  display: grid;
+  gap: 0.45rem;
+  width: 100%;
+}
+.people-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
   background: var(--bg);
-  min-height: 32px;
-  font: 700 0.8rem/1 var(--font);
+}
+.people-row.invite {
+  grid-template-columns: minmax(0, 1.4fr) auto auto auto auto;
+}
+.people-row .p-email {
+  font-size: 0.875rem;
+  font-weight: var(--w-medium);
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.people-row .p-name,
+.people-row .p-meta {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.people-row .role-select {
+  min-width: 7.5rem;
+  min-height: 34px;
+  width: auto;
+}
+.people-empty {
+  padding: 0.85rem 0.2rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.perm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.55rem;
+  width: 100%;
+}
+.perm-item {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--bg);
+}
+.perm-item strong {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: var(--w-medium);
+  color: var(--ink);
+}
+.perm-item span {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.role-select {
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  min-height: 34px;
+  font: 500 0.8rem/1 var(--font);
 }
 
 .partner-shell .workspace {
@@ -464,13 +621,19 @@
   border: var(--border-w) solid var(--line);
   background: var(--bg);
 }
-.partner-dash .settings-keys { max-height: 40%; margin: 0.55rem 0; }
+.partner-dash .settings-keys {
+  max-height: none;
+  overflow: visible;
+  margin: 0.55rem 0;
+  flex: 0 0 auto;
+}
 .settings-section {
   margin: 0 0.85rem 1rem;
-  max-width: 52rem;
+  max-width: none;
+  width: auto;
 }
 .settings-section .pane-label { padding-left: 0; }
-.settings-section .config-block { margin: 0 0 0.55rem; max-height: 12rem; }
+.settings-section .config-block { margin: 0 0 0.55rem; max-height: none; }
 .settings-mint { margin-top: 0.55rem; }
 .partner-dash table { font-size: 0.78rem; }
 .partner-dash tbody tr { height: 1.9rem; cursor: default; }
