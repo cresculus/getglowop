@@ -181,6 +181,28 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
   border-bottom: 2px solid var(--line);
   background: #f7f9f2;
 }
+.props-head {
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+}
+.props-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+}
+.props-head-title {
+  min-width: 0;
+}
+.props-head-title .pane-label {
+  border-bottom: 0;
+  padding: 0;
+}
+.props-head-title h1 {
+  margin: 0.1rem 0 0;
+}
 .biz.tz select {
   border: 0; outline: 0; background: transparent;
   font: 700 0.72rem/1 var(--font); max-width: 11rem;

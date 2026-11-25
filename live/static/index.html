@@ -112,18 +112,18 @@
     <!-- PROPERTIES -->
     <section class="view view-properties" id="viewProperties" data-active="false" hidden>
       <div class="props-fit">
-        <div class="ledger-head">
-          <div>
+        <div class="ledger-head props-head">
+          <div class="props-head-actions">
+            <button type="button" class="btn ghost" data-back-fleet>← Fleet report</button>
+            <button type="button" class="btn lime" id="propsToDash">Dashboard</button>
+          </div>
+          <div class="props-head-title">
             <p class="pane-label">Device properties</p>
             <h1 id="p-title">—</h1>
           </div>
         </div>
         <div class="props-body" id="propsBody">
           <p class="detail-empty">Pick a device from Fleet, then open Properties.</p>
-        </div>
-        <div class="action-dock">
-          <button type="button" class="btn ghost" data-back-fleet>← Fleet report</button>
-          <button type="button" class="btn lime" id="propsToDash">Dashboard</button>
         </div>
       </div>
     </section>
