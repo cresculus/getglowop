@@ -142,7 +142,7 @@
         colorTextSecondary: "#39422f",
         colorDanger: "#c43c2c",
         borderRadius: "0px",
-        fontFamily: '"Archivo", system-ui, sans-serif",
+        fontFamily: '"Archivo", system-ui, sans-serif',
         fontFamilyButtons: '"Archivo", system-ui, sans-serif',
         fontWeight: { normal: 600, medium: 700, bold: 800 },
       },
