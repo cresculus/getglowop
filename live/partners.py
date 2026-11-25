@@ -292,8 +292,11 @@ def ensure_clerk_partner(
 ) -> dict[str, Any]:
     """Upsert a partner row for a Clerk user (password unused; auth is JWT)."""
     ensure_partner_schema(conn)
-    email_n = (email or "").lower().strip() or f"{partner_id}@clerk.local"
-    name_n = (name or "").strip() or email_n.split("@")[0]
+    email_n = (email or "").lower().strip()
+    # Never invent clerk.local placeholders — they leaked into the Partner chrome as a "user id".
+    if not email_n or email_n.endswith("@clerk.local"):
+        email_n = f"partner+{secrets.token_hex(4)}@getglowop.internal"
+    name_n = (name or "").strip() or "Partner"
     existing = conn.execute("SELECT id, name, email FROM partners WHERE id = ?", (partner_id,)).fetchone()
     if existing:
         conn.execute(

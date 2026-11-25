@@ -171,10 +171,6 @@
     document.body.classList.add("is-authed");
     loginView.hidden = true;
     dashView.hidden = false;
-    const homeBtn = $("homeBtn");
-    if (homeBtn) homeBtn.hidden = false;
-    $("partnerHello").hidden = false;
-    $("partnerHello").textContent = me.email || me.name || "";
     const chip = $("partnerRoleChip");
     if (chip) {
       const primary = meRoles[0];
@@ -212,9 +208,6 @@
       ub.hidden = true;
       ub.innerHTML = "";
     }
-    const homeBtn = $("homeBtn");
-    if (homeBtn) homeBtn.hidden = true;
-    $("partnerHello").hidden = true;
     const chip = $("partnerRoleChip");
     if (chip) chip.hidden = true;
     if (clerkEnabled) {
