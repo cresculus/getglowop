@@ -341,7 +341,8 @@ tbody tr.is-selected { background: var(--lime); }
 }
 .props-kpis strong, .dash-kpis strong { font-size: 1rem; font-weight: 900; }
 .props-columns {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 0.75rem;
 }
 .props-card {
@@ -403,9 +404,6 @@ tbody tr.is-selected { background: var(--lime); }
   justify-content: flex-start;
 }
 #ingestStatus { color: var(--muted); font-size: 0.8rem; }
-.props-columns {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-}
 
 @media (max-width: 1100px) {
   .dash-grid { grid-template-columns: 1fr; }
