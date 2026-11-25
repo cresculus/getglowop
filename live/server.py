@@ -121,17 +121,20 @@ def _prepare_db() -> Path:
 
 CONN = connect(_prepare_db())
 ensure_rbac_schema(CONN)
-seed_if_empty(CONN, "demo")
-DEMO_PARTNER = seed_demo_partner(CONN)
-# Ensure demo partner is owner on demo business
-try:
-    from rbac import grant_membership, get_membership
+# Seeded demo fleet is lab-only. Signed-in partners never get this data.
+# Set GLOWOPS_SEED_DEMO=1 on a lab host if you want the public /app/?tenant=demo sample.
+DEMO_PARTNER = None
+if os.environ.get("GLOWOPS_SEED_DEMO", "").strip() == "1":
+    seed_if_empty(CONN, "demo")
+    DEMO_PARTNER = seed_demo_partner(CONN)
+    try:
+        from rbac import grant_membership, get_membership
 
-    _demo_id = (DEMO_PARTNER.get("partner") or {}).get("id") or "partner_demo"
-    if not get_membership(CONN, _demo_id, "demo"):
-        grant_membership(CONN, business_id="demo", partner_id=_demo_id, role="owner")
-except Exception:
-    pass
+        _demo_id = (DEMO_PARTNER.get("partner") or {}).get("id") or "partner_demo"
+        if not get_membership(CONN, _demo_id, "demo"):
+            grant_membership(CONN, business_id="demo", partner_id=_demo_id, role="owner")
+    except Exception:
+        pass
 
 AGENT_EXE_NAME = "GlowOpsAgent.exe"
 AGENT_RELEASE_URL = os.environ.get(
@@ -300,7 +303,44 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
         qs = parse_qs(parsed.query)
-        tenant = (qs.get("tenant") or ["demo"])[0]
+        tenant = (qs.get("tenant") or [""])[0].strip()
+        if path.startswith("/api/"):
+            partner_for_tenant = self._partner_principal()
+            # Signed-in partners always use their own empty business — never the lab demo fleet.
+            if partner_for_tenant and partner_for_tenant.get("id") != "partner_demo":
+                if not tenant or tenant == "demo":
+                    from partners import ensure_partner_home_business
+
+                    tenant = ensure_partner_home_business(CONN, partner_for_tenant).get("business_id") or ""
+            elif not tenant:
+                if os.environ.get("GLOWOPS_SEED_DEMO", "").strip() == "1":
+                    tenant = "demo"
+                elif path.rstrip("/") in ("/api/summary", "/api/devices", "/api/business"):
+                    status, body, ctype = _json_bytes(
+                        {
+                            "tenantId": None,
+                            "businessId": None,
+                            "businessName": None,
+                            "deviceCount": 0,
+                            "avgGlowScore": None,
+                            "ghostCount": 0,
+                            "repairBeforeReplaceCount": 0,
+                            "manufacturingKgOnBooks": 0,
+                            "avoidablePurchasesIfExtended": 0,
+                            "byCall": {
+                                "keep": 0,
+                                "repair": 0,
+                                "redeploy": 0,
+                                "refresh": 0,
+                                "recycle": 0,
+                                "ghost": 0,
+                            },
+                            "devices": [],
+                            "count": 0,
+                            "business": None,
+                        }
+                    )
+                    return self._send(status, body, ctype)
 
         if path.rstrip("/") in ("/api/health", "/health"):
             status, body, ctype = _json_bytes(
@@ -427,7 +467,12 @@ class Handler(BaseHTTPRequestHandler):
             partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
-            businesses = list_partner_businesses(CONN, partner["id"])
+            from partners import ensure_partner_home_business
+
+            home = ensure_partner_home_business(CONN, partner)
+            businesses = [
+                b for b in list_partner_businesses(CONN, partner["id"]) if b.get("business_id") != "demo"
+            ]
             roles = []
             for b in businesses:
                 bid = b["business_id"]
@@ -443,6 +488,8 @@ class Handler(BaseHTTPRequestHandler):
                     "partner": partner,
                     "clerk": clerk_configured(),
                     "roles": roles,
+                    "primaryBusinessId": home.get("business_id"),
+                    "primaryBusinessName": home.get("business_name"),
                     "permissions": permission_catalog(),
                 }
             )
@@ -1012,9 +1059,11 @@ def main() -> None:
     print(f"GlowOps dashboard  http://127.0.0.1:{PORT}/app/")
     print(f"  Partner MCP UI   http://127.0.0.1:{PORT}/partner/")
     print(f"  MCP endpoint     http://127.0.0.1:{PORT}/mcp")
-    print(f"  Demo partner     partner@getglowop.com / GlowOps-Partner-2026!")
-    if DEMO_PARTNER.get("bootstrapKey"):
+    if DEMO_PARTNER and DEMO_PARTNER.get("bootstrapKey"):
+        print(f"  Demo partner     partner@getglowop.com / GlowOps-Partner-2026!")
         print(f"  Bootstrap key    {DEMO_PARTNER['bootstrapKey']['apiKey']}")
+    else:
+        print("  Demo seed        off (set GLOWOPS_SEED_DEMO=1 for lab sample fleet)")
     print(f"  SQLite           {DB_PATH}")
     httpd = ThreadingHTTPServer((HOST, PORT), Handler)
     try:

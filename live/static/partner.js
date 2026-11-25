@@ -5,7 +5,7 @@
   let businessesCache = [];
 
   function primaryTenant() {
-    return businessesCache[0]?.business_id || "demo";
+    return businessesCache[0]?.business_id || "";
   }
 
   function syncDashLinks() {

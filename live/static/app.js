@@ -21,10 +21,18 @@
   const callsEl = $("calls");
   const emptyEl = $("empty");
   const searchEl = $("search");
-  let bizNameSaved = "Demo fleet";
+  let bizNameSaved = "My business";
+  let authToken = null;
+  let signedIn = false;
 
   function tenant() {
-    return (tenantEl.value || "demo").trim() || "demo";
+    return (tenantEl.value || "").trim();
+  }
+
+  function apiHeaders(extra) {
+    const h = Object.assign({ Accept: "application/json" }, extra || {});
+    if (authToken) h.Authorization = `Bearer ${authToken}`;
+    return h;
   }
 
   function setBizNameDisplay(name) {
@@ -454,7 +462,8 @@
     updateHomeBack();
     try {
       const res = await fetch(
-        `/api/devices/${encodeURIComponent(selectedId)}?tenant=${encodeURIComponent(tenant())}`
+        `/api/devices/${encodeURIComponent(selectedId)}?tenant=${encodeURIComponent(tenant())}`,
+        { credentials: "same-origin", headers: apiHeaders() }
       );
       if (!res.ok) throw new Error("device fetch failed");
       const data = await res.json();
@@ -480,7 +489,9 @@
     if (page < 0) page = 0;
     const slice = rows.slice(page * pageSize, page * pageSize + pageSize);
     emptyEl.hidden = rows.length > 0;
-    emptyEl.textContent = devices.length ? "No devices match this filter." : "No devices in this business yet.";
+    emptyEl.textContent = devices.length
+      ? "No devices match this filter."
+      : "No devices yet. Connect Intune or enroll an agent — this account starts empty.";
     $("pageInfo").textContent = `${page + 1} / ${pages}`;
     $("prevPage").disabled = page <= 0;
     $("nextPage").disabled = page >= pages - 1;
@@ -558,12 +569,38 @@
 
   async function load() {
     const t = tenant();
+    if (!t) {
+      devices = [];
+      summary = {
+        deviceCount: 0,
+        avgGlowScore: null,
+        ghostCount: 0,
+        repairBeforeReplaceCount: 0,
+        manufacturingKgOnBooks: 0,
+        avoidablePurchasesIfExtended: 0,
+        byCall: {},
+        businessName: bizNameSaved,
+      };
+      setMeta(summary);
+      renderFilters();
+      renderDevices();
+      statusEl.textContent = signedIn
+        ? "No business yet — creating…"
+        : "Sign in to open your empty fleet dashboard";
+      return;
+    }
     $("exportCsv").href = `/api/export.csv?tenant=${encodeURIComponent(t)}`;
     statusEl.textContent = "Loading…";
     try {
       const [sumRes, devRes] = await Promise.all([
-        fetch(`/api/summary?tenant=${encodeURIComponent(t)}`),
-        fetch(`/api/devices?tenant=${encodeURIComponent(t)}`),
+        fetch(`/api/summary?tenant=${encodeURIComponent(t)}`, {
+          credentials: "same-origin",
+          headers: apiHeaders(),
+        }),
+        fetch(`/api/devices?tenant=${encodeURIComponent(t)}`, {
+          credentials: "same-origin",
+          headers: apiHeaders(),
+        }),
       ]);
       if (!sumRes.ok || !devRes.ok) throw new Error("API error");
       summary = await sumRes.json();
@@ -575,7 +612,11 @@
       renderFilters();
       renderDevices();
       if (currentView === "dashboard") renderDashboard();
-      statusEl.textContent = `${summary.deviceCount ?? devices.length} scored · ${summary.businessName || t}`;
+      const n = summary.deviceCount ?? devices.length;
+      statusEl.textContent =
+        n === 0
+          ? `Empty fleet · ${summary.businessName || t}`
+          : `${n} scored · ${summary.businessName || t}`;
     } catch (err) {
       statusEl.textContent = "Load failed";
       devices = [];
@@ -757,19 +798,27 @@
     const userEl = $("fleetUser");
     const outBtn = $("fleetSignOut");
     const people = $("managePeople");
-    if (!window.GlowClerkPartner) return;
+    if (!window.GlowClerkPartner) return false;
     try {
       const cfg = await GlowClerkPartner.fetchPublicConfig();
-      if (!cfg.clerk?.enabled || !cfg.clerk.publishableKey) return;
+      if (!cfg.clerk?.enabled || !cfg.clerk.publishableKey) return false;
       const clerk = await GlowClerkPartner.createClerk(cfg.clerk.publishableKey);
-      if (!clerk.session) return;
-      const token = await GlowClerkPartner.sessionToken(clerk);
+      if (!clerk.session) {
+        // Signed-out visitors: do not show seeded demo as "their" account.
+        if (!tenantParam) {
+          tenantEl.value = "";
+          statusEl.textContent = "Sign in to open your fleet dashboard";
+        }
+        return false;
+      }
+      authToken = await GlowClerkPartner.sessionToken(clerk);
       const res = await fetch("/api/partner/me", {
         credentials: "same-origin",
-        headers: token ? { Authorization: "Bearer " + token } : {},
+        headers: apiHeaders(),
       });
-      if (!res.ok) return;
+      if (!res.ok) return false;
       const data = await res.json();
+      signedIn = true;
       const email = data.partner?.email || data.partner?.name || "Signed in";
       if (userEl) {
         userEl.hidden = false;
@@ -786,17 +835,45 @@
           }
         });
       }
+
+      // Prefer URL tenant only if it belongs to this partner; else primary empty business.
+      const roles = Array.isArray(data.roles) ? data.roles : [];
+      const allowed = new Set(roles.map((r) => r.businessId).filter(Boolean));
+      let bizId = data.primaryBusinessId || roles[0]?.businessId || "";
+      let bizName = data.primaryBusinessName || roles[0]?.businessName || "My business";
+      if (tenantParam && allowed.has(tenantParam)) {
+        bizId = tenantParam;
+        const hit = roles.find((r) => r.businessId === tenantParam);
+        if (hit) bizName = hit.businessName || bizId;
+      }
+      if (bizId === "demo") {
+        bizId = data.primaryBusinessId || "";
+        bizName = data.primaryBusinessName || "My business";
+      }
+      if (bizId) {
+        tenantEl.value = bizId;
+        setBizNameDisplay(bizName);
+        const url = new URL(window.location.href);
+        url.searchParams.set("from", "partner");
+        url.searchParams.set("tenant", bizId);
+        if (!url.searchParams.get("view")) url.searchParams.set("view", "fleet");
+        history.replaceState(history.state, "", url.pathname + "?" + url.searchParams.toString());
+      }
+      return true;
     } catch (err) {
       console.warn("fleet auth", err);
+      return false;
     }
   }
 
-  Promise.all([load(), initFleetAuth()]).then(() => {
-    if (deviceParam) openProperties(deviceParam, { push: false });
-    else if (viewParam === "dashboard") setView("dashboard", { sync: true });
-    else if (viewParam === "properties") setView("properties", { sync: true });
-    else if (viewParam === "resources") setView("resources", { sync: true });
-    else if (viewParam === "ingest") setView("ingest", { sync: true });
-    else setView("fleet", { sync: true });
-  });
+  initFleetAuth()
+    .then(() => load())
+    .then(() => {
+      if (deviceParam) openProperties(deviceParam, { push: false });
+      else if (viewParam === "dashboard") setView("dashboard", { sync: true });
+      else if (viewParam === "properties") setView("properties", { sync: true });
+      else if (viewParam === "resources") setView("resources", { sync: true });
+      else if (viewParam === "ingest") setView("ingest", { sync: true });
+      else setView("fleet", { sync: true });
+    });
 })();

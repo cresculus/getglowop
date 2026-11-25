@@ -42,8 +42,9 @@ def public_clerk_config() -> dict[str, Any]:
         "secretSet": bool(_secret_key()),
         "signInUrl": "/partner/sign-in",
         "signUpUrl": "/partner/sign-up",
-        "afterSignInUrl": "/partner/",
-        "afterSignUpUrl": "/partner/",
+        "afterSignInUrl": "/app/?from=partner&view=fleet",
+        "afterSignUpUrl": "/app/?from=partner&view=fleet",
+        "dashboardUrl": "/app/?from=partner&view=fleet",
     }
 
 

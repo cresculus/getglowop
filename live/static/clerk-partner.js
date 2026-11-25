@@ -1,6 +1,7 @@
 /** Shared Clerk bootstrap for Partner sign-in / sign-up / dashboard. */
 (function (global) {
-  const AFTER = "/partner/";
+  // After auth, land on the empty fleet dashboard — not Partner chrome, not demo data.
+  const AFTER = "/app/?from=partner&view=fleet";
   const SIGN_IN = "/partner/sign-in";
   const SIGN_UP = "/partner/sign-up";
   const SSO_CB = "/partner/sso-callback";

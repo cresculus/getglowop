@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import re
 import secrets
 import sqlite3
 from datetime import datetime, timedelta, timezone
@@ -300,14 +301,40 @@ def ensure_clerk_partner(
             (name_n, email_n, partner_id),
         )
         conn.commit()
-        return {"id": partner_id, "name": name_n, "email": email_n, "auth": "clerk"}
-    # Unique email: if another row owns it, keep that id's email suffix
-    clash = conn.execute("SELECT id FROM partners WHERE email = ?", (email_n,)).fetchone()
-    if clash and clash["id"] != partner_id:
-        email_n = f"{partner_id[:12]}-{email_n}"
-    pw = secrets.token_urlsafe(32)
-    create_partner(conn, partner_id=partner_id, name=name_n, email=email_n, password=pw)
-    return {"id": partner_id, "name": name_n, "email": email_n, "auth": "clerk"}
+        partner = {"id": partner_id, "name": name_n, "email": email_n, "auth": "clerk"}
+    else:
+        # Unique email: if another row owns it, keep that id's email suffix
+        clash = conn.execute("SELECT id FROM partners WHERE email = ?", (email_n,)).fetchone()
+        if clash and clash["id"] != partner_id:
+            email_n = f"{partner_id[:12]}-{email_n}"
+        pw = secrets.token_urlsafe(32)
+        create_partner(conn, partner_id=partner_id, name=name_n, email=email_n, password=pw)
+        partner = {"id": partner_id, "name": name_n, "email": email_n, "auth": "clerk"}
+    # Every signed-in partner gets their own empty business — never the seeded demo fleet.
+    ensure_partner_home_business(conn, partner)
+    return partner
+
+
+def ensure_partner_home_business(conn: sqlite3.Connection, partner: dict[str, Any]) -> dict[str, Any]:
+    """Ensure partner owns a non-demo business with zero seeded devices."""
+    from db import ensure_tenant
+
+    partner_id = partner["id"]
+    businesses = [
+        b for b in list_partner_businesses(conn, partner_id) if b.get("business_id") != "demo"
+    ]
+    if businesses:
+        return businesses[0]
+
+    email = (partner.get("email") or partner_id).lower()
+    local = email.split("@")[0]
+    slug = re.sub(r"[^a-z0-9]+", "-", local).strip("-")[:20] or "biz"
+    suffix = re.sub(r"[^a-z0-9]+", "", partner_id.lower())[-8:] or secrets.token_hex(4)
+    business_id = f"{slug}-{suffix}"[:48]
+    name = "My business"
+    ensure_tenant(conn, business_id, name)
+    bind_business(conn, partner_id, business_id, name)
+    return {"business_id": business_id, "business_name": name}
 
 
 def seed_demo_partner(conn: sqlite3.Connection) -> dict[str, Any]:
