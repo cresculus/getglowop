@@ -6,8 +6,8 @@
   <title>Sign in · GlowOps Partner</title>
   <meta name="robots" content="noindex" />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css?v=clerk-9" />
-  <link rel="stylesheet" href="/app/partner.css?v=clerk-9" />
+  <link rel="stylesheet" href="/app/styles.css?v=clerk-10" />
+  <link rel="stylesheet" href="/app/partner.css?v=clerk-10" />
 </head>
 <body class="shell partner-shell partner-auth">
   <header class="topbar">
@@ -21,10 +21,10 @@
       <p class="pane-label"><span class="live"></span> Partner console</p>
       <div id="clerkMount" class="clerk-mount"></div>
       <p class="hint" id="authErr"></p>
-      <p class="hint">Email, Google, and Microsoft use Clerk. If Google does nothing, allow popups or wait for redirect — and enable Google under Clerk → Configure → SSO.</p>
+      <p class="hint">Email, Google, and Microsoft use Clerk. Google/Microsoft need SSO enabled in Clerk → Configure → SSO. Allow redirects (not just popups).</p>
     </div>
   </main>
-  <script src="/app/clerk-partner.js?v=clerk-9"></script>
+  <script src="/app/clerk-partner.js?v=clerk-10"></script>
   <script>
     (async () => {
       const err = document.getElementById("authErr");

@@ -55,9 +55,11 @@
     if (typeof global.Clerk === "function") return;
 
     const host = frontendHostFromPk(pk);
+    // Clerk instances created Nov 2026+ require clerk-js >= 6.42.3 (blocks v5 with
+    // "outdated version of Clerk, so signing in isn't available").
     const urls = [
-      host ? host + "/npm/@clerk/clerk-js@5/dist/clerk.browser.js" : null,
-      "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js",
+      host ? host + "/npm/@clerk/clerk-js@6/dist/clerk.browser.js" : null,
+      "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@6/dist/clerk.browser.js",
     ].filter(Boolean);
 
     let lastErr = null;
