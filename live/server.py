@@ -666,7 +666,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(400, b'{"error":"name required"}', "application/json")
             partner = self._partner_principal()
             if partner and not partner_can(CONN, partner["id"], tenant_id, "business.write"):
-                return self._send(403, b'{"error":"forbidden — need admin/owner"}', "application/json")
+                return self._send(403, b'{"error":"forbidden - need admin/owner"}', "application/json")
             biz = set_tenant_name(CONN, tenant_id, name)
             status, body, ctype = _json_bytes({"ok": True, "business": biz})
             return self._send(status, body, ctype)
@@ -683,7 +683,7 @@ class Handler(BaseHTTPRequestHandler):
             if not business_id or not email:
                 return self._send(400, b'{"error":"businessId and email required"}', "application/json")
             if not partner_can(CONN, partner["id"], business_id, "invite.create"):
-                return self._send(403, b'{"error":"forbidden — need admin/owner to invite"}', "application/json")
+                return self._send(403, b'{"error":"forbidden - need admin/owner to invite"}', "application/json")
             try:
                 invited = create_invitation(
                     CONN,
@@ -700,7 +700,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/partner/invitations/accept":
             partner = self._partner_principal()
             if not partner:
-                return self._send(401, b'{"error":"unauthorized — sign in first"}', "application/json")
+                return self._send(401, b'{"error":"unauthorized - sign in first"}', "application/json")
             token = str((payload or {}).get("token") or "").strip()
             if not token:
                 return self._send(400, b'{"error":"token required"}', "application/json")
@@ -832,7 +832,7 @@ class Handler(BaseHTTPRequestHandler):
             if businesses and not any(
                 partner_can(CONN, partner["id"], b["business_id"], "settings.mcp") for b in businesses
             ):
-                return self._send(403, b'{"error":"forbidden — need admin/owner for MCP keys"}', "application/json")
+                return self._send(403, b'{"error":"forbidden - need admin/owner for MCP keys"}', "application/json")
             label = "Default"
             if isinstance(payload, dict):
                 label = str(payload.get("label") or "Default")
@@ -859,7 +859,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(400, b'{"error":"object required"}', "application/json")
             business_id = str(payload.get("businessId") or "").strip()
             if not business_id or not partner_can(CONN, partner["id"], business_id, "enroll.manage"):
-                return self._send(403, b'{"error":"forbidden — need operator+ to enroll"}', "application/json")
+                return self._send(403, b'{"error":"forbidden - need operator+ to enroll"}', "application/json")
             ttl = int(payload.get("ttlHours") or 24)
             label = str(payload.get("label") or "Device join")
             minted = mint_enrollment_key(
