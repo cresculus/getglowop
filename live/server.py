@@ -38,6 +38,12 @@ from db import (  # noqa: E402
     set_tenant_name,
     upsert_device,
 )
+from clerk_auth import (  # noqa: E402
+    clerk_configured,
+    partner_from_claims,
+    public_clerk_config,
+    verify_bearer_token,
+)
 from graph_map import map_managed_devices  # noqa: E402
 from mcp_protocol import handle_mcp_rpc  # noqa: E402
 from enrollment import (  # noqa: E402
@@ -223,6 +229,15 @@ class Handler(BaseHTTPRequestHandler):
     def _session_partner(self):
         return partner_from_session(CONN, self._cookie("glowops_partner"))
 
+    def _partner_principal(self):
+        """Clerk JWT (Partner UI) or legacy glowops_partner cookie session."""
+        token = self._bearer()
+        if token and token.count(".") == 2 and clerk_configured():
+            claims = verify_bearer_token(token)
+            if claims:
+                return partner_from_claims(claims)
+        return self._session_partner()
+
     def do_OPTIONS(self) -> None:  # noqa: N802
         self.send_response(204)
         self._cors()
@@ -339,16 +354,26 @@ class Handler(BaseHTTPRequestHandler):
                 {"Content-Disposition": f'attachment; filename="glowops-{tenant}.csv"'},
             )
 
+        if path.rstrip("/") == "/api/config/public":
+            status, body, ctype = _json_bytes(
+                {
+                    "clerk": public_clerk_config(),
+                    "publicUrl": os.environ.get("GLOWOPS_PUBLIC_URL") or "",
+                    "authRequired": os.environ.get("GLOWOPS_REQUIRE_AUTH") == "1",
+                }
+            )
+            return self._send(status, body, ctype)
+
         # Partner session APIs
         if path.rstrip("/") == "/api/partner/me":
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
-            status, body, ctype = _json_bytes({"partner": partner})
+            status, body, ctype = _json_bytes({"partner": partner, "clerk": clerk_configured()})
             return self._send(status, body, ctype)
 
         if path.rstrip("/") == "/api/partner/businesses":
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             status, body, ctype = _json_bytes(
@@ -357,7 +382,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(status, body, ctype)
 
         if path.rstrip("/") == "/api/partner/portfolio":
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             businesses = list_partner_businesses(CONN, partner["id"])
@@ -400,14 +425,14 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(status, body, ctype)
 
         if path.rstrip("/") == "/api/partner/mcp-keys":
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             status, body, ctype = _json_bytes({"keys": list_mcp_keys(CONN, partner["id"])})
             return self._send(status, body, ctype)
 
         if path.rstrip("/") == "/api/partner/enrollment-keys":
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             status, body, ctype = _json_bytes({"keys": list_enrollment_keys(CONN, partner["id"])})
@@ -528,7 +553,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(status, body, ctype)
 
         if path == "/api/partner/businesses":
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             if not isinstance(payload, dict):
@@ -581,7 +606,7 @@ class Handler(BaseHTTPRequestHandler):
             )
 
         if path == "/api/partner/mcp-keys":
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             label = "Default"
@@ -592,7 +617,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(status, body, ctype)
 
         if path.startswith("/api/partner/mcp-keys/") and path.endswith("/revoke"):
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             key_id = path[len("/api/partner/mcp-keys/") : -len("/revoke")]
@@ -603,7 +628,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(status, body, ctype)
 
         if path == "/api/partner/enrollment-keys":
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             if not isinstance(payload, dict):
@@ -624,7 +649,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(status, body, ctype)
 
         if path.startswith("/api/partner/enrollment-keys/") and path.endswith("/revoke"):
-            partner = self._session_partner()
+            partner = self._partner_principal()
             if not partner:
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             key_id = path[len("/api/partner/enrollment-keys/") : -len("/revoke")]
@@ -684,7 +709,7 @@ class Handler(BaseHTTPRequestHandler):
                 source = "agent-join"
             else:
                 # Dashboard paste / lab ingest (partner session or open demo tenant)
-                partner = self._session_partner()
+                partner = self._partner_principal()
                 tenant = str(payload.get("tenantId") or payload.get("businessId") or (qs.get("tenant") or ["demo"])[0])
                 if partner and not partner_may_access(CONN, partner["id"], tenant):
                     return self._send(403, b'{"error":"business not assigned"}', "application/json")

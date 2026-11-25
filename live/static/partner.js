@@ -73,15 +73,76 @@
     if (name === "analyze") renderAnalyze();
   }
 
+  let clerkToken = null;
+  let clerkEnabled = false;
+
   async function api(path, opts = {}) {
+    const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
+    if (clerkToken) headers.Authorization = `Bearer ${clerkToken}`;
     const res = await fetch(path, {
       credentials: "same-origin",
-      headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
       ...opts,
+      headers,
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
     return data;
+  }
+
+  async function initClerk() {
+    try {
+      const cfg = await fetch("/api/config/public").then((r) => r.json());
+      clerkEnabled = !!(cfg.clerk && cfg.clerk.enabled && cfg.clerk.publishableKey);
+      if (!clerkEnabled) return false;
+      const pk = cfg.clerk.publishableKey;
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js";
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+      const Clerk = window.Clerk;
+      if (!Clerk) return false;
+      window.__glowClerk = new Clerk(pk);
+      await window.__glowClerk.load();
+      const mount = $("clerkMount");
+      const box = $("clerkSignIn");
+      const form = $("loginForm");
+      if (box) box.hidden = false;
+      if (form) form.hidden = true;
+      if (window.__glowClerk.session) {
+        clerkToken = await window.__glowClerk.session.getToken();
+        const me = await api("/api/partner/me");
+        showDash(me.partner);
+        return true;
+      }
+      if (mount) {
+        window.__glowClerk.mountSignIn(mount, {
+          afterSignInUrl: "/partner/",
+          afterSignUpUrl: "/partner/",
+        });
+      }
+      window.__glowClerk.addListener(async ({ session }) => {
+        if (!session) {
+          clerkToken = null;
+          showLogin();
+          return;
+        }
+        clerkToken = await session.getToken();
+        try {
+          const me = await api("/api/partner/me");
+          showDash(me.partner);
+        } catch (err) {
+          if ($("loginErr")) $("loginErr").textContent = String(err.message || err);
+        }
+      });
+      return true;
+    } catch (err) {
+      console.warn("Clerk init skipped", err);
+      return false;
+    }
   }
 
   function showDash(me) {
@@ -322,9 +383,12 @@
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       try {
+        if (window.__glowClerk) await window.__glowClerk.signOut({ redirectUrl: "/partner/" });
         await api("/api/partner/logout", { method: "POST", body: "{}" });
       } catch (_) {}
+      clerkToken = null;
       showLogin();
+      if (clerkEnabled) initClerk();
     });
   }
 
@@ -465,7 +529,10 @@
   }
 
   showLogin();
-  api("/api/partner/me")
-    .then((data) => showDash(data.partner))
-    .catch(() => showLogin());
+  initClerk().then((usedClerk) => {
+    if (usedClerk) return;
+    api("/api/partner/me")
+      .then((data) => showDash(data.partner))
+      .catch(() => showLogin());
+  });
 })();

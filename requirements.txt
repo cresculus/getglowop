@@ -1,1 +1,1 @@
-# Stdlib-only GlowOps live server (live/server.py). File present for Nixpacks Python detect.
+PyJWT[crypto]>=2.8.0

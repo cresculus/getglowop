@@ -1,1 +1,1 @@
-﻿# GlowOps live — stdlib only
+PyJWT[crypto]>=2.8.0
