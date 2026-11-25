@@ -409,9 +409,56 @@
   flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-family: var(--mono); font-size: 0.72rem;
 }
-.fresh-key.enroll-secret { align-items: flex-start; }
+.fresh-key.enroll-secret { align-items: flex-start; flex-wrap: wrap; }
 .fresh-key.enroll-secret p { margin: 0.15rem 0; }
-.fresh-key.enroll-secret .mono { font-size: 0.75rem; }
+.enroll-secret-body {
+  display: grid;
+  gap: 0.55rem;
+  width: 100%;
+  min-width: 0;
+}
+.secret-row {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+.secret-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.secret-row code {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--bg);
+}
+.secret-copy {
+  min-height: 32px;
+  padding: 0 0.7rem;
+  flex: 0 0 auto;
+}
+@media (max-width: 720px) {
+  .secret-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "label copy"
+      "code code";
+  }
+  .secret-label { grid-area: label; }
+  .secret-row code { grid-area: code; }
+  .secret-copy { grid-area: copy; }
+}
 
 .pview {
   height: 100%;

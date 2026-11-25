@@ -673,18 +673,34 @@
     });
   }
 
+  async function copyText(value, btn) {
+    const text = (value || "").trim();
+    if (!text || !btn) return;
+    const prev = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.textContent = "Copied";
+    } catch (_) {
+      btn.textContent = "Copy failed";
+    }
+    setTimeout(() => {
+      btn.textContent = prev;
+    }, 1400);
+  }
+
   const copyEnroll = $("copyEnroll");
   if (copyEnroll) {
     copyEnroll.addEventListener("click", async () => {
       const text = `Join Key: ${$("freshJoinKey").textContent}\nJoin Password: ${$("freshJoinPass").textContent}`;
-      try {
-        await navigator.clipboard.writeText(text);
-        copyEnroll.textContent = "Copied";
-      } catch (_) {
-        copyEnroll.textContent = "Copy";
-      }
+      await copyText(text, copyEnroll);
     });
   }
+  document.querySelectorAll(".secret-copy[data-copy-target]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-copy-target");
+      await copyText($(id)?.textContent || "", btn);
+    });
+  });
 
   const enrollBody = $("enrollBody");
   if (enrollBody) {

@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-9" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-9" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-9" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-10" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-10" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-10" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -104,13 +104,21 @@
           </div>
           <p class="view-lede">Mint a join key for a business, then use it in the agent or a silent fleet push.</p>
           <div id="freshEnroll" class="fresh-key enroll-secret" hidden>
-            <div>
+            <div class="enroll-secret-body">
               <p><strong>Copy into the GlowOps Agent menu</strong> — password shown once. Expires automatically; join-only.</p>
-              <p class="mono">Key: <code id="freshJoinKey"></code></p>
-              <p class="mono">Password: <code id="freshJoinPass"></code></p>
+              <div class="secret-row">
+                <span class="secret-label">Key</span>
+                <code id="freshJoinKey"></code>
+                <button type="button" class="btn ghost secret-copy" id="copyJoinKey" data-copy-target="freshJoinKey">Copy</button>
+              </div>
+              <div class="secret-row">
+                <span class="secret-label">Password</span>
+                <code id="freshJoinPass"></code>
+                <button type="button" class="btn ghost secret-copy" id="copyJoinPass" data-copy-target="freshJoinPass">Copy</button>
+              </div>
               <p class="hint" id="freshJoinExp"></p>
+              <button type="button" class="btn ghost" id="copyEnroll">Copy both</button>
             </div>
-            <button type="button" class="btn ghost" id="copyEnroll">Copy both</button>
           </div>
           <div class="table-fit">
             <table>
@@ -260,7 +268,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=lux-9"></script>
-  <script src="/app/partner.js?v=lux-9"></script>
+  <script src="/app/clerk-partner.js?v=lux-10"></script>
+  <script src="/app/partner.js?v=lux-10"></script>
 </body>
 </html>
