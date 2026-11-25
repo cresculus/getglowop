@@ -123,7 +123,7 @@
         <h3>${esc(b.business_name || b.business_id)}</h3>
         <div class="meta-line">${esc(b.business_id)}</div>
         <div class="kpis" id="an-${esc(b.business_id)}"><span>Loading…</span></div>
-        <a class="btn lime" href="/app/?tenant=${encodeURIComponent(b.business_id)}">Open report</a>
+        <a class="btn lime" href="/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}">Open report</a>
       </article>`
       )
       .join("");
@@ -169,9 +169,9 @@
         (b) =>
           `<li><span><b>${esc(b.business_name || b.business_id)}</b><div class="hint">${esc(
             b.business_id
-          )}</div></span><a class="btn lime" href="/app/?tenant=${encodeURIComponent(
+          )}</div></span><a class="btn lime" href="/app/?from=partner&tenant=${encodeURIComponent(
             b.business_id
-          )}">Analyze</a></li>`
+          )}">Open report</a></li>`
       )
       .join("");
     const active = (keys.keys || []).filter((k) => !k.revoked_at);
