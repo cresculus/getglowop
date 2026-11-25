@@ -71,6 +71,10 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
 }
 .view-tab[aria-selected="true"] { background: var(--lime); color: var(--ink); }
 .rail { margin-left: auto; display: flex; align-items: center; gap: 0.35rem; }
+.home-back {
+  margin-left: 0.35rem;
+  white-space: nowrap;
+}
 .biz {
   display: flex; align-items: center; gap: 0.35rem;
   border: 2px solid var(--line); background: var(--surface); padding: 0 0.4rem; min-height: 32px;

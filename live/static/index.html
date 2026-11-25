@@ -13,7 +13,8 @@
 </head>
 <body class="shell">
   <header class="topbar">
-    <a class="wordmark" href="/"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
+    <a class="wordmark" id="homeWordmark" href="/partner/" title="Partner home"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
+    <a class="btn lime home-back" id="homeBack" href="/partner/">← Partner home</a>
     <div class="views" role="tablist" aria-label="Views">
       <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
       <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
@@ -25,8 +26,7 @@
       <label class="biz"><span>Biz</span><input id="tenant" value="demo" spellcheck="false" /></label>
       <button type="button" class="btn ghost" id="refresh" title="Reload">↻</button>
       <a class="btn ghost" id="exportCsv" href="/api/export.csv?tenant=demo">CSV</a>
-      <a class="btn ghost" href="/partner/">Partner</a>
-      <a class="btn lime" href="/download/GlowOpsAgent.exe">Agent</a>
+      <a class="btn ghost" href="/download/GlowOpsAgent.exe">Agent</a>
     </div>
   </header>
 

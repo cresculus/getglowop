@@ -10,13 +10,13 @@
 
   function syncDashLinks() {
     const t = primaryTenant();
-    const q = `tenant=${encodeURIComponent(t)}`;
+    const q = `from=partner&tenant=${encodeURIComponent(t)}`;
     const fleet = $("navFleet");
     const ingest = $("navIngest");
     const csv = $("navCsv");
     if (fleet) fleet.href = `/app/?${q}`;
     if (ingest) ingest.href = `/app/?${q}&view=ingest`;
-    if (csv) csv.href = `/api/export.csv?${q}`;
+    if (csv) csv.href = `/api/export.csv?tenant=${encodeURIComponent(t)}`;
     document.querySelectorAll(".side-call[data-call]").forEach((a) => {
       const call = a.getAttribute("data-call");
       a.href = `/app/?${q}&call=${encodeURIComponent(call)}`;
@@ -88,6 +88,8 @@
     loginView.hidden = true;
     dashView.hidden = false;
     $("logoutBtn").hidden = false;
+    const homeBtn = $("homeBtn");
+    if (homeBtn) homeBtn.hidden = false;
     $("partnerHello").hidden = false;
     $("partnerHello").textContent = me.email || me.name || "";
     renderConfig();
@@ -103,6 +105,8 @@
     loginView.hidden = false;
     dashView.hidden = true;
     $("logoutBtn").hidden = true;
+    const homeBtn = $("homeBtn");
+    if (homeBtn) homeBtn.hidden = true;
     $("partnerHello").hidden = true;
   }
 
