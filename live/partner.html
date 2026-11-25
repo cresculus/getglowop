@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css?v=clerk-7" />
-  <link rel="stylesheet" href="/app/partner.css?v=clerk-7" />
+  <link rel="stylesheet" href="/app/styles.css?v=clerk-8" />
+  <link rel="stylesheet" href="/app/partner.css?v=clerk-8" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -33,19 +33,9 @@
     <section id="loginView" class="login-fit">
       <div class="login-card login-card-auth">
         <p class="pane-label"><span class="live"></span> Partner console</p>
-        <h1>Sign in</h1>
-        <p class="lede" id="dashGateLede">Checking sign-in…</p>
-        <div class="auth-tabs" id="authTabs" hidden role="tablist" aria-label="Auth mode">
-          <button type="button" class="auth-tab" id="tabSignIn" data-auth-mode="sign-in" aria-selected="true">Sign in</button>
-          <button type="button" class="auth-tab" id="tabSignUp" data-auth-mode="sign-up" aria-selected="false">Sign up</button>
-        </div>
+        <p class="hint" id="dashGateLede" hidden>Checking sign-in…</p>
         <div id="clerkMount" class="clerk-mount" hidden></div>
         <p class="hint" id="loginErr"></p>
-        <p class="hint auth-switch" id="dashGateLinks" hidden>
-          <a href="/partner/sign-in">Full sign-in page</a>
-          ·
-          <a href="/partner/sign-up">Full sign-up page</a>
-        </p>
         <form id="loginForm" class="login-form" hidden>
           <p class="hint" id="legacyLoginLabel">Lab password login (Clerk not configured on this host)</p>
           <label>Email<input id="email" type="email" required autocomplete="username" placeholder="you@company.com" /></label>
@@ -200,7 +190,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=clerk-7"></script>
-  <script src="/app/partner.js?v=clerk-7"></script>
+  <script src="/app/clerk-partner.js?v=clerk-8"></script>
+  <script src="/app/partner.js?v=clerk-8"></script>
 </body>
 </html>

@@ -75,7 +75,6 @@
 
   let clerkToken = null;
   let clerkEnabled = false;
-  let authMode = "sign-in";
 
   async function api(path, opts = {}) {
     const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
@@ -90,36 +89,20 @@
     return data;
   }
 
-  function setAuthTab(mode) {
-    authMode = mode === "sign-up" ? "sign-up" : "sign-in";
-    const title = document.querySelector("#loginView h1");
-    if (title) title.textContent = authMode === "sign-up" ? "Sign up" : "Sign in";
-    const lede = $("dashGateLede");
-    if (lede) {
-      lede.textContent =
-        authMode === "sign-up"
-          ? "Create a GlowOps partner account."
-          : "Sign in to open your partner dashboard.";
-    }
-    document.querySelectorAll("[data-auth-mode]").forEach((btn) => {
-      btn.setAttribute("aria-selected", btn.getAttribute("data-auth-mode") === authMode ? "true" : "false");
-    });
+  function mountClerkSignIn() {
     const mount = $("clerkMount");
     const clerk = window.__glowClerk;
     if (!mount || !clerk || !clerkEnabled) return;
     mount.innerHTML = "";
-    if (authMode === "sign-up") {
-      GlowClerkPartner.mountSignUp(clerk, mount);
-    } else {
-      GlowClerkPartner.mountSignIn(clerk, mount);
-    }
+    mount.hidden = false;
+    GlowClerkPartner.mountSignIn(clerk, mount);
   }
 
   async function afterClerkSession(session) {
     if (!session) {
       clerkToken = null;
       showLogin();
-      if (clerkEnabled) setAuthTab(authMode);
+      if (clerkEnabled) mountClerkSignIn();
       return;
     }
     clerkToken = await session.getToken();
@@ -142,12 +125,11 @@
       const c = cfg.clerk || {};
       clerkEnabled = !!(c.enabled && c.publishableKey);
       const form = $("loginForm");
-      const tabs = $("authTabs");
       const mount = $("clerkMount");
-      const links = $("dashGateLinks");
       const lede = $("dashGateLede");
       if (!clerkEnabled) {
         if (lede) {
+          lede.hidden = false;
           lede.textContent = c.secretSet
             ? "Clerk publishable key missing on Railway (CLERK_PUBLISHABLE_KEY)."
             : "Clerk keys not set on Railway (need CLERK_PUBLISHABLE_KEY + CLERK_SECRET_KEY).";
@@ -155,17 +137,12 @@
         return false;
       }
       if (form) form.hidden = true;
-      if (tabs) tabs.hidden = false;
+      if (lede) lede.hidden = true;
       if (mount) mount.hidden = false;
-      if (links) links.hidden = false;
       if (!c.verifyReady || !c.secretSet) {
-        if (lede) {
-          lede.textContent =
-            "Clerk UI is on, but CLERK_SECRET_KEY is missing on the getglowop Railway service — sign-in will fail until you add it and redeploy.";
-        }
         if ($("loginErr")) {
           $("loginErr").textContent =
-            "Fix: Railway → getglowop → Variables → CLERK_SECRET_KEY = sk_test_… → Deploy. Check /api/health clerkSecretSet:true";
+            "CLERK_SECRET_KEY missing on Railway — check /api/health clerkSecretSet.";
         }
       }
       const clerk = await GlowClerkPartner.createClerk(c.publishableKey);
@@ -173,7 +150,7 @@
         await afterClerkSession(clerk.session);
         return true;
       }
-      setAuthTab("sign-in");
+      mountClerkSignIn();
       clerk.addListener(async ({ session }) => {
         await afterClerkSession(session);
       });
@@ -217,25 +194,20 @@
     if (clerkEnabled) {
       const form = $("loginForm");
       if (form) form.hidden = true;
-      const tabs = $("authTabs");
-      if (tabs) tabs.hidden = false;
       const mount = $("clerkMount");
       if (mount) mount.hidden = false;
-      const links = $("dashGateLinks");
-      if (links) links.hidden = false;
+      const lede = $("dashGateLede");
+      if (lede) lede.hidden = true;
     } else {
       const form = $("loginForm");
       if (form) form.hidden = false;
-      const tabs = $("authTabs");
-      if (tabs) tabs.hidden = true;
       const mount = $("clerkMount");
       if (mount) mount.hidden = true;
-      const links = $("dashGateLinks");
-      if (links) links.hidden = true;
       const lede = $("dashGateLede");
-      if (lede) lede.textContent = "Lab password login (Clerk keys not set on Railway).";
-      const title = document.querySelector("#loginView h1");
-      if (title) title.textContent = "Sign in";
+      if (lede) {
+        lede.hidden = false;
+        lede.textContent = "Lab password login (Clerk keys not set on Railway).";
+      }
     }
   }
 
@@ -442,10 +414,6 @@
     });
   }
 
-  document.querySelectorAll("[data-auth-mode]").forEach((btn) => {
-    btn.addEventListener("click", () => setAuthTab(btn.getAttribute("data-auth-mode")));
-  });
-
   const logoutBtn = $("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
@@ -458,7 +426,7 @@
       } catch (_) {}
       clerkToken = null;
       showLogin();
-      if (clerkEnabled) setAuthTab("sign-in");
+      if (clerkEnabled) mountClerkSignIn();
     });
   }
 
