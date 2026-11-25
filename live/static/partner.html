@@ -118,7 +118,8 @@
           <div class="ledger-head ledger-head-left">
             <h1>Enroll devices</h1>
           </div>
-          <p class="view-lede">Mint a join key + password for an existing business, put them in the GlowOps Agent on the PC, and the device lands in that business. Add new businesses under Businesses first.</p>
+          <p class="view-lede">Mint a join key + password for an existing business. Paste into the GlowOps Agent on one PC, or push silently with Intune / RMM / SCCM. Add businesses under Businesses first.</p>
+          <p class="hint">Download <a href="/download/GlowOpsAgent.exe">GlowOpsAgent.exe</a> · <a href="/download/Open-GlowOpsAgent.cmd">Open-GlowOpsAgent.cmd</a> (Unblock) · <a href="/download/GlowOpsAgent-Win32.zip">Win32 / Intune zip</a>. Fleet: mint 7d/30d TTL → <span class="mono">Install.ps1</span> as System (or wrap with IntuneWinAppUtil).</p>
           <div id="freshEnroll" class="fresh-key enroll-secret" hidden>
             <div>
               <p><strong>Copy into the GlowOps Agent menu</strong> — password shown once. Expires automatically; join-only.</p>

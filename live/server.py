@@ -172,13 +172,18 @@ def _agent_zip() -> bytes:
         py = AGENT_DIR / "agent.py"
         if py.is_file():
             zf.write(py, arcname="glowops-agent/agent.py")
+        cmd = AGENT_DIR / "Open-GlowOpsAgent.cmd"
+        if cmd.is_file():
+            zf.write(cmd, arcname="glowops-agent/Open-GlowOpsAgent.cmd")
         zf.writestr(
             "glowops-agent/README.txt",
             "GlowOps Agent (Windows)\n"
-            "1. Edit glowops.agent.json (url + tenantId)\n"
-            "2. Double-click GlowOpsAgent.exe\n"
+            "1. Prefer Open-GlowOpsAgent.cmd (clears download block / SmartScreen MOTW)\n"
+            "2. Or double-click GlowOpsAgent.exe — paste join key + password from Partner → Enroll\n"
+            "3. If Windows says it protected your PC: More info → Run anyway, or Unblock in Properties\n"
             f"Direct EXE: /download/{AGENT_EXE_NAME}\n"
-            "Partner MCP: /partner/  (mint gow_mcp_ keys)\n",
+            "Fleet (Intune/RMM/SCCM): silent Install.ps1 in the Win32 package\n"
+            "Partner console: /partner/\n",
         )
     return buf.getvalue()
 
@@ -603,6 +608,23 @@ class Handler(BaseHTTPRequestHandler):
                     {"Content-Disposition": f'attachment; filename="{AGENT_EXE_NAME}"'},
                 )
             return self._redirect(AGENT_RELEASE_URL)
+
+        if path.rstrip("/") == "/download/Open-GlowOpsAgent.cmd":
+            cmd = AGENT_DIR / "Open-GlowOpsAgent.cmd"
+            if cmd.is_file():
+                return self._send(
+                    200,
+                    cmd.read_bytes(),
+                    "application/x-bat",
+                    {"Content-Disposition": 'attachment; filename="Open-GlowOpsAgent.cmd"'},
+                )
+            return self._send(404, b"Open-GlowOpsAgent.cmd missing", "text/plain; charset=utf-8")
+
+        if path.rstrip("/") in ("/download/GlowOpsAgent-Win32.zip", "/download/agent-win32.zip"):
+            # Fleet pack on GitHub Releases (Install.ps1 + EXE for Intune/RMM).
+            return self._redirect(
+                "https://github.com/cresculus/getglowop/releases/latest/download/GlowOpsAgent-Win32.zip"
+            )
 
         if path.rstrip("/") == "/download/agent.zip":
             if _agent_exe_path() is None and not (AGENT_DIR / "agent.py").is_file():

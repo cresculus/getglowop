@@ -1,9 +1,9 @@
 FROM python:3.11-slim
 WORKDIR /app
 COPY . .
-RUN pip install --no-cache-dir -r requirements.txt
 ENV PORT=3000
-ENV GLOWOPS_DATA=/tmp/glowops-data
+# Mount a Railway volume here so join keys / fleet SQLite survive restarts.
+ENV GLOWOPS_DATA=/data
 ENV PYTHONUNBUFFERED=1
 EXPOSE 3000
 CMD ["python", "live/server.py"]
