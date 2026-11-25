@@ -33,47 +33,59 @@
     return res.json();
   }
 
-  function loadScriptTag(src, pk) {
+  function loadScriptTag(src, attrs) {
     return new Promise((resolve, reject) => {
-      document.querySelectorAll("script[data-glow-clerk]").forEach((el) => el.remove());
       const s = document.createElement("script");
       s.async = true;
       s.crossOrigin = "anonymous";
       s.src = src;
       s.dataset.glowClerk = "1";
-      s.setAttribute("data-clerk-publishable-key", pk);
+      if (attrs) {
+        Object.keys(attrs).forEach((k) => s.setAttribute(k, attrs[k]));
+      }
       s.onload = () => resolve(s);
       s.onerror = () => reject(new Error("script failed: " + src));
       document.head.appendChild(s);
     });
   }
 
-  async function loadClerkScript(pk) {
-    if (global.Clerk && typeof global.Clerk.load === "function" && typeof global.Clerk.mountSignIn === "function") {
-      return;
-    }
-    if (typeof global.Clerk === "function") return;
-
-    const host = frontendHostFromPk(pk);
-    // Clerk instances created Nov 2026+ require clerk-js >= 6.42.3 (blocks v5 with
-    // "outdated version of Clerk, so signing in isn't available").
-    const urls = [
-      host ? host + "/npm/@clerk/clerk-js@6/dist/clerk.browser.js" : null,
-      "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@6/dist/clerk.browser.js",
-    ].filter(Boolean);
-
+  async function loadFirstOk(urls, attrs) {
     let lastErr = null;
     for (const src of urls) {
+      if (!src) continue;
       try {
-        await loadScriptTag(src, pk);
-        await new Promise((r) => setTimeout(r, 0));
-        if (global.Clerk) return;
-        lastErr = new Error("Clerk global missing after " + src);
+        await loadScriptTag(src, attrs);
+        return src;
       } catch (err) {
         lastErr = err;
       }
     }
-    throw lastErr || new Error("Clerk script failed to load");
+    throw lastErr || new Error("script failed to load");
+  }
+
+  async function loadClerkScript(pk) {
+    if (global.__glowClerkReady) return;
+
+    document.querySelectorAll("script[data-glow-clerk]").forEach((el) => el.remove());
+
+    const host = frontendHostFromPk(pk);
+    // clerk-js@6 needs @clerk/ui@1 for mountSignIn; min clerk-js 6.42.3 for new Clerk apps.
+    await loadFirstOk(
+      [
+        host ? host + "/npm/@clerk/ui@1/dist/ui.browser.js" : null,
+        "https://cdn.jsdelivr.net/npm/@clerk/ui@1/dist/ui.browser.js",
+      ],
+      null
+    );
+    await loadFirstOk(
+      [
+        host ? host + "/npm/@clerk/clerk-js@6/dist/clerk.browser.js" : null,
+        "https://cdn.jsdelivr.net/npm/@clerk/clerk-js@6/dist/clerk.browser.js",
+      ],
+      { "data-clerk-publishable-key": pk }
+    );
+    await new Promise((r) => setTimeout(r, 0));
+    if (!global.Clerk) throw new Error("Clerk global missing after script load");
   }
 
   async function createClerk(publishableKey) {
@@ -85,15 +97,22 @@
     const C = global.Clerk;
     if (!C) throw new Error("Clerk global missing after script load");
 
+    const loadOpts = {};
+    if (global.__internal_ClerkUICtor) {
+      loadOpts.ui = { ClerkUI: global.__internal_ClerkUICtor };
+    }
+
     if (typeof C.load === "function" && typeof C.mountSignIn === "function") {
-      await C.load();
+      await C.load(loadOpts);
       global.__glowClerk = C;
+      global.__glowClerkReady = true;
       return C;
     }
     if (typeof C === "function") {
       const clerk = new C(pk);
-      await clerk.load();
+      await clerk.load(loadOpts);
       global.__glowClerk = clerk;
+      global.__glowClerkReady = true;
       return clerk;
     }
     throw new Error("Unexpected Clerk global shape: " + typeof C);
