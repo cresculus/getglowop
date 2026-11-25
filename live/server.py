@@ -849,17 +849,19 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(401, b'{"error":"unauthorized"}', "application/json")
             if not isinstance(payload, dict):
                 return self._send(400, b'{"error":"object required"}', "application/json")
+            from partners import new_business_id
+
             name = str(payload.get("name") or payload.get("businessName") or "").strip()
             raw_id = str(payload.get("businessId") or payload.get("id") or "").strip().lower()
-            if not name and not raw_id:
-                return self._send(400, b'{"error":"name required"}', "application/json")
             if not name:
-                name = raw_id
-            slug_src = raw_id or name
-            business_id = re.sub(r"[^a-z0-9]+", "-", slug_src.lower()).strip("-")[:48]
-            if not business_id:
-                return self._send(400, b'{"error":"could not build business id"}', "application/json")
-            if business_id in ("*", "all"):
+                return self._send(400, b'{"error":"name required"}', "application/json")
+            # Opaque biz_ ids by default. Optional slug only if it looks intentional (not Clerk-derived).
+            if raw_id and not raw_id.startswith("clerk") and "@" not in raw_id and raw_id not in ("*", "all", "demo"):
+                slug = re.sub(r"[^a-z0-9]+", "-", raw_id).strip("-")[:40]
+                business_id = slug if slug.startswith("biz_") else f"biz_{slug}" if slug else new_business_id()
+            else:
+                business_id = new_business_id()
+            if business_id in ("*", "all", "demo"):
                 return self._send(400, b'{"error":"reserved business id"}', "application/json")
             set_tenant_name(CONN, business_id, name)
             bind_business(CONN, partner["id"], business_id, name)

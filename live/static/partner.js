@@ -180,7 +180,7 @@
       const primary = meRoles[0];
       if (primary) {
         chip.hidden = false;
-        chip.textContent = `${primary.role} · ${primary.businessName || primary.businessId}`;
+        chip.textContent = `${primary.role} · ${primary.businessName || "Business"}`;
       } else {
         chip.hidden = true;
       }
@@ -278,7 +278,7 @@
             const href = `/app/?from=partner&tenant=${encodeURIComponent(b.businessId)}&view=fleet`;
             return `<li>
               <a class="home-biz-row" href="${href}">
-                <strong>${esc(b.businessName || b.businessId)}</strong>
+                <strong>${esc(b.businessName || "Business")}</strong>
                 <span>${esc(b.deviceCount)} devices · GLOW ${esc(b.avgGlowScore ?? "—")} · ghosts ${esc(b.ghostCount)}</span>
               </a>
             </li>`;
@@ -321,7 +321,7 @@
       if (chip && data.myRole) {
         const biz = businessesCache.find((b) => b.business_id === businessId);
         chip.hidden = false;
-        chip.textContent = `${data.myRole} · ${biz?.business_name || businessId}`;
+        chip.textContent = `${data.myRole} · ${biz?.business_name || "Business"}`;
       }
       membersBody.innerHTML = (data.members || [])
         .map((m) => {
@@ -400,8 +400,7 @@
       .map((b) => {
         const href = `/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet`;
         return `<a class="analyze-card analyze-card-link" href="${href}" data-biz="${esc(b.business_id)}">
-        <h3>${esc(b.business_name || b.business_id)}</h3>
-        <div class="meta-line">${esc(b.business_id)}</div>
+        <h3>${esc(b.business_name || "Business")}</h3>
         <div class="kpis" id="an-${esc(b.business_id)}"><span>Loading…</span></div>
         <span class="btn lime open-report-label">Open report</span>
       </a>`;
@@ -449,9 +448,7 @@
         const href = `/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet`;
         return `<li class="biz-tile">
           <a class="biz-tile-link" href="${href}" title="Open report">
-            <span><b>${esc(b.business_name || b.business_id)}</b><div class="hint">${esc(
-              b.business_id
-            )}</div></span>
+            <span><b>${esc(b.business_name || "Business")}</b></span>
             <span class="btn lime open-report-label">Open report</span>
           </a>
         </li>`;
@@ -479,9 +476,12 @@
     $("enrollBody").innerHTML = (enroll.keys || [])
       .map((k) => {
         const status = k.status || "active";
+        const bizName =
+          businessesCache.find((b) => b.business_id === k.business_id)?.business_name ||
+          "Business";
         return `<tr>
           <td>${esc(k.label)}</td>
-          <td>${esc(k.business_id)}</td>
+          <td>${esc(bizName)}</td>
           <td><code>${esc(k.key_code)}</code></td>
           <td>${esc(status)}</td>
           <td>${esc((k.expires_at || "").slice(0, 16).replace("T", " "))}</td>
@@ -562,7 +562,6 @@
       e.preventDefault();
       const st = $("addBizStatus");
       const name = ($("newBizName")?.value || "").trim();
-      const id = ($("newBizId")?.value || "").trim();
       if (!name) {
         if (st) st.textContent = "Name required";
         return;
@@ -571,11 +570,10 @@
       try {
         const created = await api("/api/partner/businesses", {
           method: "POST",
-          body: JSON.stringify({ name, businessId: id || undefined }),
+          body: JSON.stringify({ name }),
         });
         if (st) st.textContent = `Added ${created.business?.business_name || name}`;
         if ($("newBizName")) $("newBizName").value = "";
-        if ($("newBizId")) $("newBizId").value = "";
         await refresh();
         renderHome();
       } catch (err) {

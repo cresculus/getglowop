@@ -315,8 +315,52 @@ def ensure_clerk_partner(
     return partner
 
 
+def new_business_id() -> str:
+    """Opaque business/tenant id — never derived from Clerk user id or email."""
+    return "biz_" + secrets.token_hex(8)
+
+
+def is_legacy_clerk_business_id(business_id: str) -> bool:
+    """Home fleets mistakenly named from Clerk email / user id (e.g. clerk-user-…)."""
+    bid = (business_id or "").lower()
+    if not bid or bid == "demo" or bid.startswith("biz_"):
+        return False
+    return bid.startswith("clerk-user") or bid.startswith("clerk_") or "@clerk" in bid
+
+
+def rename_business_id(conn: sqlite3.Connection, old_id: str, new_id: str) -> str:
+    """Rewrite a tenant id across inventory + partner + RBAC + enrollment tables."""
+    if not old_id or not new_id or old_id == new_id:
+        return old_id
+    ensure_partner_schema(conn)
+    # tenants
+    row = conn.execute("SELECT name, created_at FROM tenants WHERE id = ?", (old_id,)).fetchone()
+    if row:
+        conn.execute(
+            "INSERT OR IGNORE INTO tenants (id, name, created_at) VALUES (?, ?, ?)",
+            (new_id, row["name"], row["created_at"]),
+        )
+        conn.execute("UPDATE tenants SET name = ? WHERE id = ?", (row["name"], new_id))
+        conn.execute("DELETE FROM tenants WHERE id = ?", (old_id,))
+    for table, col in (
+        ("devices", "tenant_id"),
+        ("ingest_events", "tenant_id"),
+        ("agent_heartbeats", "tenant_id"),
+        ("partner_businesses", "business_id"),
+        ("enrollment_keys", "business_id"),
+        ("business_memberships", "business_id"),
+        ("business_invitations", "business_id"),
+    ):
+        try:
+            conn.execute(f"UPDATE {table} SET {col} = ? WHERE {col} = ?", (new_id, old_id))
+        except sqlite3.OperationalError:
+            pass
+    conn.commit()
+    return new_id
+
+
 def ensure_partner_home_business(conn: sqlite3.Connection, partner: dict[str, Any]) -> dict[str, Any]:
-    """Ensure partner owns a non-demo business with zero seeded devices."""
+    """Ensure partner owns a non-demo business with an opaque biz_ id (not a Clerk user slug)."""
     from db import ensure_tenant
 
     partner_id = partner["id"]
@@ -324,13 +368,18 @@ def ensure_partner_home_business(conn: sqlite3.Connection, partner: dict[str, An
         b for b in list_partner_businesses(conn, partner_id) if b.get("business_id") != "demo"
     ]
     if businesses:
-        return businesses[0]
+        home = businesses[0]
+        old_id = home.get("business_id") or ""
+        if is_legacy_clerk_business_id(old_id):
+            new_id = new_business_id()
+            rename_business_id(conn, old_id, new_id)
+            return {
+                "business_id": new_id,
+                "business_name": home.get("business_name") or "My business",
+            }
+        return home
 
-    email = (partner.get("email") or partner_id).lower()
-    local = email.split("@")[0]
-    slug = re.sub(r"[^a-z0-9]+", "-", local).strip("-")[:20] or "biz"
-    suffix = re.sub(r"[^a-z0-9]+", "", partner_id.lower())[-8:] or secrets.token_hex(4)
-    business_id = f"{slug}-{suffix}"[:48]
+    business_id = new_business_id()
     name = "My business"
     ensure_tenant(conn, business_id, name)
     bind_business(conn, partner_id, business_id, name)
