@@ -267,6 +267,10 @@ class Handler(BaseHTTPRequestHandler):
                     "fleetAuth": "none-demo",
                     "partnerAuth": "clerk+session+mcp-key" if clerk_configured() else "session+mcp-key",
                     "clerk": clerk_configured(),
+                    "clerkPublishableSet": bool(
+                        (os.environ.get("CLERK_PUBLISHABLE_KEY") or os.environ.get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY") or "").strip()
+                    ),
+                    "clerkSecretSet": bool((os.environ.get("CLERK_SECRET_KEY") or "").strip()),
                 }
             )
             return self._send(status, body, ctype)

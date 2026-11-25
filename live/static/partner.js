@@ -75,6 +75,7 @@
 
   let clerkToken = null;
   let clerkEnabled = false;
+  let authMode = "sign-in";
 
   async function api(path, opts = {}) {
     const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
@@ -89,45 +90,75 @@
     return data;
   }
 
-  function goSignIn() {
-    location.replace((window.GlowClerkPartner && GlowClerkPartner.SIGN_IN) || "/partner/sign-in");
+  function setAuthTab(mode) {
+    authMode = mode === "sign-up" ? "sign-up" : "sign-in";
+    const title = document.querySelector("#loginView h1");
+    if (title) title.textContent = authMode === "sign-up" ? "Sign up" : "Sign in";
+    const lede = $("dashGateLede");
+    if (lede) {
+      lede.textContent =
+        authMode === "sign-up"
+          ? "Create a GlowOps partner account."
+          : "Sign in to open your partner dashboard.";
+    }
+    document.querySelectorAll("[data-auth-mode]").forEach((btn) => {
+      btn.setAttribute("aria-selected", btn.getAttribute("data-auth-mode") === authMode ? "true" : "false");
+    });
+    const mount = $("clerkMount");
+    const clerk = window.__glowClerk;
+    if (!mount || !clerk || !clerkEnabled) return;
+    mount.innerHTML = "";
+    if (authMode === "sign-up") {
+      GlowClerkPartner.mountSignUp(clerk, mount);
+    } else {
+      GlowClerkPartner.mountSignIn(clerk, mount);
+    }
+  }
+
+  async function afterClerkSession(session) {
+    if (!session) {
+      clerkToken = null;
+      showLogin();
+      if (clerkEnabled) setAuthTab(authMode);
+      return;
+    }
+    clerkToken = await session.getToken();
+    try {
+      const me = await api("/api/partner/me");
+      showDash(me.partner);
+    } catch (err) {
+      if ($("loginErr")) {
+        $("loginErr").textContent =
+          String(err.message || err) +
+          " — if this persists, confirm CLERK_SECRET_KEY is set on Railway and redeploy.";
+      }
+    }
   }
 
   async function initClerk() {
     try {
       if (!window.GlowClerkPartner) return false;
       const cfg = await GlowClerkPartner.fetchPublicConfig();
-      clerkEnabled = !!(cfg.clerk && cfg.clerk.enabled && cfg.clerk.publishableKey);
+      const c = cfg.clerk || {};
+      clerkEnabled = !!(c.enabled && c.publishableKey);
       if (!clerkEnabled) return false;
-      const clerk = await GlowClerkPartner.createClerk(cfg.clerk.publishableKey);
+      const clerk = await GlowClerkPartner.createClerk(c.publishableKey);
       const form = $("loginForm");
       if (form) form.hidden = true;
+      const tabs = $("authTabs");
+      if (tabs) tabs.hidden = false;
+      const mount = $("clerkMount");
+      if (mount) mount.hidden = false;
       const links = $("dashGateLinks");
       if (links) links.hidden = false;
-      const lede = $("dashGateLede");
       if (clerk.session) {
-        clerkToken = await GlowClerkPartner.sessionToken(clerk);
-        const me = await api("/api/partner/me");
-        showDash(me.partner);
+        await afterClerkSession(clerk.session);
         return true;
       }
-      if (lede) lede.textContent = "Sign in to open your partner dashboard.";
+      setAuthTab("sign-in");
       clerk.addListener(async ({ session }) => {
-        if (!session) {
-          clerkToken = null;
-          goSignIn();
-          return;
-        }
-        clerkToken = await session.getToken();
-        try {
-          const me = await api("/api/partner/me");
-          showDash(me.partner);
-        } catch (err) {
-          if ($("loginErr")) $("loginErr").textContent = String(err.message || err);
-        }
+        await afterClerkSession(session);
       });
-      // Unauthenticated dashboard → dedicated sign-in page
-      goSignIn();
       return true;
     } catch (err) {
       console.warn("Clerk init skipped", err);
@@ -167,17 +198,25 @@
     if (clerkEnabled) {
       const form = $("loginForm");
       if (form) form.hidden = true;
+      const tabs = $("authTabs");
+      if (tabs) tabs.hidden = false;
+      const mount = $("clerkMount");
+      if (mount) mount.hidden = false;
       const links = $("dashGateLinks");
       if (links) links.hidden = false;
-      const lede = $("dashGateLede");
-      if (lede) lede.textContent = "Sign in to open your partner dashboard.";
     } else {
       const form = $("loginForm");
       if (form) form.hidden = false;
+      const tabs = $("authTabs");
+      if (tabs) tabs.hidden = true;
+      const mount = $("clerkMount");
+      if (mount) mount.hidden = true;
       const links = $("dashGateLinks");
       if (links) links.hidden = true;
       const lede = $("dashGateLede");
-      if (lede) lede.textContent = "Lab password login (Clerk keys not set).";
+      if (lede) lede.textContent = "Lab password login (Clerk keys not set on Railway).";
+      const title = document.querySelector("#loginView h1");
+      if (title) title.textContent = "Sign in";
     }
   }
 
@@ -384,19 +423,23 @@
     });
   }
 
+  document.querySelectorAll("[data-auth-mode]").forEach((btn) => {
+    btn.addEventListener("click", () => setAuthTab(btn.getAttribute("data-auth-mode")));
+  });
+
   const logoutBtn = $("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
       try {
         if (window.__glowClerk) {
-          await window.__glowClerk.signOut({ redirectUrl: "/partner/sign-in" });
+          await window.__glowClerk.signOut({ redirectUrl: "/partner/" });
           return;
         }
         await api("/api/partner/logout", { method: "POST", body: "{}" });
       } catch (_) {}
       clerkToken = null;
-      if (clerkEnabled) goSignIn();
-      else showLogin();
+      showLogin();
+      if (clerkEnabled) setAuthTab("sign-in");
     });
   }
 

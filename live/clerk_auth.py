@@ -10,10 +10,6 @@ from typing import Any
 _JWKS_CACHE: dict[str, Any] = {"keys": None, "fetched_at": 0.0}
 
 
-def clerk_configured() -> bool:
-    return bool(os.environ.get("CLERK_SECRET_KEY") and _publishable_key())
-
-
 def _publishable_key() -> str:
     return (
         os.environ.get("CLERK_PUBLISHABLE_KEY")
@@ -22,10 +18,28 @@ def _publishable_key() -> str:
     ).strip()
 
 
+def _secret_key() -> str:
+    return (os.environ.get("CLERK_SECRET_KEY") or "").strip()
+
+
+def clerk_ui_enabled() -> bool:
+    """Frontend can mount Clerk with publishable key alone."""
+    return bool(_publishable_key())
+
+
+def clerk_configured() -> bool:
+    """JWT verify needs both publishable + secret."""
+    return bool(_secret_key() and _publishable_key())
+
+
 def public_clerk_config() -> dict[str, Any]:
+    pk = _publishable_key()
     return {
-        "enabled": clerk_configured(),
-        "publishableKey": _publishable_key() if clerk_configured() else None,
+        "enabled": bool(pk),
+        "verifyReady": clerk_configured(),
+        "publishableKey": pk or None,
+        "publishableSet": bool(pk),
+        "secretSet": bool(_secret_key()),
         "signInUrl": "/partner/sign-in",
         "signUpUrl": "/partner/sign-up",
         "afterSignInUrl": "/partner/",

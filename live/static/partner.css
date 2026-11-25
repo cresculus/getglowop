@@ -48,8 +48,29 @@
 .hint { color: var(--muted); font-size: 0.8rem; margin: 0.2rem 0 0; }
 .auth-switch { margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
 .auth-switch a { color: var(--ink); font-weight: 700; }
-.clerk-mount { min-height: 220px; margin-top: 0.35rem; }
-.partner-auth .login-card { width: min(440px, 100%); }
+.clerk-mount { min-height: 240px; margin-top: 0.35rem; }
+.partner-auth .login-card,
+.login-card-auth { width: min(460px, 100%); }
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  margin: 0 0 0.65rem;
+}
+.auth-tab {
+  border: 2px solid var(--line);
+  background: var(--bg);
+  min-height: 36px;
+  font: 800 0.72rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--ink);
+}
+.auth-tab[aria-selected="true"] {
+  background: var(--lime, #c8f531);
+  box-shadow: 2px 2px 0 var(--ink);
+}
 
 .partner-shell .workspace {
   padding: 0.55rem;
