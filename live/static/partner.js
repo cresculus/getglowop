@@ -141,16 +141,34 @@
       const cfg = await GlowClerkPartner.fetchPublicConfig();
       const c = cfg.clerk || {};
       clerkEnabled = !!(c.enabled && c.publishableKey);
-      if (!clerkEnabled) return false;
-      const clerk = await GlowClerkPartner.createClerk(c.publishableKey);
       const form = $("loginForm");
-      if (form) form.hidden = true;
       const tabs = $("authTabs");
-      if (tabs) tabs.hidden = false;
       const mount = $("clerkMount");
-      if (mount) mount.hidden = false;
       const links = $("dashGateLinks");
+      const lede = $("dashGateLede");
+      if (!clerkEnabled) {
+        if (lede) {
+          lede.textContent = c.secretSet
+            ? "Clerk publishable key missing on Railway (CLERK_PUBLISHABLE_KEY)."
+            : "Clerk keys not set on Railway (need CLERK_PUBLISHABLE_KEY + CLERK_SECRET_KEY).";
+        }
+        return false;
+      }
+      if (form) form.hidden = true;
+      if (tabs) tabs.hidden = false;
+      if (mount) mount.hidden = false;
       if (links) links.hidden = false;
+      if (!c.verifyReady || !c.secretSet) {
+        if (lede) {
+          lede.textContent =
+            "Clerk UI is on, but CLERK_SECRET_KEY is missing on the getglowop Railway service — sign-in will fail until you add it and redeploy.";
+        }
+        if ($("loginErr")) {
+          $("loginErr").textContent =
+            "Fix: Railway → getglowop → Variables → CLERK_SECRET_KEY = sk_test_… → Deploy. Check /api/health clerkSecretSet:true";
+        }
+      }
+      const clerk = await GlowClerkPartner.createClerk(c.publishableKey);
       if (clerk.session) {
         await afterClerkSession(clerk.session);
         return true;
@@ -162,6 +180,7 @@
       return true;
     } catch (err) {
       console.warn("Clerk init skipped", err);
+      if ($("loginErr")) $("loginErr").textContent = "Clerk failed to load: " + String(err.message || err);
       return false;
     }
   }
