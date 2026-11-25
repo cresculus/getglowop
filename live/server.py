@@ -30,10 +30,12 @@ if str(ROOT) not in sys.path:
 from db import (  # noqa: E402
     connect,
     fleet_summary,
+    get_tenant,
     list_devices,
     record_heartbeat,
     record_ingest,
     seed_if_empty,
+    set_tenant_name,
     upsert_device,
 )
 from graph_map import map_managed_devices  # noqa: E402
@@ -248,6 +250,12 @@ class Handler(BaseHTTPRequestHandler):
             status, body, ctype = _json_bytes(fleet_summary(CONN, tenant))
             return self._send(status, body, ctype)
 
+        if path.rstrip("/") == "/api/business":
+            status, body, ctype = _json_bytes(
+                {"business": get_tenant(CONN, tenant), "tenantId": tenant}
+            )
+            return self._send(status, body, ctype)
+
         if path.rstrip("/") == "/api/devices":
             rows = list_devices(CONN, tenant)
             # Drop bulky raw_json from list responses — keeps the fleet table reliable.
@@ -460,6 +468,20 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(400, b'{"error":"JSON-RPC method required"}', "application/json")
 
         # ---- Partner auth ----
+        if path == "/api/business":
+            tenant_id = str(payload.get("tenantId") or payload.get("businessId") or (qs.get("tenant") or ["demo"])[0]).strip()
+            name = str(payload.get("name") or payload.get("businessName") or "").strip()
+            if not tenant_id:
+                return self._send(400, b'{"error":"tenantId required"}', "application/json")
+            if not name:
+                return self._send(400, b'{"error":"name required"}', "application/json")
+            partner = partner_from_session(CONN, self._cookie("glowops_partner"))
+            if partner and not partner_may_access(CONN, partner["id"], tenant_id):
+                return self._send(403, b'{"error":"forbidden"}', "application/json")
+            biz = set_tenant_name(CONN, tenant_id, name)
+            status, body, ctype = _json_bytes({"ok": True, "business": biz})
+            return self._send(status, body, ctype)
+
         if path == "/api/partner/login":
             if not isinstance(payload, dict):
                 return self._send(400, b'{"error":"object required"}', "application/json")

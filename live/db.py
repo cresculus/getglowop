@@ -91,6 +91,31 @@ def ensure_tenant(conn: sqlite3.Connection, tenant_id: str, name: str | None = N
     conn.commit()
 
 
+def get_tenant(conn: sqlite3.Connection, tenant_id: str) -> dict[str, Any]:
+    ensure_tenant(conn, tenant_id)
+    row = conn.execute(
+        "SELECT id, name, created_at FROM tenants WHERE id = ?",
+        (tenant_id,),
+    ).fetchone()
+    if not row:
+        return {"id": tenant_id, "name": tenant_id, "created_at": None}
+    return {"id": row["id"], "name": row["name"] or row["id"], "created_at": row["created_at"]}
+
+
+def set_tenant_name(conn: sqlite3.Connection, tenant_id: str, name: str) -> dict[str, Any]:
+    clean = (name or "").strip() or tenant_id
+    ensure_tenant(conn, tenant_id, clean)
+    try:
+        conn.execute(
+            "UPDATE partner_businesses SET business_name = ? WHERE business_id = ?",
+            (clean, tenant_id),
+        )
+        conn.commit()
+    except sqlite3.Error:
+        pass
+    return get_tenant(conn, tenant_id)
+
+
 def _device_input(row: dict[str, Any]) -> dict[str, Any]:
     return {
         "deviceName": row.get("deviceName") or row.get("device_name"),
@@ -256,6 +281,7 @@ def fleet_summary(conn: sqlite3.Connection, tenant_id: str | None = None) -> dic
         if age is not None and float(age) >= 3 and call in ("keep", "repair"):
             avoidable += 1
     count = len(devices)
+    biz = get_tenant(conn, tenant_id) if tenant_id else {"id": None, "name": None}
     return {
         "deviceCount": count,
         "byCall": by_call,
@@ -265,6 +291,8 @@ def fleet_summary(conn: sqlite3.Connection, tenant_id: str | None = None) -> dic
         "repairBeforeReplaceCount": by_call.get("repair", 0),
         "avgGlowScore": round(glow_sum / count) if count else None,
         "tenantId": tenant_id,
+        "businessId": tenant_id,
+        "businessName": biz.get("name"),
     }
 
 

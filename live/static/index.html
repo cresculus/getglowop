@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css?v=partner-home-1" />
+  <link rel="stylesheet" href="/app/styles.css?v=biz-name-1" />
 </head>
 <body class="shell">
   <header class="topbar">
@@ -22,7 +22,11 @@
       <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
     </div>
     <div class="rail">
-      <label class="biz"><span>Biz</span><input id="tenant" value="demo" spellcheck="false" /></label>
+      <label class="biz biz-name" title="Business display name — Enter or leave field to save">
+        <span>Business</span>
+        <input id="bizName" value="Demo fleet" spellcheck="false" />
+        <input type="hidden" id="tenant" value="demo" />
+      </label>
       <label class="biz tz"><span>TZ</span>
         <select id="tzSelect" title="Display time zone"></select>
       </label>
@@ -258,6 +262,6 @@
     </section>
   </main>
 
-  <script src="/app/app.js?v=partner-home-1"></script>
+  <script src="/app/app.js?v=biz-name-1"></script>
 </body>
 </html>

@@ -88,6 +88,15 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
   border: 0; outline: 0; width: 5.5rem; background: transparent;
   font: 700 0.85rem/1 var(--font);
 }
+.biz.biz-name input#bizName {
+  width: 9.5rem;
+  max-width: 28vw;
+}
+.biz.biz-name.is-saving input#bizName { opacity: 0.65; }
+.biz.biz-name.is-saved {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+}
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 32px; min-width: 32px; padding: 0 0.65rem;

@@ -15,14 +15,54 @@
   let propertiesDevice = null;
 
   const tenantEl = $("tenant");
+  const bizNameEl = $("bizName");
   const statusEl = $("status");
   const tbody = $("tbody");
   const callsEl = $("calls");
   const emptyEl = $("empty");
   const searchEl = $("search");
+  let bizNameSaved = "Demo fleet";
 
   function tenant() {
     return (tenantEl.value || "demo").trim() || "demo";
+  }
+
+  function setBizNameDisplay(name) {
+    const label = (name || tenant() || "Business").trim();
+    bizNameSaved = label;
+    if (bizNameEl) bizNameEl.value = label;
+  }
+
+  async function saveBizName() {
+    if (!bizNameEl) return;
+    const next = (bizNameEl.value || "").trim();
+    if (!next || next === bizNameSaved) {
+      bizNameEl.value = bizNameSaved;
+      return;
+    }
+    const wrap = bizNameEl.closest(".biz");
+    wrap?.classList.add("is-saving");
+    wrap?.classList.remove("is-saved");
+    try {
+      const res = await fetch("/api/business", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ tenantId: tenant(), name: next }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "rename failed");
+      setBizNameDisplay(data.business?.name || next);
+      wrap?.classList.add("is-saved");
+      setTimeout(() => wrap?.classList.remove("is-saved"), 1200);
+      if (statusEl) statusEl.textContent = `${summary?.deviceCount ?? devices.length} scored · ${bizNameSaved}`;
+    } catch (err) {
+      console.error(err);
+      bizNameEl.value = bizNameSaved;
+      alert(String(err.message || err));
+    } finally {
+      wrap?.classList.remove("is-saving");
+    }
   }
 
   function glowClass(n) {
@@ -530,11 +570,12 @@
       const payload = await devRes.json();
       devices = Array.isArray(payload.devices) ? payload.devices : [];
       page = 0;
+      setBizNameDisplay(summary.businessName || t);
       setMeta(summary);
       renderFilters();
       renderDevices();
       if (currentView === "dashboard") renderDashboard();
-      statusEl.textContent = `${summary.deviceCount ?? devices.length} scored · ${t}`;
+      statusEl.textContent = `${summary.deviceCount ?? devices.length} scored · ${summary.businessName || t}`;
     } catch (err) {
       statusEl.textContent = "Load failed";
       devices = [];
@@ -631,9 +672,15 @@
   });
 
   $("refresh").addEventListener("click", load);
-  tenantEl.addEventListener("change", load);
-  tenantEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") load();
+  bizNameEl?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveBizName();
+      bizNameEl.blur();
+    }
+  });
+  bizNameEl?.addEventListener("blur", () => {
+    saveBizName();
   });
   window.addEventListener("resize", () => {
     if (currentView === "fleet") renderDevices();
