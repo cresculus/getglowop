@@ -393,18 +393,16 @@
   }
 
   function updateHomeBack() {
-    const btn = $("homeBack");
-    if (!btn) return;
-    // Fleet is home for the report. Never turn this control into "Partner".
-    // Partner lives on the wordmark + rail "Partner" link.
+    const fleetBtn = $("homeBack");
+    // ← Partner is always available (master / partner console).
+    // ← Fleet appears only when you are deeper than the Fleet report.
+    if (!fleetBtn) return;
     if (currentView === "fleet") {
-      btn.hidden = true;
-      btn.dataset.mode = "fleet";
+      fleetBtn.hidden = true;
     } else {
-      btn.hidden = false;
-      btn.textContent = "← Fleet";
-      btn.title = "Back to Fleet device list";
-      btn.dataset.mode = "fleet";
+      fleetBtn.hidden = false;
+      fleetBtn.textContent = "← Fleet";
+      fleetBtn.title = "Back to Fleet device list";
     }
   }
 
