@@ -115,13 +115,24 @@ def create_partner(
 
 def bind_business(conn: sqlite3.Connection, partner_id: str, business_id: str, business_name: str | None = None) -> None:
     ensure_partner_schema(conn)
+    name = (business_name or "").strip() or business_id
+    # Never clobber a human rename with the opaque id or a blank placeholder.
     conn.execute(
         """
         INSERT INTO partner_businesses (partner_id, business_id, business_name)
         VALUES (?, ?, ?)
-        ON CONFLICT(partner_id, business_id) DO UPDATE SET business_name=excluded.business_name
+        ON CONFLICT(partner_id, business_id) DO UPDATE SET
+          business_name = CASE
+            WHEN excluded.business_name IS NULL OR TRIM(excluded.business_name) = '' THEN partner_businesses.business_name
+            WHEN excluded.business_name = excluded.business_id
+                 AND partner_businesses.business_name IS NOT NULL
+                 AND TRIM(partner_businesses.business_name) != ''
+                 AND partner_businesses.business_name != partner_businesses.business_id
+              THEN partner_businesses.business_name
+            ELSE excluded.business_name
+          END
         """,
-        (partner_id, business_id, business_name or business_id),
+        (partner_id, business_id, name),
     )
     conn.commit()
     try:
@@ -137,11 +148,16 @@ def list_partner_businesses(conn: sqlite3.Connection, partner_id: str) -> list[d
     rows = conn.execute(
         """
         SELECT pb.business_id,
-               COALESCE(NULLIF(t.name, ''), NULLIF(pb.business_name, ''), pb.business_id) AS business_name
+               COALESCE(NULLIF(t.name, ''), NULLIF(pb.business_name, ''), pb.business_id) AS business_name,
+               COALESCE(bm.created_at, '') AS bound_at
         FROM partner_businesses pb
         LEFT JOIN tenants t ON t.id = pb.business_id
+        LEFT JOIN business_memberships bm
+          ON bm.business_id = pb.business_id
+         AND bm.partner_id = pb.partner_id
+         AND bm.revoked_at IS NULL
         WHERE pb.partner_id = ?
-        ORDER BY business_name COLLATE NOCASE, pb.business_id
+        ORDER BY bound_at ASC, business_name COLLATE NOCASE, pb.business_id
         """,
         (partner_id,),
     ).fetchall()
@@ -363,8 +379,11 @@ def rename_business_id(conn: sqlite3.Connection, old_id: str, new_id: str) -> st
 
 
 def ensure_partner_home_business(conn: sqlite3.Connection, partner: dict[str, Any]) -> dict[str, Any]:
-    """Ensure partner owns a non-demo business with an opaque biz_ id (not a Clerk user slug)."""
-    from db import ensure_tenant
+    """Ensure partner owns a non-demo business with an opaque biz_ id (not a Clerk user slug).
+
+    Home = earliest bound non-demo business. Never overwrite an existing display name.
+    """
+    from db import ensure_tenant, get_tenant
 
     partner_id = partner["id"]
     businesses = [
@@ -376,11 +395,17 @@ def ensure_partner_home_business(conn: sqlite3.Connection, partner: dict[str, An
         if is_legacy_clerk_business_id(old_id):
             new_id = new_business_id()
             rename_business_id(conn, old_id, new_id)
+            tenant = get_tenant(conn, new_id)
             return {
                 "business_id": new_id,
-                "business_name": home.get("business_name") or "My business",
+                "business_name": tenant.get("name") or home.get("business_name") or "My business",
             }
-        return home
+        # Re-read tenant name so Partner MSP always mirrors Settings renames.
+        tenant = get_tenant(conn, old_id)
+        return {
+            "business_id": old_id,
+            "business_name": tenant.get("name") or home.get("business_name") or old_id,
+        }
 
     business_id = new_business_id()
     name = "My business"

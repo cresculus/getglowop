@@ -489,7 +489,7 @@
 
 .res-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.85rem;
   padding: 0.15rem 0.85rem 1.35rem;
   align-content: start;
@@ -513,6 +513,13 @@
 .res-card:hover {
   border-color: var(--line-strong);
   background: #fafbf7;
+}
+.res-card-static {
+  cursor: default;
+}
+.res-card-static:hover {
+  border-color: var(--line);
+  background: var(--surface);
 }
 .res-kicker {
   font-family: var(--mono);
@@ -613,6 +620,22 @@
 .biz-tile-link:hover { background: #f7ffe0; }
 .biz-list b { font-weight: var(--w-strong); font-size: 0.95rem; }
 .open-report-label { pointer-events: none; }
+.biz-rename {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0 1rem 0.85rem;
+  border-top: 1px solid var(--line);
+}
+.biz-rename input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--bg);
+}
 
 .analyze-grid {
   display: grid;

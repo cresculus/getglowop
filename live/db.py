@@ -82,12 +82,14 @@ def connect(db_path: Path) -> sqlite3.Connection:
 
 def ensure_tenant(conn: sqlite3.Connection, tenant_id: str, name: str | None = None) -> None:
     now = datetime.now(timezone.utc).isoformat()
+    # Insert only — never reset an existing display name to the opaque id.
     conn.execute(
         "INSERT OR IGNORE INTO tenants (id, name, created_at) VALUES (?, ?, ?)",
-        (tenant_id, name or tenant_id, now),
+        (tenant_id, (name or "").strip() or tenant_id, now),
     )
-    if name:
-        conn.execute("UPDATE tenants SET name = ? WHERE id = ?", (name, tenant_id))
+    clean = (name or "").strip()
+    if clean and clean != tenant_id:
+        conn.execute("UPDATE tenants SET name = ? WHERE id = ?", (clean, tenant_id))
     conn.commit()
 
 
@@ -104,15 +106,20 @@ def get_tenant(conn: sqlite3.Connection, tenant_id: str) -> dict[str, Any]:
 
 def set_tenant_name(conn: sqlite3.Connection, tenant_id: str, name: str) -> dict[str, Any]:
     clean = (name or "").strip() or tenant_id
-    ensure_tenant(conn, tenant_id, clean)
+    now = datetime.now(timezone.utc).isoformat()
+    conn.execute(
+        "INSERT INTO tenants (id, name, created_at) VALUES (?, ?, ?) "
+        "ON CONFLICT(id) DO UPDATE SET name = excluded.name",
+        (tenant_id, clean, now),
+    )
     try:
         conn.execute(
             "UPDATE partner_businesses SET business_name = ? WHERE business_id = ?",
             (clean, tenant_id),
         )
-        conn.commit()
     except sqlite3.Error:
         pass
+    conn.commit()
     return get_tenant(conn, tenant_id)
 
 

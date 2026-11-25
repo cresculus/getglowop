@@ -82,7 +82,42 @@ from rbac import (  # noqa: E402
 )
 import re  # noqa: E402
 
-DATA_DIR = Path(os.environ.get("GLOWOPS_DATA", str(ROOT / "data")))
+def _resolve_data_dir() -> Path:
+    """Prefer an explicit GLOWOPS_DATA, then a mounted /data volume, then local ./data.
+
+    Never silently use /tmp in production — Railway wipes it on every deploy, which
+    erases renamed businesses and joined devices.
+    """
+    raw = (os.environ.get("GLOWOPS_DATA") or "").strip()
+    candidates: list[Path] = []
+    if raw:
+        candidates.append(Path(raw))
+    candidates.append(Path("/data"))
+    candidates.append(ROOT / "data")
+    for path in candidates:
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+            probe = path / ".glowops-write-test"
+            probe.write_text("ok", encoding="utf-8")
+            probe.unlink(missing_ok=True)
+            resolved = str(path.resolve()).replace("\\", "/").lower()
+            if "/tmp/" in resolved or resolved.endswith("/tmp") or "/temp/" in resolved:
+                print(
+                    f"WARNING: GLOWOPS_DATA={path} looks ephemeral — renames and fleet devices will vanish on restart.",
+                    flush=True,
+                )
+            else:
+                print(f"GLOWOPS_DATA={path}", flush=True)
+            return path
+        except OSError as exc:
+            print(f"data dir not usable ({path}): {exc}", flush=True)
+    fallback = ROOT / "data"
+    fallback.mkdir(parents=True, exist_ok=True)
+    print(f"GLOWOPS_DATA fallback={fallback}", flush=True)
+    return fallback
+
+
+DATA_DIR = _resolve_data_dir()
 DB_PATH = DATA_DIR / "glowops.db"
 STATIC_DIR = ROOT / "static"
 AGENT_DIR = ROOT / "agent"
@@ -113,6 +148,12 @@ def _prepare_db() -> Path:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     if DB_PATH.is_file() and DB_PATH.stat().st_size > 0:
         return DB_PATH
+    # Rescue a prior /tmp install after switching GLOWOPS_DATA to a volume.
+    for legacy in (Path("/tmp/glowops-data/glowops.db"), ROOT / "data" / "glowops.db"):
+        if legacy.is_file() and legacy.stat().st_size > 0 and legacy.resolve() != DB_PATH.resolve():
+            shutil.copy2(legacy, DB_PATH)
+            print(f"migrated inventory from {legacy} -> {DB_PATH}", flush=True)
+            return DB_PATH
     if BOOTSTRAP_DB.is_file() and BOOTSTRAP_DB.resolve() != DB_PATH.resolve():
         shutil.copy2(BOOTSTRAP_DB, DB_PATH)
         print(f"bootstrapped inventory from {BOOTSTRAP_DB} -> {DB_PATH}", flush=True)
@@ -362,6 +403,15 @@ class Handler(BaseHTTPRequestHandler):
                         (os.environ.get("CLERK_PUBLISHABLE_KEY") or os.environ.get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY") or "").strip()
                     ),
                     "clerkSecretSet": bool((os.environ.get("CLERK_SECRET_KEY") or "").strip()),
+                    "dataDir": str(DATA_DIR),
+                    "dataPersistent": not (
+                        str(DATA_DIR).replace("\\", "/").lower().startswith("/tmp")
+                        or "/temp/" in str(DATA_DIR).replace("\\", "/").lower()
+                    ),
+                    "agentIntervals": {
+                        "inventoryHours": 6,
+                        "heartbeatMinutes": 15,
+                    },
                 }
             )
             return self._send(status, body, ctype)
@@ -988,15 +1038,18 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/ingest":
             if not isinstance(payload, dict):
                 return self._send(400, b'{"error":"object required"}', "application/json")
-            # Device join path requires enrollment key+password (fail closed after expiry).
+            # Device join / refresh requires enrollment key+password.
+            # Scheduled inventory may refresh after key expiry; revoked keys still fail closed.
             source = str(payload.get("source") or "api")
             enrollment = None
             if source.startswith("agent") or payload.get("joinKey") or payload.get("joinPassword"):
+                refresh = str(payload.get("mode") or "").lower() in ("refresh", "inventory", "heartbeat")
                 enrollment = verify_enrollment(
                     CONN,
                     join_key=str(payload.get("joinKey") or ""),
                     join_password=str(payload.get("joinPassword") or ""),
                     business_id=payload.get("tenantId") or payload.get("businessId"),
+                    allow_expired_refresh=refresh or source in ("agent", "agent-refresh"),
                 )
                 if not enrollment:
                     return self._send(
@@ -1005,7 +1058,7 @@ class Handler(BaseHTTPRequestHandler):
                         "application/json",
                     )
                 tenant = enrollment["businessId"]
-                source = "agent-join"
+                source = "agent-refresh" if enrollment.get("refreshOnly") else "agent-join"
             else:
                 # Dashboard paste / lab ingest (partner session or open demo tenant)
                 partner = self._partner_principal()
@@ -1041,6 +1094,7 @@ class Handler(BaseHTTPRequestHandler):
                 join_key=str(payload.get("joinKey") or ""),
                 join_password=str(payload.get("joinPassword") or ""),
                 business_id=payload.get("tenantId") or payload.get("businessId"),
+                allow_expired_refresh=True,
             )
             if not enrollment:
                 return self._send(

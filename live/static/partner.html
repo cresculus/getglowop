@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-11" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-11" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-11" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-12" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-12" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-12" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -226,12 +226,12 @@
 
         <div class="pview pview-left" id="pviewResources" data-active="false" hidden>
           <div class="ledger-head ledger-head-left"><h1>Resources</h1></div>
-          <p class="view-lede">Agent downloads for a single PC or bulk Intune / RMM / SCCM push.</p>
+          <p class="view-lede">Agent downloads for a single PC or bulk Intune / RMM / SCCM push. After join, devices refresh on a fixed schedule.</p>
           <div class="res-cards">
             <a class="res-card" href="/download/GlowOpsAgent.exe">
               <span class="res-kicker">Windows</span>
               <strong>GlowOps Agent</strong>
-              <span class="res-desc">Join menu — paste key + password from Enroll.</span>
+              <span class="res-desc">Join menu — paste key + password from Enroll. Defaults Dashboard URL to getglowop.com.</span>
               <span class="res-action">Download EXE</span>
             </a>
             <a class="res-card" href="/download/Open-GlowOpsAgent.cmd">
@@ -243,9 +243,15 @@
             <a class="res-card" href="/download/GlowOpsAgent-Win32.zip">
               <span class="res-kicker">Fleet</span>
               <strong>Win32 / Intune pack</strong>
-              <span class="res-desc">Install.ps1 as System — or wrap with IntuneWinAppUtil. Mint a 7d/30d join key first.</span>
+              <span class="res-desc">Install.ps1 as System — schedules inventory + heartbeat. Mint a 7d/30d join key first.</span>
               <span class="res-action">Download ZIP</span>
             </a>
+            <div class="res-card res-card-static">
+              <span class="res-kicker">Intervals</span>
+              <strong>Agent reporting cadence</strong>
+              <span class="res-desc"><strong>Heartbeat every 15 minutes</strong> · <strong>Full inventory every 6 hours</strong>. Tasks: GlowOpsHeartbeat, GlowOpsInventory.</span>
+              <span class="res-action">Built into agent 0.2.5+</span>
+            </div>
           </div>
         </div>
 
@@ -281,7 +287,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=lux-11"></script>
-  <script src="/app/partner.js?v=lux-11"></script>
+  <script src="/app/clerk-partner.js?v=lux-12"></script>
+  <script src="/app/partner.js?v=lux-12"></script>
 </body>
 </html>

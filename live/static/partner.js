@@ -524,11 +524,16 @@
     $("bizList").innerHTML = businessesCache
       .map((b) => {
         const href = `/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet`;
+        const name = b.business_name || "Business";
         return `<li class="biz-tile">
           <a class="biz-tile-link" href="${href}" title="Open report">
-            <span><b>${esc(b.business_name || "Business")}</b></span>
+            <span><b>${esc(name)}</b></span>
             <span class="btn lime open-report-label">Open report</span>
           </a>
+          <form class="biz-rename" data-biz-rename="${esc(b.business_id)}">
+            <input type="text" maxlength="120" value="${esc(name)}" aria-label="Business name" />
+            <button type="submit" class="btn ghost">Save name</button>
+          </form>
         </li>`;
       })
       .join("");
@@ -656,6 +661,39 @@
         renderHome();
       } catch (err) {
         if (st) st.textContent = String(err.message || err);
+      }
+    });
+  }
+
+  const bizList = $("bizList");
+  if (bizList) {
+    bizList.addEventListener("submit", async (e) => {
+      const form = e.target.closest("[data-biz-rename]");
+      if (!form) return;
+      e.preventDefault();
+      const businessId = form.getAttribute("data-biz-rename");
+      const input = form.querySelector("input");
+      const btn = form.querySelector("button");
+      const name = (input?.value || "").trim();
+      if (!businessId || !name) return;
+      const prev = btn?.textContent || "Save name";
+      if (btn) btn.textContent = "Saving…";
+      try {
+        await api("/api/business", {
+          method: "POST",
+          body: JSON.stringify({ tenantId: businessId, businessId, name }),
+        });
+        if (btn) btn.textContent = "Saved";
+        await refresh();
+        renderHome();
+        setTimeout(() => {
+          if (btn) btn.textContent = prev;
+        }, 1200);
+      } catch (err) {
+        if (btn) btn.textContent = String(err.message || err).slice(0, 24);
+        setTimeout(() => {
+          if (btn) btn.textContent = prev;
+        }, 2000);
       }
     });
   }

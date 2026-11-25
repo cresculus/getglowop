@@ -166,14 +166,21 @@ def grant_membership(
             """,
             (mid, business_id, partner_id, role_n, now, now),
         )
-    # Keep partner_businesses in sync for existing APIs
+    # Keep partner_businesses in sync — never overwrite a human display name.
+    display = business_id
+    try:
+        row = conn.execute("SELECT name FROM tenants WHERE id = ?", (business_id,)).fetchone()
+        if row and (row["name"] or "").strip():
+            display = row["name"]
+    except sqlite3.Error:
+        pass
     conn.execute(
         """
         INSERT INTO partner_businesses (partner_id, business_id, business_name)
         VALUES (?, ?, ?)
         ON CONFLICT(partner_id, business_id) DO NOTHING
         """,
-        (partner_id, business_id, business_id),
+        (partner_id, business_id, display),
     )
     conn.commit()
     return {"id": mid, "businessId": business_id, "partnerId": partner_id, "role": role_n}

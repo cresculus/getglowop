@@ -57,7 +57,8 @@ Browser
 Railway service (getglowop)
   ├─ Dockerfile → python live/server.py
   ├─ env: CLERK_* , SUPABASE_* , DATABASE_URL , GLOWOPS_*
-  └─ SQLite today (GLOWOPS_DATA); Postgres via DATABASE_URL next
+  └─ SQLite on Railway volume at /data (GLOWOPS_DATA=/data). Never /tmp — deploys wipe it.
+     Postgres via DATABASE_URL next.
 
 Supabase GLOWOpsDB     → Postgres (keys on Railway; schema/RLS later)
 GoDaddy                → domain registration + DNS (or Cloudflare DNS)
@@ -258,11 +259,14 @@ CLERK_PUBLISHABLE_KEY
 CLERK_SECRET_KEY
 CLERK_AUTHORIZED_PARTIES=https://getglowop.com,http://127.0.0.1:8787
 GLOWOPS_PUBLIC_URL=https://getglowop.com
+GLOWOPS_DATA=/data
 SUPABASE_URL
 SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY
 DATABASE_URL
 ```
+
+**Required volume:** Railway → getglowop service → **Volumes** → mount at `/data` (matches `GLOWOPS_DATA`). Without it, every deploy wipes renames and joined devices. Health JSON should show `"dataPersistent": true`.
 
 Optional later: `GLOWOPS_REQUIRE_AUTH=1`, Microsoft Graph vars (see `railway-getglowop-env.md`).
 
@@ -309,9 +313,12 @@ If a secret was ever pasted into chat: **rotate** Clerk secret + Supabase secret
 | Supabase GLOWOpsDB `goxottatihejvzakhdho` us-east-2 | Yes |
 | Railway Clerk + Supabase + DATABASE_URL | Yes |
 | `/partner/sign-in` + `/partner/sign-up` → `/partner/` | Yes (push `7018e95`) |
-| Postgres schema + RLS | Not yet |
+| Postgres schema + RLS | Init migration in `supabase/migrations/` (apply in SQL Editor or GitHub→getglowop) |
 | Graph / Intune Connect | Not yet |
 | Clerk Production instance | Not yet |
+
+**Supabase GitHub:** connect **`cresculus/getglowop`** only — never the Cresculus app repo. See `GlowOps/supabase/README.md`.  
+**Many customers / RLS security model:** `docs/multi-tenant-and-supabase-security.md` (shared DB + `business_id`, not DB-per-customer).
 
 ---
 

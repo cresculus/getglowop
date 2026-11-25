@@ -202,8 +202,13 @@ def verify_enrollment(
     join_key: str | None,
     join_password: str | None,
     business_id: str | None = None,
+    allow_expired_refresh: bool = False,
 ) -> dict[str, Any] | None:
-    """Validate join key+password. Returns business binding or None. Join-only; fails closed on expiry."""
+    """Validate join key+password. Returns business binding or None.
+
+    New joins fail closed after expiry/revoke. Scheduled inventory/heartbeat may
+    pass allow_expired_refresh=True so already-enrolled devices keep reporting.
+    """
     ensure_enrollment_schema(conn)
     if not join_key or not join_password:
         return None
@@ -216,10 +221,12 @@ def verify_enrollment(
         return None
     if row["revoked_at"]:
         return None
+    expired = False
     try:
-        if _parse_iso(row["expires_at"]) <= _now():
-            return None
+        expired = _parse_iso(row["expires_at"]) <= _now()
     except ValueError:
+        return None
+    if expired and not allow_expired_refresh:
         return None
     if not _verify_secret(join_password, row["secret_hash"], row["secret_salt"]):
         return None
@@ -242,4 +249,6 @@ def verify_enrollment(
         "scope": row["scope"],
         "expiresAt": row["expires_at"],
         "label": row["label"],
+        "expired": expired,
+        "refreshOnly": expired,
     }

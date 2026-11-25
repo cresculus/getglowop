@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-8" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-8" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-12" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-12" />
 </head>
 <body class="shell">
   <header class="topbar">
@@ -226,14 +226,22 @@
             </section>
 
             <section class="props-card">
-              <h3>3 · Windows agent / collector (lab)</h3>
-              <p class="hint">Local WMI/CIM one-shot (or GlowOpsAgent.exe join). Sideburned for Intune customers; useful in lab and non-Intune fleets.</p>
-              <p class="hint">Download the agent from <strong>Settings</strong> when you need a lab join — it is not a top-bar action.</p>
+              <h3>3 · Windows agent intervals</h3>
+              <p class="hint">After join (EXE menu or Intune/RMM Install.ps1), the agent registers Windows Scheduled Tasks and keeps the device on the fleet.</p>
+              <table class="res-table">
+                <thead><tr><th>Task</th><th>Command</th><th>Interval</th><th>Purpose</th></tr></thead>
+                <tbody>
+                  <tr><td><code>GlowOpsHeartbeat</code></td><td><code>heartbeat --quiet</code></td><td><strong>Every 15 minutes</strong></td><td>Check-in + light inventory so the device stays visible</td></tr>
+                  <tr><td><code>GlowOpsInventory</code></td><td><code>inventory --quiet</code></td><td><strong>Every 6 hours</strong></td><td>Full WMI/CIM refresh (battery, disk, BitLocker, reboot)</td></tr>
+                </tbody>
+              </table>
+              <p class="hint">Dashboard URL defaults to <code>https://getglowop.com</code>. Credentials live in <code>C:\ProgramData\GlowOps\</code>. Revoked join keys stop reporting; expired keys still refresh already-joined devices.</p>
+              <p class="hint">Download the agent from Partner → Resources or Settings.</p>
             </section>
 
             <section class="props-card">
               <h3>4 · Stored in the dashboard</h3>
-              <p class="hint">Per-business inventory powers Fleet, Dashboard, Properties, and exports. CSV export lives in Settings for the active business.</p>
+              <p class="hint">Per-business inventory powers Fleet, Dashboard, Properties, and exports. CSV export lives in Settings for the active business. Data is stored on the persistent Railway volume at <code>/data</code> — renames and devices survive deploys.</p>
             </section>
 
             <section class="props-card">
@@ -331,7 +339,7 @@
     <button type="button" data-view="properties" aria-selected="false">Properties</button>
   </nav>
 
-  <script src="/app/clerk-partner.js?v=lux-8"></script>
-  <script src="/app/app.js?v=lux-8"></script>
+  <script src="/app/clerk-partner.js?v=lux-12"></script>
+  <script src="/app/app.js?v=lux-12"></script>
 </body>
 </html>
