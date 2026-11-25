@@ -97,7 +97,13 @@
     const C = global.Clerk;
     if (!C) throw new Error("Clerk global missing after script load");
 
-    const loadOpts = {};
+    const loadOpts = {
+      appearance: glowAppearance(),
+      signInUrl: SIGN_IN,
+      signUpUrl: SIGN_UP,
+      afterSignInUrl: AFTER,
+      afterSignUpUrl: AFTER,
+    };
     if (global.__internal_ClerkUICtor) {
       loadOpts.ui = { ClerkUI: global.__internal_ClerkUICtor };
     }
@@ -129,6 +135,9 @@
         socialButtonsPlacement: "top",
         socialButtonsVariant: "blockButton",
         showOptionalFields: false,
+        logoImageUrl: "https://getglowop.com/glowops-mark.png",
+        logoLinkUrl: "/partner/",
+        logoPlacement: "inside",
       },
       variables: {
         colorPrimary: "#0d130b",
@@ -158,6 +167,8 @@
           letterSpacing: "-0.02em",
         },
         headerSubtitle: { display: "none" },
+        logoBox: { justifyContent: "flex-start" },
+        logoImage: { height: "28px", width: "auto" },
         socialButtonsBlockButton: {
           border: "2px solid #0d130b",
           borderRadius: "0",

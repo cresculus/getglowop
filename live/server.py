@@ -235,6 +235,29 @@ class Handler(BaseHTTPRequestHandler):
         self._cors()
         self.end_headers()
 
+    def _serve_static_html(self, name: str, status: int = 200) -> bool:
+        """Serve a file from STATIC_DIR with no-store. Returns False if missing."""
+        f = STATIC_DIR / name
+        if not f.is_file():
+            return False
+        self._send(
+            status,
+            f.read_bytes(),
+            _content_type(f),
+            {"Cache-Control": "no-store, max-age=0"},
+        )
+        return True
+
+    def _wants_html(self) -> bool:
+        accept = (self.headers.get("Accept") or "").lower()
+        return "text/html" in accept or "*/*" in accept or not accept
+
+    def _not_found(self) -> None:
+        """JSON for APIs; branded HTML shell when a browser navigates to a missing path."""
+        if self._wants_html() and self._serve_static_html("partner-not-found.html", status=404):
+            return
+        self._send(404, b'{"error":"not found"}', "application/json")
+
     def _cookie(self, name: str) -> str | None:
         raw = self.headers.get("Cookie")
         if not raw:
@@ -545,47 +568,28 @@ class Handler(BaseHTTPRequestHandler):
                 {"Content-Disposition": 'attachment; filename="glowops-agent.zip"'},
             )
 
-        # Partner console + Clerk auth pages
+        # Partner console + Clerk auth pages.
+        # Clerk path routing hits /partner/sign-in/continue, /factor-one, /sso-callback, etc.
+        # Those must serve the same HTML shells (SPA fallback) or the browser gets JSON 404.
         if path.rstrip("/") in ("/partner", "/partner/"):
-            f = STATIC_DIR / "partner.html"
-            return self._send(
-                200,
-                f.read_bytes(),
-                _content_type(f),
-                {"Cache-Control": "no-store, max-age=0"},
-            )
-        if path.rstrip("/") == "/partner/sign-in":
-            f = STATIC_DIR / "partner-sign-in.html"
-            return self._send(
-                200,
-                f.read_bytes(),
-                _content_type(f),
-                {"Cache-Control": "no-store, max-age=0"},
-            )
-        if path.rstrip("/") == "/partner/sign-up":
-            f = STATIC_DIR / "partner-sign-up.html"
-            return self._send(
-                200,
-                f.read_bytes(),
-                _content_type(f),
-                {"Cache-Control": "no-store, max-age=0"},
-            )
-        if path.rstrip("/") == "/partner/accept-invite":
-            f = STATIC_DIR / "partner-accept-invite.html"
-            return self._send(
-                200,
-                f.read_bytes(),
-                _content_type(f),
-                {"Cache-Control": "no-store, max-age=0"},
-            )
-        if path.rstrip("/") == "/partner/sso-callback":
-            f = STATIC_DIR / "partner-sso-callback.html"
-            return self._send(
-                200,
-                f.read_bytes(),
-                _content_type(f),
-                {"Cache-Control": "no-store, max-age=0"},
-            )
+            if self._serve_static_html("partner.html"):
+                return
+        if path == "/partner/sign-in" or path.startswith("/partner/sign-in/"):
+            if self._serve_static_html("partner-sign-in.html"):
+                return
+        if path == "/partner/sign-up" or path.startswith("/partner/sign-up/"):
+            if self._serve_static_html("partner-sign-up.html"):
+                return
+        if path.rstrip("/") == "/partner/accept-invite" or path.startswith("/partner/accept-invite/"):
+            if self._serve_static_html("partner-accept-invite.html"):
+                return
+        if path.rstrip("/") == "/partner/sso-callback" or path.startswith("/partner/sso-callback/"):
+            if self._serve_static_html("partner-sso-callback.html"):
+                return
+        # Clerk sometimes lands on /sso-callback at the site root.
+        if path.rstrip("/") == "/sso-callback":
+            if self._serve_static_html("partner-sso-callback.html"):
+                return
 
         # Live app static under /app/
         if path == "/app" or path == "/app/":
@@ -629,7 +633,7 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/", ""):
             return self._redirect("/app/")
 
-        return self._send(404, b'{"error":"not found"}', "application/json")
+        return self._not_found()
 
     def do_POST(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
