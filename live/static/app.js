@@ -532,6 +532,7 @@
     if (deviceParam) openProperties(deviceParam);
     else if (viewParam === "dashboard") setView("dashboard");
     else if (viewParam === "properties") setView("properties");
+    else if (viewParam === "resources") setView("resources");
     else if (viewParam === "ingest") setView("ingest");
     else setView("fleet");
   });
