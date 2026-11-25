@@ -117,6 +117,27 @@ def _resolve_data_dir() -> Path:
     return fallback
 
 
+def _data_looks_persistent(path: Path) -> bool:
+    resolved = str(path.resolve()).replace("\\", "/").lower()
+    if resolved.startswith("/tmp") or "/temp/" in resolved or resolved.endswith("/tmp"):
+        return False
+    # Linux: treat /data as persistent only when it is a real mount (Railway volume).
+    try:
+        mounts = Path("/proc/mounts").read_text(encoding="utf-8", errors="ignore")
+        target = str(path.resolve())
+        if any(line.split()[1] == target for line in mounts.splitlines() if line.strip()):
+            return True
+        if target == "/data":
+            return False
+    except OSError:
+        pass
+    # Local Windows / macOS lab paths under the repo are fine.
+    try:
+        return path.resolve() == (ROOT / "data").resolve() or "glowops" in resolved
+    except OSError:
+        return False
+
+
 DATA_DIR = _resolve_data_dir()
 DB_PATH = DATA_DIR / "glowops.db"
 STATIC_DIR = ROOT / "static"
@@ -404,10 +425,7 @@ class Handler(BaseHTTPRequestHandler):
                     ),
                     "clerkSecretSet": bool((os.environ.get("CLERK_SECRET_KEY") or "").strip()),
                     "dataDir": str(DATA_DIR),
-                    "dataPersistent": not (
-                        str(DATA_DIR).replace("\\", "/").lower().startswith("/tmp")
-                        or "/temp/" in str(DATA_DIR).replace("\\", "/").lower()
-                    ),
+                    "dataPersistent": _data_looks_persistent(DATA_DIR),
                     "agentIntervals": {
                         "inventoryHours": 6,
                         "heartbeatMinutes": 15,
