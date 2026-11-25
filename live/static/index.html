@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-17" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-17" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-18" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-18" />
 </head>
 <body class="shell">
   <header class="topbar">
@@ -51,7 +51,7 @@
         </button>
         <div class="kpi-grid">
           <div><strong id="kpi-count">—</strong><span>Devices</span></div>
-          <div><strong id="kpi-glow">—</strong><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup><button type="button" class="glow-info" title="GLOW™ is GlowOps’ Green Lifecycle score (0–100). Higher favors keep/extend; lower points to repair, redeploy, or refresh." aria-label="What is GLOW score?">i</button></span></div>
+          <div><strong id="kpi-glow">—</strong><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup><button type="button" class="glow-info" aria-label="What is GLOW score?" aria-haspopup="dialog">i</button></span></div>
           <div><strong id="kpi-ghost">—</strong><span>Ghosts</span></div>
           <div><strong id="kpi-repair">—</strong><span>Repair</span></div>
           <div><strong id="kpi-kg">—</strong><span>Mfg kg</span></div>
@@ -78,7 +78,7 @@
               <tr>
                 <th>Device</th>
                 <th>Call</th>
-                <th title="GLOW™ Green Lifecycle score (0–100). Higher favors keep/extend; lower points to repair, redeploy, or refresh."><span class="glow-mark">GLOW<sup class="tm" aria-label="trademark">™</sup></span></th>
+                <th><span class="glow-mark">GLOW<sup class="tm" aria-label="trademark">™</sup><button type="button" class="glow-info" aria-label="What is GLOW score?" aria-haspopup="dialog">i</button></span></th>
                 <th>Age</th>
                 <th>Sync</th>
               </tr>
@@ -131,7 +131,7 @@
           <p class="mono" id="d-serial">—</p>
           <p id="d-model">—</p>
           <div class="detail-row"><span>Call</span><strong id="d-call">—</strong></div>
-          <div class="detail-row"><span class="glow-mark">GLOW<sup class="tm" aria-label="trademark">™</sup><button type="button" class="glow-info" title="GLOW™ is GlowOps’ Green Lifecycle score (0–100). Higher favors keep/extend; lower points to repair, redeploy, or refresh." aria-label="What is GLOW score?">i</button></span><strong id="d-glow">—</strong></div>
+          <div class="detail-row"><span class="glow-mark">GLOW<sup class="tm" aria-label="trademark">™</sup><button type="button" class="glow-info" aria-label="What is GLOW score?" aria-haspopup="dialog">i</button></span><strong id="d-glow">—</strong></div>
           <div class="detail-row"><span>Battery</span><strong id="d-batt">—</strong></div>
           <div class="detail-row"><span>Compliance</span><strong id="d-comp">—</strong></div>
           <div class="detail-row"><span>User</span><strong id="d-user">—</strong></div>
@@ -338,7 +338,27 @@
     <button type="button" data-view="properties" aria-selected="false">Properties</button>
   </nav>
 
-  <script src="/app/clerk-partner.js?v=lux-17"></script>
-  <script src="/app/app.js?v=lux-17"></script>
+  <div id="glowInfoModal" class="glow-modal" hidden>
+    <button type="button" class="glow-modal-backdrop" id="glowInfoBackdrop" aria-label="Close"></button>
+    <div class="glow-modal-card" role="dialog" aria-modal="true" aria-labelledby="glowInfoTitle">
+      <div class="glow-modal-head">
+        <h2 id="glowInfoTitle">GLOW<sup class="tm">™</sup> score</h2>
+        <button type="button" class="btn ghost" id="glowInfoClose">Close</button>
+      </div>
+      <p>
+        <strong>GLOW™</strong> is GlowOps’ Green Lifecycle score (0–100). It rates how long a device can stay in
+        productive service before refresh — using age, check-in, health, and persona.
+      </p>
+      <ul class="glow-modal-list">
+        <li><strong>Higher</strong> — keep / extend use before buying new hardware</li>
+        <li><strong>Mid</strong> — watch health; repair may beat replace</li>
+        <li><strong>Lower</strong> — repair, redeploy, or refresh</li>
+      </ul>
+      <p class="hint">GLOW™ is a trademark of GlowOps. The score powers keep / repair / redeploy / refresh / recycle calls.</p>
+    </div>
+  </div>
+
+  <script src="/app/clerk-partner.js?v=lux-18"></script>
+  <script src="/app/app.js?v=lux-18"></script>
 </body>
 </html>

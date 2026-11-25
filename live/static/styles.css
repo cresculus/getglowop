@@ -827,6 +827,67 @@ tbody tr.is-selected {
 .prop-row .glow-mark {
   white-space: nowrap;
 }
+
+.glow-modal[hidden] { display: none !important; }
+.glow-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+.glow-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(13, 19, 11, 0.42);
+  cursor: pointer;
+}
+.glow-modal-card {
+  position: relative;
+  z-index: 1;
+  width: min(28rem, 100%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  padding: 1rem 1.1rem 1.15rem;
+  box-shadow: 0 16px 40px rgba(13, 19, 11, 0.18);
+}
+.glow-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+.glow-modal-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: var(--w-title);
+  letter-spacing: -0.02em;
+}
+.glow-modal-card p {
+  margin: 0 0 0.65rem;
+  color: var(--ink-2);
+  font-size: var(--text-s);
+  line-height: 1.45;
+}
+.glow-modal-list {
+  margin: 0 0 0.75rem;
+  padding-left: 1.1rem;
+  color: var(--ink-2);
+  font-size: var(--text-s);
+  line-height: 1.45;
+}
+.glow-modal-list li { margin: 0.2rem 0; }
+body.glow-modal-open { overflow: hidden; }
+th .glow-info {
+  pointer-events: auto;
+  cursor: pointer;
+}
 .why {
   margin: var(--space-3) 0 0;
   color: var(--ink-2);

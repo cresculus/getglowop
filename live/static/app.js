@@ -92,15 +92,27 @@
   }
 
   /** GLOW™ = Green Lifecycle score (common-law TM claim until ® registration). */
-  const GLOW_BLURB =
-    "GLOW™ is GlowOps’ Green Lifecycle score (0–100). It rates how long a device can stay in productive service before refresh—using age, check-in, health, and persona. Higher favors keep/extend; lower points to repair, redeploy, or refresh.";
-
   function glowMarkHtml({ info = false, avg = false } = {}) {
     const label = avg ? "Avg GLOW" : "GLOW";
     const tip = info
-      ? `<button type="button" class="glow-info" title="${esc(GLOW_BLURB)}" aria-label="What is GLOW score?">i</button>`
+      ? `<button type="button" class="glow-info" aria-label="What is GLOW score?" aria-haspopup="dialog">i</button>`
       : "";
     return `<span class="glow-mark">${label}<sup class="tm" aria-label="trademark">™</sup>${tip}</span>`;
+  }
+
+  function openGlowInfo() {
+    const modal = $("glowInfoModal");
+    if (!modal) return;
+    modal.hidden = false;
+    document.body.classList.add("glow-modal-open");
+    $("glowInfoClose")?.focus();
+  }
+
+  function closeGlowInfo() {
+    const modal = $("glowInfoModal");
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.classList.remove("glow-modal-open");
   }
 
   function esc(s) {
@@ -810,18 +822,38 @@
     renderDevices();
   });
 
+  document.addEventListener(
+    "click",
+    (e) => {
+      const infoBtn = e.target.closest(".glow-info");
+      if (infoBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        openGlowInfo();
+        return;
+      }
+      if (e.target.closest("#glowInfoClose") || e.target.closest("#glowInfoBackdrop")) {
+        e.preventDefault();
+        closeGlowInfo();
+      }
+    },
+    true
+  );
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeGlowInfo();
+  });
+  $("glowInfoClose")?.addEventListener("click", closeGlowInfo);
+  $("glowInfoBackdrop")?.addEventListener("click", closeGlowInfo);
+
   tbody.addEventListener("click", (e) => {
-    if (e.target.closest(".glow-info")) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
+    if (e.target.closest(".glow-info")) return;
     const tr = e.target.closest("tr[data-id]");
     if (!tr) return;
     openProperties(tr.getAttribute("data-id"));
   });
   tbody.addEventListener("keydown", (e) => {
     if (e.key !== "Enter" && e.key !== " ") return;
+    if (e.target.closest(".glow-info")) return;
     const tr = e.target.closest("tr[data-id]");
     if (!tr) return;
     e.preventDefault();
