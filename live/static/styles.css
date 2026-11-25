@@ -671,6 +671,10 @@ tbody tr {
   transition: background var(--fast) var(--ease);
 }
 tbody tr:hover { background: var(--surface-2); }
+tbody tr:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
 tbody tr.is-selected {
   background: var(--surface-sel);
   box-shadow: inset 2px 0 0 var(--ink);
@@ -689,6 +693,7 @@ tbody tr.is-selected {
   width: 100%;
   font: inherit;
   color: inherit;
+  pointer-events: none; /* whole row opens the device */
 }
 .device-link strong {
   font-weight: var(--w-strong);
@@ -776,35 +781,40 @@ tbody tr.is-selected {
 
 .glow-mark {
   display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
+  align-items: baseline;
+  gap: 0.15rem;
   white-space: nowrap;
+  flex-wrap: nowrap;
 }
 .glow-mark .tm {
-  font-size: 0.65em;
+  font-size: 0.62em;
   font-weight: 600;
   line-height: 1;
-  vertical-align: super;
-  margin-left: 0.05em;
+  position: relative;
+  top: -0.35em;
+  margin-left: 0.02em;
   color: var(--muted);
 }
 .glow-info {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1rem;
-  height: 1rem;
-  margin: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0 0 0 0.12rem;
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface);
   color: var(--muted);
-  font: 650 0.58rem/1 var(--font-ui);
+  font: 650 0.55rem/1 var(--font-ui);
   letter-spacing: 0;
   text-transform: none;
   cursor: help;
   flex: 0 0 auto;
+  vertical-align: middle;
+  position: relative;
+  top: -0.05em;
 }
 .glow-info:hover,
 .glow-info:focus-visible {
@@ -812,8 +822,10 @@ tbody tr.is-selected {
   border-color: var(--ink);
   outline: none;
 }
-th .glow-info {
-  vertical-align: middle;
+.props-kpis .glow-mark,
+.detail-row .glow-mark,
+.prop-row .glow-mark {
+  white-space: nowrap;
 }
 .why {
   margin: var(--space-3) 0 0;

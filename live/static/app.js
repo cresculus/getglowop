@@ -327,7 +327,7 @@
     const title = $("p-title");
     if (!d) {
       title.textContent = "No device selected";
-      body.innerHTML = `<p class="detail-empty">Pick a device from Fleet, then click Properties.</p>`;
+      body.innerHTML = `<p class="detail-empty">Pick a device from Fleet to open it.</p>`;
       return;
     }
     title.textContent = d.device_name || d.id || "Device";
@@ -600,20 +600,17 @@
         const glow = d.glow_score;
         const id = String(d.id);
         const sel = id === String(selectedId) ? "is-selected" : "";
-        return `<tr class="${sel}" data-id="${esc(id)}">
+        return `<tr class="${sel}" data-id="${esc(id)}" tabindex="0" role="link" title="Open device">
           <td class="device">
-            <button type="button" class="device-link" data-props="${esc(id)}" title="Open properties">
+            <span class="device-link">
               <strong>${esc(d.device_name || "—")}</strong>
               <span class="serial">${esc(d.serial_number || "")}</span>
-            </button>
+            </span>
           </td>
           <td><span class="pill ${call}">${call}</span></td>
           <td class="glow ${glowClass(glow)}">${glow ?? "—"}</td>
           <td>${d.age_years != null ? d.age_years + "y" : "—"}</td>
           <td>${d.check_in_days != null ? d.check_in_days + "d" : "—"}</td>
-          <td class="row-actions"><button type="button" class="btn ghost btn-props" data-props="${esc(
-            id
-          )}">Properties</button></td>
         </tr>`;
       })
       .join("");
@@ -814,27 +811,27 @@
   });
 
   tbody.addEventListener("click", (e) => {
-    const propsOnly = e.target.closest(".btn-props[data-props]");
-    if (propsOnly) {
+    if (e.target.closest(".glow-info")) {
       e.preventDefault();
       e.stopPropagation();
-      openProperties(propsOnly.getAttribute("data-props"));
       return;
     }
     const tr = e.target.closest("tr[data-id]");
     if (!tr) return;
-    selectedId = tr.getAttribute("data-id");
-    const d = findDevice(selectedId);
-    document.querySelectorAll("#tbody tr").forEach((row) => {
-      row.classList.toggle("is-selected", row.getAttribute("data-id") === selectedId);
-    });
-    showDetail(d, { openDrawer: true });
+    openProperties(tr.getAttribute("data-id"));
+  });
+  tbody.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const tr = e.target.closest("tr[data-id]");
+    if (!tr) return;
+    e.preventDefault();
+    openProperties(tr.getAttribute("data-id"));
   });
 
   $("detailBody")?.addEventListener("click", (e) => {
-    const propsBtn = e.target.closest("[data-props]");
-    if (!propsBtn) return;
-    openProperties(propsBtn.getAttribute("data-props"));
+    if (e.target.closest(".glow-info")) return;
+    if (e.target.closest("button, a")) return;
+    if (selectedId) openProperties(selectedId);
   });
 
   $("dashGrid")?.addEventListener("click", (e) => {
