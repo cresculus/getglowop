@@ -180,12 +180,23 @@
       $("logoutBtn").hidden = false;
     }
     renderConfig();
-    const want = new URLSearchParams(location.search).get("view");
-    setPView(want === "people" ? "people" : "home");
-    refresh().catch((err) => {
-      console.error(err);
-      if ($("loginErr")) $("loginErr").textContent = String(err.message || err);
-    });
+    const params = new URLSearchParams(location.search);
+    const want = params.get("view");
+    const allowed = new Set(["home", "enroll", "biz", "people", "analyze", "resources", "settings"]);
+    setPView(allowed.has(want) ? want : "home");
+    refresh()
+      .then(() => {
+        const tenantPref = params.get("tenant");
+        const enrollBiz = $("enrollBiz");
+        if (tenantPref && enrollBiz) {
+          const hit = [...enrollBiz.options].some((o) => o.value === tenantPref);
+          if (hit) enrollBiz.value = tenantPref;
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        if ($("loginErr")) $("loginErr").textContent = String(err.message || err);
+      });
   }
 
   function showLogin() {

@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-2" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-2" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-8" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-8" />
 </head>
 <body class="shell">
   <header class="topbar">
@@ -86,7 +86,39 @@
             </thead>
             <tbody id="tbody"></tbody>
           </table>
-          <p class="empty" id="empty" hidden>No devices match.</p>
+          <div class="fleet-empty" id="empty" hidden>
+            <p class="fleet-empty-filter" id="emptyFilter" hidden>No devices match this filter.</p>
+            <div class="fleet-empty-connect" id="emptyConnect" hidden>
+              <h3>No devices yet</h3>
+              <p>Connect a source for <strong id="emptyBizName">this business</strong>.</p>
+              <div class="connect-cards">
+                <button type="button" class="connect-card" data-empty-action="intune">
+                  <span class="connect-kicker">Primary</span>
+                  <strong>Intune / Entra</strong>
+                  <span>Graph sync of managed devices for this tenant.</span>
+                  <span class="connect-action">Open connector guide</span>
+                </button>
+                <button type="button" class="connect-card" data-empty-action="agent">
+                  <span class="connect-kicker">Windows</span>
+                  <strong>Enroll agent</strong>
+                  <span>Mint a join key, then run GlowOpsAgent on the PC.</span>
+                  <span class="connect-action">Enroll this business</span>
+                </button>
+                <a class="connect-card" href="/download/GlowOpsAgent-Win32.zip">
+                  <span class="connect-kicker">Fleet</span>
+                  <strong>Intune / RMM pack</strong>
+                  <span>Silent Install.ps1 for bulk push as System.</span>
+                  <span class="connect-action">Download Win32 zip</span>
+                </a>
+                <button type="button" class="connect-card connect-card-quiet" data-empty-action="ingest">
+                  <span class="connect-kicker">Lab</span>
+                  <strong>Paste Graph JSON</strong>
+                  <span>Operator-only until live Graph sync is wired.</span>
+                  <span class="connect-action">Open lab paste</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -299,7 +331,7 @@
     <button type="button" data-view="properties" aria-selected="false">Properties</button>
   </nav>
 
-  <script src="/app/clerk-partner.js?v=lux-2"></script>
-  <script src="/app/app.js?v=lux-2"></script>
+  <script src="/app/clerk-partner.js?v=lux-8"></script>
+  <script src="/app/app.js?v=lux-8"></script>
 </body>
 </html>

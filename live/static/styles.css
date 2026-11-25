@@ -541,6 +541,93 @@ em { font-style: italic; font-weight: var(--w-medium); }
 }
 .table-fit .empty[hidden] { display: none !important; }
 
+.fleet-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: auto;
+  padding: var(--space-6) var(--space-4);
+  background: var(--surface);
+}
+.fleet-empty[hidden] { display: none !important; }
+.fleet-empty-filter {
+  margin: 3rem auto;
+  text-align: center;
+  color: var(--muted);
+  font-size: var(--text-m);
+}
+.fleet-empty-connect {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+.fleet-empty-connect h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-l);
+  font-weight: var(--w-title);
+  letter-spacing: -0.02em;
+}
+.fleet-empty-connect > p {
+  margin: 0 0 var(--space-6);
+  color: var(--muted);
+  font-size: var(--text-m);
+  max-width: 36rem;
+}
+.connect-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+.connect-card {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  text-align: left;
+  padding: 1.05rem 1.1rem 1rem;
+  min-height: 9.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--bg);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+  transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.connect-card:hover {
+  border-color: var(--line-strong);
+  background: #fafbf7;
+}
+.connect-card-quiet { opacity: 0.92; }
+.connect-kicker {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.connect-card strong {
+  font-size: 1rem;
+  font-weight: var(--w-title);
+  letter-spacing: -0.02em;
+}
+.connect-card > span:not(.connect-kicker):not(.connect-action) {
+  font-size: var(--text-s);
+  line-height: var(--lh);
+  color: var(--muted);
+  max-width: 28ch;
+}
+.connect-action {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  color: var(--accent-text);
+}
+@media (max-width: 720px) {
+  .connect-cards { grid-template-columns: 1fr; }
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

@@ -558,9 +558,17 @@
     if (page < 0) page = 0;
     const slice = rows.slice(page * pageSize, page * pageSize + pageSize);
     emptyEl.hidden = rows.length > 0;
-    emptyEl.textContent = devices.length
-      ? "No devices match this filter."
-      : "No devices yet. Connect Intune or enroll an agent — this account starts empty.";
+    const emptyFilter = $("emptyFilter");
+    const emptyConnect = $("emptyConnect");
+    const emptyBiz = $("emptyBizName");
+    if (emptyBiz) emptyBiz.textContent = bizNameSaved || "this business";
+    if (devices.length) {
+      if (emptyFilter) emptyFilter.hidden = false;
+      if (emptyConnect) emptyConnect.hidden = true;
+    } else {
+      if (emptyFilter) emptyFilter.hidden = true;
+      if (emptyConnect) emptyConnect.hidden = false;
+    }
     $("pageInfo").textContent = `${page + 1} / ${pages}`;
     $("prevPage").disabled = page <= 0;
     $("nextPage").disabled = page >= pages - 1;
@@ -728,6 +736,24 @@
   });
   $("propsToDash")?.addEventListener("click", () => setView("dashboard", { push: true }));
   $("openLabIngest")?.addEventListener("click", () => setView("ingest", { push: true }));
+  document.querySelectorAll("[data-empty-action]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.getAttribute("data-empty-action");
+      if (action === "intune") {
+        setView("resources", { push: true });
+        return;
+      }
+      if (action === "ingest") {
+        setView("ingest", { push: true });
+        return;
+      }
+      if (action === "agent") {
+        const t = tenant();
+        const q = t ? `?view=enroll&tenant=${encodeURIComponent(t)}` : "?view=enroll";
+        window.location.href = `/partner/${q}`;
+      }
+    });
+  });
   document.querySelectorAll("[data-view]:not(.view-tab)").forEach((btn) => {
     btn.addEventListener("click", () => {
       const name = btn.getAttribute("data-view");
