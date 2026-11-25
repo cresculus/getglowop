@@ -393,17 +393,8 @@
   }
 
   function updateHomeBack() {
-    const fleetBtn = $("homeBack");
-    // ← Partner is always available (master / partner console).
-    // ← Fleet appears only when you are deeper than the Fleet report.
-    if (!fleetBtn) return;
-    if (currentView === "fleet") {
-      fleetBtn.hidden = true;
-    } else {
-      fleetBtn.hidden = false;
-      fleetBtn.textContent = "← Fleet";
-      fleetBtn.title = "Back to Fleet device list";
-    }
+    // Partner home is always the first top-bar control (#partnerBack).
+    // Fleet return uses the Fleet tab + bottom dock — no second top Back.
   }
 
   function goFleet({ push = false } = {}) {
@@ -567,9 +558,6 @@
 
   document.querySelectorAll("[data-back-fleet]").forEach((btn) => {
     btn.addEventListener("click", () => goFleet({ push: false }));
-  });
-  $("homeBack")?.addEventListener("click", () => {
-    goFleet({ push: false });
   });
   $("propsToDash")?.addEventListener("click", () => setView("dashboard", { push: true }));
   $("openLabIngest")?.addEventListener("click", () => setView("ingest", { push: true }));

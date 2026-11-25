@@ -9,13 +9,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css" />
+  <link rel="stylesheet" href="/app/styles.css?v=partner-home-1" />
 </head>
 <body class="shell">
   <header class="topbar">
-    <a class="wordmark" id="homeWordmark" href="/partner/" title="Partner home"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
-    <a class="btn lime home-back" id="partnerBack" href="/partner/" title="Partner console">← Partner</a>
-    <button type="button" class="btn ghost home-back" id="homeBack" title="Back to Fleet" hidden>← Fleet</button>
+    <a class="btn lime partner-home-btn" id="partnerBack" href="/partner/">← Partner home</a>
+    <a class="wordmark" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
     <div class="views" role="tablist" aria-label="Views">
       <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
       <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
@@ -259,6 +258,6 @@
     </section>
   </main>
 
-  <script src="/app/app.js"></script>
+  <script src="/app/app.js?v=partner-home-1"></script>
 </body>
 </html>
