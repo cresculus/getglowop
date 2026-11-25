@@ -24,13 +24,41 @@
   }
 
   async function fetchPublicConfig() {
-    const res = await fetch("/api/config/public?v=" + Date.now(), { credentials: "same-origin", cache: "no-store" });
+    const res = await fetch("/api/config/public?v=" + Date.now(), {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
     if (!res.ok) throw new Error("config unavailable");
     return res.json();
   }
 
+  function loadScriptTag(src, pk) {
+    return new Promise((resolve, reject) => {
+      // Remove any prior failed clerk script tags
+      document.querySelectorAll("script[data-glow-clerk]").forEach((el) => el.remove());
+      const s = document.createElement("script");
+      s.async = true;
+      s.crossOrigin = "anonymous";
+      s.src = src;
+      s.dataset.glowClerk = "1";
+      // Required when loading from *.clerk.accounts.dev — script auto-inits
+      s.setAttribute("data-clerk-publishable-key", pk);
+      s.onload = () => resolve(s);
+      s.onerror = () => reject(new Error("script failed: " + src));
+      document.head.appendChild(s);
+    });
+  }
+
   async function loadClerkScript(pk) {
-    if (global.Clerk && typeof global.Clerk === "function") return;
+    // Already have a usable instance
+    if (global.Clerk && typeof global.Clerk.load === "function" && typeof global.Clerk.mountSignIn === "function") {
+      return;
+    }
+    // Already have a constructor
+    if (typeof global.Clerk === "function") {
+      return;
+    }
+
     const host = frontendHostFromPk(pk);
     const urls = [
       host ? host + "/npm/@clerk/clerk-js@5/dist/clerk.browser.js" : null,
@@ -40,21 +68,16 @@
     let lastErr = null;
     for (const src of urls) {
       try {
-        await new Promise((resolve, reject) => {
-          const s = document.createElement("script");
-          s.src = src;
-          s.async = true;
-          s.crossOrigin = "anonymous";
-          s.onload = resolve;
-          s.onerror = () => reject(new Error("blocked or failed: " + src));
-          document.head.appendChild(s);
-        });
+        await loadScriptTag(src, pk);
+        // Give the UMD a tick to attach
+        await new Promise((r) => setTimeout(r, 0));
         if (global.Clerk) return;
+        lastErr = new Error("Clerk global missing after " + src);
       } catch (err) {
         lastErr = err;
       }
     }
-    throw lastErr || new Error("Clerk script blocked — disable ad blocker for getglowop.com");
+    throw lastErr || new Error("Clerk script failed to load");
   }
 
   async function createClerk(publishableKey) {
@@ -63,14 +86,28 @@
       throw new Error("Missing publishableKey from /api/config/public");
     }
     await loadClerkScript(pk);
-    const ClerkCtor = global.Clerk;
-    if (!ClerkCtor) {
-      throw new Error("Clerk missing — ad blocker may be blocking clerk-js. Allow getglowop.com and *.clerk.accounts.dev");
+
+    const C = global.Clerk;
+    if (!C) {
+      throw new Error("Clerk global missing after script load");
     }
-    const clerk = new ClerkCtor(pk);
-    await clerk.load();
-    global.__glowClerk = clerk;
-    return clerk;
+
+    // FAPI / data-clerk-publishable-key style: window.Clerk is already an instance
+    if (typeof C.load === "function" && typeof C.mountSignIn === "function") {
+      await C.load();
+      global.__glowClerk = C;
+      return C;
+    }
+
+    // Older/UMD constructor style: window.Clerk is a class
+    if (typeof C === "function") {
+      const clerk = new C(pk);
+      await clerk.load();
+      global.__glowClerk = clerk;
+      return clerk;
+    }
+
+    throw new Error("Unexpected Clerk global shape: " + typeof C);
   }
 
   async function sessionToken(clerk) {
