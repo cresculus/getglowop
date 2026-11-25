@@ -202,7 +202,43 @@ def list_devices(conn: sqlite3.Connection, tenant_id: str | None = None) -> list
         rows = conn.execute("SELECT * FROM devices WHERE tenant_id = ? ORDER BY glow_score ASC, device_name", (tenant_id,)).fetchall()
     else:
         rows = conn.execute("SELECT * FROM devices ORDER BY glow_score ASC, device_name").fetchall()
-    return [dict(r) for r in rows]
+    items = [dict(r) for r in rows]
+    return _prefer_rich_rows(items)
+
+
+def _prefer_rich_rows(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """When multiple rows share a hostname, keep the richest inventory (real collector over stubs)."""
+    best: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+    for row in items:
+        key = (row.get("device_name") or row.get("serial_number") or row.get("id") or "").strip().lower()
+        if not key:
+            key = str(row.get("id"))
+        score = _richness(row)
+        prev = best.get(key)
+        if prev is None:
+            best[key] = row
+            order.append(key)
+        elif score > _richness(prev):
+            best[key] = row
+    return [best[k] for k in order]
+
+
+def _richness(row: dict[str, Any]) -> int:
+    raw = row.get("raw_json") or ""
+    score = len(raw) if isinstance(raw, str) else 0
+    if row.get("battery_health") is not None:
+        score += 50
+    if row.get("health_notes"):
+        score += 20
+    mfr = (row.get("manufacturer") or "").lower()
+    if mfr and mfr not in ("windows", "glowopsagent", "unknown"):
+        score += 100
+    if "glowopsInventory" in raw or '"storage"' in raw or '"volumes"' in raw:
+        score += 500
+    if row.get("source") in ("collector", "agent-join", "lab-collector"):
+        score += 200
+    return score
 
 
 def fleet_summary(conn: sqlite3.Connection, tenant_id: str | None = None) -> dict[str, Any]:

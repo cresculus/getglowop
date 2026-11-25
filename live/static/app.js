@@ -114,19 +114,71 @@
     $("d-why").textContent = d.rationale || d.health_notes || "";
   }
 
+  const TZ_KEY = "glowops_tz";
+  function currentTz() {
+    return localStorage.getItem(TZ_KEY) || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  }
+  function formatWhen(iso) {
+    if (!iso) return "—";
+    const dt = new Date(iso);
+    if (Number.isNaN(dt.getTime())) return String(iso);
+    try {
+      const date = new Intl.DateTimeFormat(undefined, {
+        timeZone: currentTz(),
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      }).format(dt);
+      const time = new Intl.DateTimeFormat(undefined, {
+        timeZone: currentTz(),
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      }).format(dt);
+      return `${date} · ${time}`;
+    } catch {
+      return String(iso);
+    }
+  }
+  function formatBytes(n) {
+    const v = Number(n);
+    if (!Number.isFinite(v) || v <= 0) return "—";
+    const units = ["B", "KB", "MB", "GB", "TB"];
+    let x = v;
+    let i = 0;
+    while (x >= 1024 && i < units.length - 1) {
+      x /= 1024;
+      i += 1;
+    }
+    return `${x.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+  }
+  function yn(v) {
+    if (v === true) return "Yes";
+    if (v === false) return "No";
+    return "—";
+  }
+
   function propRow(label, value) {
     return `<div class="prop-row"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
   }
 
-  function inventoryBits(inv) {
-    if (!inv || typeof inv !== "object") return { battery: null, signals: {}, storage: [], volumes: [], system: {}, device: {} };
+  function inventoryBits(full, d) {
+    const inv =
+      full?.inventory ||
+      full?.raw?.glowopsInventory ||
+      (full?.raw?.device ? full.raw : null) ||
+      d?.inventory ||
+      null;
+    const base = inv && typeof inv === "object" ? inv : {};
     return {
-      battery: inv.battery || null,
-      signals: inv.signals || {},
-      storage: Array.isArray(inv.storage) ? inv.storage : [],
-      volumes: Array.isArray(inv.volumes) ? inv.volumes : [],
-      system: inv.system || {},
-      device: inv.device || {},
+      battery: base.battery || null,
+      signals: base.signals || d?.signals || {},
+      storage: Array.isArray(base.storage) ? base.storage : Array.isArray(d?.storage) ? d.storage : [],
+      volumes: Array.isArray(base.volumes) ? base.volumes : Array.isArray(d?.volumes) ? d.volumes : [],
+      system: base.system || {},
+      device: base.device || {},
+      resources: base.resources || d?.resources || {},
     };
   }
 
@@ -140,33 +192,44 @@
     }
     title.textContent = d.device_name || d.id || "Device";
     const call = String(d.call_label || "keep").toLowerCase();
-    const inv = inventoryBits(full?.inventory || full?.raw?.glowopsInventory || null);
+    const inv = inventoryBits(full || d, d);
     const batt =
       d.battery_health != null
         ? `${d.battery_health}%`
         : inv.battery?.healthPercent != null
           ? `${inv.battery.healthPercent}%`
-          : "—";
-    const notes = d.health_notes || d.rationale || (inv.signals.notes || []).join(" ") || "—";
+          : inv.battery?.present === false
+            ? "N/A (desktop)"
+            : "—";
+    const notesArr = [].concat(inv.signals.notes || []).filter(Boolean);
+    const notes = d.health_notes || d.rationale || notesArr.join(" ") || "—";
+    const res = inv.resources || {};
+    const bitlocker =
+      d.bitlockerEnabled != null ? d.bitlockerEnabled : inv.signals.bitlockerEnabled;
+    const tpm = d.tpmPresent != null ? d.tpmPresent : inv.signals.tpmPresent;
+    const reboot =
+      d.pendingReboot != null ? d.pendingReboot : inv.system.pendingReboot;
 
     const volumeRows = (inv.volumes || [])
       .map((v) => {
         const size = Number(v.sizeBytes || 0);
         const free = Number(v.freeBytes || 0);
         const pct = size > 0 ? Math.round((100 * free) / size) : null;
-        return `<li><strong>${esc(v.drive || "?")}</strong> ${pct != null ? pct + "% free" : "—"} · ${esc(
-          v.fileSystem || ""
-        )}</li>`;
+        return `<li><strong>${esc(v.drive || "?")}</strong> ${formatBytes(free)} free of ${formatBytes(
+          size
+        )}${pct != null ? ` (${pct}%)` : ""} · ${esc(v.fileSystem || "")}</li>`;
       })
       .join("");
 
     const diskRows = (inv.storage || [])
-      .map(
-        (s) =>
-          `<li><strong>${esc(s.name || s.model || "Disk")}</strong> ${
-            s.predictiveFailure ? '<span class="pill recycle">predictive failure</span>' : "ok"
-          }</li>`
-      )
+      .map((s) => {
+        const fail = s.predictiveFailure === true;
+        return `<li><strong>${esc(s.name || s.model || "Disk")}</strong> ${esc(
+          [s.mediaType, s.busType].filter(Boolean).join(" · ")
+        )} · ${formatBytes(s.sizeBytes)} ${
+          fail ? '<span class="pill recycle">predictive failure</span>' : '<span class="pill keep">healthy</span>'
+        }</li>`;
+      })
       .join("");
 
     body.innerHTML = `
@@ -180,8 +243,8 @@
           <div><span>Call</span><strong><span class="pill ${call}">${call}</span></strong></div>
           <div><span>GLOW</span><strong class="${glowClass(d.glow_score)}">${esc(d.glow_score ?? "—")}</strong></div>
           <div><span>Battery</span><strong>${esc(batt)}</strong></div>
-          <div><span>Age</span><strong>${d.age_years != null ? d.age_years + "y" : "—"}</strong></div>
-          <div><span>Last sync</span><strong>${d.check_in_days != null ? d.check_in_days + "d ago" : "—"}</strong></div>
+          <div><span>RAM used</span><strong>${res.ramUsedPercent != null ? res.ramUsedPercent + "%" : "—"}</strong></div>
+          <div><span>CPU load</span><strong>${res.cpuLoadPercent != null ? res.cpuLoadPercent + "%" : "—"}</strong></div>
           <div><span>Mfg kg</span><strong>${esc(d.mfg_kg ?? "—")}</strong></div>
         </div>
       </div>
@@ -203,23 +266,33 @@
           ${propRow("GLOW score", d.glow_score)}
           ${propRow("Age (years)", d.age_years)}
           ${propRow("Check-in (days)", d.check_in_days)}
-          ${propRow("Enrolled", d.enrolled_at)}
-          ${propRow("Last sync", d.last_sync_at)}
-          ${propRow("Updated", d.updated_at)}
+          ${propRow("Enrolled", formatWhen(d.enrolled_at))}
+          ${propRow("Last sync", formatWhen(d.last_sync_at))}
+          ${propRow("Updated", formatWhen(d.updated_at))}
+          ${propRow("Time zone", currentTz())}
         </section>
         <section class="props-card">
           <h3>Health & security</h3>
           ${propRow("Battery", batt)}
           ${propRow("Compliance", d.compliance_state)}
-          ${propRow("BitLocker", inv.signals.bitlockerEnabled == null ? "—" : inv.signals.bitlockerEnabled ? "On" : "Off")}
-          ${propRow("TPM", inv.signals.tpmPresent == null ? "—" : inv.signals.tpmPresent ? "Present" : "Missing")}
-          ${propRow("Pending reboot", inv.system.pendingReboot == null ? "—" : inv.system.pendingReboot ? "Yes" : "No")}
-          ${propRow("User", d.user_upn)}
-          ${propRow("OS", [d.operating_system, d.os_version].filter(Boolean).join(" "))}
+          ${propRow("BitLocker", bitlocker == null ? "—" : bitlocker ? "On" : "Off")}
+          ${propRow("TPM", tpm == null ? "—" : tpm ? "Present" : "Missing")}
+          ${propRow("Pending reboot", yn(reboot))}
+          ${propRow("User", d.user_upn || inv.system.lastInteractiveUser)}
+          ${propRow("OS", [d.operating_system || inv.system.osCaption, d.os_version || inv.system.osVersion].filter(Boolean).join(" "))}
+        </section>
+        <section class="props-card">
+          <h3>Resources (agent)</h3>
+          ${propRow("CPU", res.cpuName || "—")}
+          ${propRow("Cores / logical", res.cpuCores != null ? `${res.cpuCores} / ${res.cpuLogical ?? "—"}` : "—")}
+          ${propRow("CPU load", res.cpuLoadPercent != null ? `${res.cpuLoadPercent}%` : "—")}
+          ${propRow("RAM total", res.ramTotalMB != null ? `${res.ramTotalMB} MB` : "—")}
+          ${propRow("RAM free", res.ramFreeMB != null ? `${res.ramFreeMB} MB` : "—")}
+          ${propRow("RAM used", res.ramUsedPercent != null ? `${res.ramUsedPercent}%` : "—")}
         </section>
         <section class="props-card">
           <h3>Storage</h3>
-          ${diskRows ? `<ul class="props-list">${diskRows}</ul>` : `<p class="hint">No disk inventory on this row yet.</p>`}
+          ${diskRows ? `<ul class="props-list">${diskRows}</ul>` : `<p class="hint">No disk inventory on this row yet. Re-run the GlowOps Agent / collector.</p>`}
           ${volumeRows ? `<h4>Volumes</h4><ul class="props-list">${volumeRows}</ul>` : ""}
         </section>
       </div>
@@ -519,6 +592,31 @@
       st.textContent = String(err.message || err);
     }
   });
+
+  const tzSelect = $("tzSelect");
+  if (tzSelect) {
+    const zones = [
+      currentTz(),
+      "America/New_York",
+      "America/Chicago",
+      "America/Denver",
+      "America/Los_Angeles",
+      "UTC",
+      "Europe/London",
+      "Europe/Berlin",
+    ];
+    const uniq = [...new Set(zones)];
+    tzSelect.innerHTML = uniq.map((z) => `<option value="${esc(z)}">${esc(z)}</option>`).join("");
+    tzSelect.value = currentTz();
+    tzSelect.addEventListener("change", () => {
+      localStorage.setItem(TZ_KEY, tzSelect.value);
+      if (currentView === "properties") {
+        const d = propertiesDevice || findDevice(selectedId);
+        renderProperties(d, propertiesDevice);
+      }
+      renderDevices();
+    });
+  }
 
   const params = new URLSearchParams(window.location.search);
   const tenantParam = params.get("tenant");

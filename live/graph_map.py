@@ -30,6 +30,7 @@ def map_glowops_inventory(doc: dict[str, Any]) -> dict[str, Any]:
     bitlocker = signals.get("bitlockerEnabled")
     compliance = "noncompliant" if bitlocker is False else "compliant"
 
+    resources = doc.get("resources") or {}
     return {
         "id": doc.get("deviceKey") or device.get("serialNumber") or device.get("hostname"),
         "deviceName": device.get("hostname") or device.get("deviceName"),
@@ -49,6 +50,13 @@ def map_glowops_inventory(doc: dict[str, Any]) -> dict[str, Any]:
         "storage": storage,
         "volumes": volumes,
         "signals": signals,
+        "resources": resources,
+        "cpuLoadPercent": resources.get("cpuLoadPercent"),
+        "ramUsedPercent": resources.get("ramUsedPercent"),
+        "ramTotalMB": resources.get("ramTotalMB"),
+        "bitlockerEnabled": bitlocker,
+        "tpmPresent": signals.get("tpmPresent"),
+        "pendingReboot": system.get("pendingReboot"),
     }
 
 
@@ -65,7 +73,8 @@ def map_managed_device(raw: dict[str, Any]) -> dict[str, Any]:
             mapped["batteryHealthPercent"] = raw.get("batteryHealthPercent")
         return mapped
 
-    return {
+    # Flat agent/Graph row — keep nested inventory fragments when present
+    out = {
         "id": raw.get("id") or raw.get("intuneDeviceId") or raw.get("managedDeviceId"),
         "intuneDeviceId": raw.get("id") or raw.get("intuneDeviceId"),
         "azureDeviceId": raw.get("azureADDeviceId") or raw.get("azureDeviceId") or raw.get("azureAdDeviceId"),
@@ -84,7 +93,18 @@ def map_managed_device(raw: dict[str, Any]) -> dict[str, Any]:
         "persona": raw.get("persona") or raw.get("deviceCategoryDisplayName"),
         "deviceClass": raw.get("deviceClass"),
         "healthNotes": raw.get("healthNotes") or raw.get("notes"),
+        "storage": raw.get("storage"),
+        "volumes": raw.get("volumes"),
+        "signals": raw.get("signals"),
+        "resources": raw.get("resources"),
+        "bitlockerEnabled": raw.get("bitlockerEnabled"),
+        "tpmPresent": raw.get("tpmPresent"),
+        "pendingReboot": raw.get("pendingReboot"),
+        "cpuLoadPercent": raw.get("cpuLoadPercent"),
+        "ramUsedPercent": raw.get("ramUsedPercent"),
+        "ramTotalMB": raw.get("ramTotalMB"),
     }
+    return out
 
 
 def map_managed_devices(payload: Any) -> list[dict[str, Any]]:

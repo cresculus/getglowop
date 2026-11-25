@@ -167,9 +167,13 @@ em { font-family: var(--serif); font-style: italic; font-weight: 500; text-trans
 }
 
 .ledger-head {
-  display: flex; align-items: center; justify-content: flex-start;
+  display: flex; align-items: center; justify-content: space-between;
   gap: 0.75rem; padding: 0.45rem 0.7rem;
   border-bottom: 1px solid var(--line-soft);
+}
+.biz.tz select {
+  border: 0; outline: 0; background: transparent;
+  font: 700 0.72rem/1 var(--font); max-width: 11rem;
 }
 .ledger-head h1 {
   margin: 0; font-size: 1.05rem; font-weight: 900; text-transform: uppercase;
@@ -399,13 +403,9 @@ tbody tr.is-selected { background: var(--lime); }
   justify-content: flex-start;
 }
 #ingestStatus { color: var(--muted); font-size: 0.8rem; }
-.dash-fit, .props-fit, .resources-fit, .pane.ledger {
-  /* keep action docks pinned left-bottom */
+.props-columns {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
-.dash-grid, .props-body, .resources-body {
-  justify-items: start;
-}
-.resources-grid { justify-content: start; }
 
 @media (max-width: 1100px) {
   .dash-grid { grid-template-columns: 1fr; }

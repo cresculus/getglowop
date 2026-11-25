@@ -24,6 +24,9 @@
     </div>
     <div class="rail">
       <label class="biz"><span>Biz</span><input id="tenant" value="demo" spellcheck="false" /></label>
+      <label class="biz tz"><span>TZ</span>
+        <select id="tzSelect" title="Display time zone"></select>
+      </label>
       <button type="button" class="btn ghost" id="refresh" title="Reload">↻</button>
       <a class="btn ghost" id="exportCsv" href="/api/export.csv?tenant=demo">CSV</a>
       <a class="btn ghost" href="/download/GlowOpsAgent.exe">Agent</a>
@@ -52,6 +55,11 @@
       <section class="pane ledger" aria-label="Devices">
         <div class="ledger-head">
           <h1>GLOW Op <em>Report</em></h1>
+          <div class="pager">
+            <button type="button" class="btn ghost" id="prevPage" aria-label="Previous">‹</button>
+            <span id="pageInfo">1 / 1</span>
+            <button type="button" class="btn ghost" id="nextPage" aria-label="Next">›</button>
+          </div>
         </div>
         <div class="table-fit">
           <table>
@@ -68,11 +76,6 @@
             <tbody id="tbody"></tbody>
           </table>
           <p class="empty" id="empty" hidden>No devices match.</p>
-        </div>
-        <div class="action-dock pager">
-          <button type="button" class="btn ghost" id="prevPage" aria-label="Previous">‹</button>
-          <span id="pageInfo">1 / 1</span>
-          <button type="button" class="btn ghost" id="nextPage" aria-label="Next">›</button>
         </div>
       </section>
 
