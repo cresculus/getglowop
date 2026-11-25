@@ -134,13 +134,34 @@
   color: var(--muted);
   font-size: 0.88rem;
   max-width: 42rem;
+  text-align: left;
 }
-.mint-inline { display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; }
-.mint-inline input {
+.pview-left { align-items: stretch; }
+.ledger-head-left {
+  justify-content: flex-start !important;
+  padding-left: 0.85rem;
+}
+.mint-inline,
+.mint-dock {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+.mint-dock {
+  margin-top: auto;
+  padding: 0.55rem 0.85rem;
+  border-top: 2px solid var(--line);
+  background: #f7f9f2;
+}
+.mint-inline input,
+.mint-dock input {
   border: 2px solid var(--line); min-height: 28px; padding: 0 0.45rem;
   font: 500 0.8rem/1 var(--font); width: 140px; background: var(--bg);
 }
-.mint-inline select {
+.mint-inline select,
+.mint-dock select {
   border: 2px solid var(--line); min-height: 28px; background: var(--bg);
   font: 600 0.72rem/1 var(--font); max-width: 120px;
 }
@@ -168,7 +189,7 @@
 
 .biz-list {
   list-style: none; margin: 0; padding: 0.55rem 0.85rem; display: grid; gap: 0.45rem;
-  overflow: hidden; align-content: start;
+  overflow: auto; align-content: start; justify-items: stretch; max-width: 42rem;
 }
 .biz-list li {
   display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
@@ -182,8 +203,10 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 0.65rem;
   padding: 0.55rem 0.85rem;
-  overflow: hidden;
+  overflow: auto;
   align-content: start;
+  justify-content: start;
+  max-width: 56rem;
 }
 .analyze-card {
   border: 2px solid var(--line);

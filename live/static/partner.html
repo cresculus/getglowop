@@ -68,20 +68,9 @@
       </aside>
 
       <section class="pane main-pane">
-        <div class="pview" id="pviewEnroll" data-active="true">
-          <div class="ledger-head">
+        <div class="pview pview-left" id="pviewEnroll" data-active="true">
+          <div class="ledger-head ledger-head-left">
             <h1>Enroll devices</h1>
-            <form id="enrollForm" class="mint-inline">
-              <select id="enrollBiz" title="Business"></select>
-              <select id="enrollTtl" title="Expiry">
-                <option value="1">1 hour</option>
-                <option value="24" selected>24 hours</option>
-                <option value="168">7 days</option>
-                <option value="720">30 days max</option>
-              </select>
-              <input id="enrollLabel" placeholder="Label" maxlength="64" />
-              <button class="btn lime" type="submit">Mint join key</button>
-            </form>
           </div>
           <p class="view-lede">Mint a join key + password, put them in the GlowOps Agent on the PC, and the device lands in that business.</p>
           <div id="freshEnroll" class="fresh-key enroll-secret" hidden>
@@ -101,27 +90,34 @@
               <tbody id="enrollBody"></tbody>
             </table>
           </div>
+          <form id="enrollForm" class="mint-dock">
+            <select id="enrollBiz" title="Business"></select>
+            <select id="enrollTtl" title="Expiry">
+              <option value="1">1 hour</option>
+              <option value="24" selected>24 hours</option>
+              <option value="168">7 days</option>
+              <option value="720">30 days max</option>
+            </select>
+            <input id="enrollLabel" placeholder="Label" maxlength="64" />
+            <button class="btn lime" type="submit">Mint join key</button>
+          </form>
         </div>
 
-        <div class="pview" id="pviewBiz" data-active="false" hidden>
-          <div class="ledger-head"><h1>Businesses</h1></div>
+        <div class="pview pview-left" id="pviewBiz" data-active="false" hidden>
+          <div class="ledger-head ledger-head-left"><h1>Businesses</h1></div>
           <p class="view-lede">Customer fleets assigned to this partner. Isolation stays per business — not one shared tenant.</p>
           <ul class="biz-list" id="bizList"></ul>
         </div>
 
-        <div class="pview" id="pviewAnalyze" data-active="false" hidden>
-          <div class="ledger-head"><h1>Analyze</h1></div>
+        <div class="pview pview-left" id="pviewAnalyze" data-active="false" hidden>
+          <div class="ledger-head ledger-head-left"><h1>Analyze</h1></div>
           <p class="view-lede">Open the live GLOW Op Report for a business — keep / repair / redeploy / refresh / recycle / ghost.</p>
           <div class="analyze-grid" id="analyzeGrid"></div>
         </div>
 
-        <div class="pview" id="pviewSettings" data-active="false" hidden>
-          <div class="ledger-head">
+        <div class="pview pview-left" id="pviewSettings" data-active="false" hidden>
+          <div class="ledger-head ledger-head-left">
             <h1>Settings · MCP</h1>
-            <form id="mintForm" class="mint-inline">
-              <input id="keyLabel" placeholder="MCP label" maxlength="64" />
-              <button class="btn lime" type="submit">Mint MCP key</button>
-            </form>
           </div>
           <p class="view-lede">Optional: let partner AI agents read fleet data. Not required to enroll devices.</p>
           <div id="freshKey" class="fresh-key" hidden>
@@ -138,6 +134,10 @@
               <tbody id="keysBody"></tbody>
             </table>
           </div>
+          <form id="mintForm" class="mint-dock">
+            <input id="keyLabel" placeholder="MCP label" maxlength="64" />
+            <button class="btn lime" type="submit">Mint MCP key</button>
+          </form>
         </div>
       </section>
     </section>
