@@ -74,6 +74,7 @@
       biz: "pviewBiz",
       people: "pviewPeople",
       analyze: "pviewAnalyze",
+      resources: "pviewResources",
       settings: "pviewSettings",
     };
     if (!map[name]) name = "home";

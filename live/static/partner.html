@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-4" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-4" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-4" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-5" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-5" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-5" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -27,6 +27,7 @@
       <button type="button" class="view-tab" data-pview="biz" aria-selected="false">Businesses</button>
       <button type="button" class="view-tab" data-pview="people" aria-selected="false">People</button>
       <button type="button" class="view-tab" data-pview="analyze" aria-selected="false">Analyze</button>
+      <button type="button" class="view-tab" data-pview="resources" aria-selected="false">Resources</button>
       <button type="button" class="view-tab" data-pview="settings" aria-selected="false">Settings</button>
     </div>
     <nav class="rail">
@@ -61,8 +62,9 @@
         <button type="button" class="side-link" data-pview="home">Home</button>
         <button type="button" class="side-link" data-pview="enroll">Enroll</button>
         <button type="button" class="side-link" data-pview="biz">Businesses</button>
-        <button type="button" class="side-link" data-pview="people">People · RBAC</button>
+        <button type="button" class="side-link" data-pview="people">People</button>
         <button type="button" class="side-link" data-pview="analyze">Analyze</button>
+        <button type="button" class="side-link" data-pview="resources">Resources</button>
         <button type="button" class="side-link" data-pview="settings">Settings</button>
 
         <p class="nav-kicker">Open report</p>
@@ -94,7 +96,7 @@
           <div class="ledger-head ledger-head-left">
             <h1>Partner <em>Home</em></h1>
           </div>
-          <p class="view-lede">Portfolio view across every business you manage — devices, GLOW, ghosts, repair.</p>
+          <p class="view-lede">Portfolio across the businesses you manage.</p>
           <div class="home-kpis" id="homeKpis">
             <div><span>Businesses</span><strong>—</strong></div>
             <div><span>Devices</span><strong>—</strong></div>
@@ -119,8 +121,7 @@
           <div class="ledger-head ledger-head-left">
             <h1>Enroll devices</h1>
           </div>
-          <p class="view-lede">Mint a join key + password for an existing business. Paste into the GlowOps Agent on one PC, or push silently with Intune / RMM / SCCM. Add businesses under Businesses first.</p>
-          <p class="hint">Download <a href="/download/GlowOpsAgent.exe">GlowOpsAgent.exe</a> · <a href="/download/Open-GlowOpsAgent.cmd">Open-GlowOpsAgent.cmd</a> (Unblock) · <a href="/download/GlowOpsAgent-Win32.zip">Win32 / Intune zip</a>. Fleet: mint 7d/30d TTL → <span class="mono">Install.ps1</span> as System (or wrap with IntuneWinAppUtil).</p>
+          <p class="view-lede">Mint a join key for a business, then use it in the agent or a silent fleet push.</p>
           <div id="freshEnroll" class="fresh-key enroll-secret" hidden>
             <div>
               <p><strong>Copy into the GlowOps Agent menu</strong> — password shown once. Expires automatically; join-only.</p>
@@ -153,7 +154,7 @@
 
         <div class="pview pview-left" id="pviewBiz" data-active="false" hidden>
           <div class="ledger-head ledger-head-left"><h1>Businesses</h1></div>
-          <p class="view-lede">Customer fleets assigned to this partner. Isolation stays per business — not one shared tenant. Add a business here, then enroll devices into it.</p>
+          <p class="view-lede">Customer fleets for this partner. Add one, then enroll devices into it.</p>
           <ul class="biz-list" id="bizList"></ul>
           <form id="addBizForm" class="mint-dock">
             <input id="newBizName" placeholder="Business name (e.g. Acme Schools)" maxlength="80" required />
@@ -163,8 +164,8 @@
         </div>
 
         <div class="pview pview-left" id="pviewPeople" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left"><h1>People · <em>RBAC</em></h1></div>
-          <p class="view-lede">Invite users to a business (tenant) and set roles: owner, admin, operator, viewer. Permissions apply across Partner and Fleet for that business.</p>
+          <div class="ledger-head ledger-head-left"><h1>People</h1></div>
+          <p class="view-lede">Invite people and set roles on a business.</p>
           <div class="people-toolbar mint-dock">
             <select id="peopleBiz" title="Business"></select>
             <span class="hint" id="peopleMyRole">Your role: —</span>
@@ -216,15 +217,40 @@
 
         <div class="pview pview-left" id="pviewAnalyze" data-active="false" hidden>
           <div class="ledger-head ledger-head-left"><h1>Analyze</h1></div>
-          <p class="view-lede">Open the live GLOW Op Report for a business — keep / repair / redeploy / refresh / recycle / ghost.</p>
+          <p class="view-lede">Open the live report for a business.</p>
           <div class="analyze-grid" id="analyzeGrid"></div>
+        </div>
+
+        <div class="pview pview-left" id="pviewResources" data-active="false" hidden>
+          <div class="ledger-head ledger-head-left"><h1>Resources</h1></div>
+          <p class="view-lede">Agent downloads for a single PC or bulk Intune / RMM / SCCM push.</p>
+          <div class="res-cards">
+            <a class="res-card" href="/download/GlowOpsAgent.exe">
+              <span class="res-kicker">Windows</span>
+              <strong>GlowOps Agent</strong>
+              <span class="res-desc">Join menu — paste key + password from Enroll.</span>
+              <span class="res-action">Download EXE</span>
+            </a>
+            <a class="res-card" href="/download/Open-GlowOpsAgent.cmd">
+              <span class="res-kicker">Launcher</span>
+              <strong>Open-GlowOpsAgent</strong>
+              <span class="res-desc">Clears the download block when Windows won’t open the EXE.</span>
+              <span class="res-action">Download CMD</span>
+            </a>
+            <a class="res-card" href="/download/GlowOpsAgent-Win32.zip">
+              <span class="res-kicker">Fleet</span>
+              <strong>Win32 / Intune pack</strong>
+              <span class="res-desc">Install.ps1 as System — or wrap with IntuneWinAppUtil. Mint a 7d/30d join key first.</span>
+              <span class="res-action">Download ZIP</span>
+            </a>
+          </div>
         </div>
 
         <div class="pview pview-left" id="pviewSettings" data-active="false" hidden>
           <div class="ledger-head ledger-head-left">
             <h1>Settings</h1>
           </div>
-          <p class="view-lede">Partner account options. Optional AI / MCP access is only configured here — not required to run the fleet report.</p>
+          <p class="view-lede">Optional MCP access for partner AI agents.</p>
 
           <section class="settings-section props-card">
             <h3>MCP · AI agent access</h3>
@@ -252,7 +278,7 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=lux-4"></script>
-  <script src="/app/partner.js?v=lux-4"></script>
+  <script src="/app/clerk-partner.js?v=lux-5"></script>
+  <script src="/app/partner.js?v=lux-5"></script>
 </body>
 </html>
