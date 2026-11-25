@@ -385,19 +385,35 @@ class Handler(BaseHTTPRequestHandler):
         # Partner console
         if path.rstrip("/") in ("/partner", "/partner/"):
             f = STATIC_DIR / "partner.html"
-            return self._send(200, f.read_bytes(), _content_type(f))
+            return self._send(
+                200,
+                f.read_bytes(),
+                _content_type(f),
+                {"Cache-Control": "no-store, max-age=0"},
+            )
 
         # Live app static under /app/
         if path == "/app" or path == "/app/":
             f = STATIC_DIR / "index.html"
-            return self._send(200, f.read_bytes(), _content_type(f))
+            return self._send(
+                200,
+                f.read_bytes(),
+                _content_type(f),
+                {"Cache-Control": "no-store, max-age=0"},
+            )
         if path.startswith("/app/"):
             rel = path[len("/app/") :]
             if not rel or rel.endswith("/"):
                 rel = "index.html"
             f = _safe_file(STATIC_DIR, rel)
             if f:
-                return self._send(200, f.read_bytes(), _content_type(f))
+                # HTML/JS/CSS change often during partner UX work — never serve stale shells.
+                return self._send(
+                    200,
+                    f.read_bytes(),
+                    _content_type(f),
+                    {"Cache-Control": "no-store, max-age=0"},
+                )
             return self._send(404, b'{"error":"not found"}', "application/json")
 
         if path.rstrip("/") in ("/live", "/dashboard-live"):

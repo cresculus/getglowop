@@ -107,8 +107,13 @@
     $("d-call").innerHTML = `<span class="pill ${call}">${call}</span>`;
     $("d-glow").textContent = d.glow_score ?? "—";
     $("d-glow").className = glowClass(d.glow_score);
+    const cls = String(d.device_class || "").toLowerCase();
     $("d-batt").textContent =
-      d.battery_health != null ? `${d.battery_health}%` : "—";
+      d.battery_health != null
+        ? `${d.battery_health}%`
+        : cls === "desktop"
+          ? "N/A"
+          : "—";
     $("d-comp").textContent = d.compliance_state || "—";
     $("d-user").textContent = d.user_upn || "—";
     $("d-why").textContent = d.rationale || d.health_notes || "";
@@ -182,7 +187,7 @@
     };
   }
 
-  function renderProperties(d, full) {
+  function renderProperties(d, full, { loading = false } = {}) {
     const body = $("propsBody");
     const title = $("p-title");
     if (!d) {
@@ -193,6 +198,7 @@
     title.textContent = d.device_name || d.id || "Device";
     const call = String(d.call_label || "keep").toLowerCase();
     const inv = inventoryBits(full || d, d);
+    const waitingInventory = loading && !(inv.storage || []).length && !(inv.resources || {}).cpuName;
     const batt =
       d.battery_health != null
         ? `${d.battery_health}%`
@@ -292,7 +298,13 @@
         </section>
         <section class="props-card">
           <h3>Storage</h3>
-          ${diskRows ? `<ul class="props-list">${diskRows}</ul>` : `<p class="hint">No disk inventory on this row yet. Re-run the GlowOps Agent / collector.</p>`}
+          ${
+            diskRows
+              ? `<ul class="props-list">${diskRows}</ul>`
+              : waitingInventory
+                ? `<p class="hint">Loading inventory…</p>`
+                : `<p class="hint">No disk inventory on this row yet. Re-run the GlowOps Agent / collector.</p>`
+          }
           ${volumeRows ? `<h4>Volumes</h4><ul class="props-list">${volumeRows}</ul>` : ""}
         </section>
       </div>
@@ -402,7 +414,7 @@
     selectedId = String(id);
     const local = findDevice(selectedId);
     propertiesDevice = local;
-    renderProperties(local, null);
+    renderProperties(local, null, { loading: true });
     const shouldPush = push && currentView !== "properties";
     setView("properties", { sync: false });
     syncUrl("properties", selectedId, { push: shouldPush });
