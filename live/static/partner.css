@@ -409,24 +409,113 @@
   flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-family: var(--mono); font-size: 0.72rem;
 }
-.enroll-url-card {
-  display: grid;
-  gap: 0.35rem;
-  margin: 0 0 1rem;
-  padding: 0.75rem 0.85rem;
+.enroll-flow {
+  margin: 0 0.85rem 1rem;
+  padding: 1rem 1.05rem 1.05rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
-  max-width: 42rem;
+  display: grid;
+  gap: 1rem;
 }
-.enroll-url-card .hint { margin: 0; }
-.fresh-key.enroll-secret { align-items: flex-start; flex-wrap: wrap; }
-.fresh-key.enroll-secret p { margin: 0.15rem 0; }
+.enroll-flow-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(14rem, 0.85fr);
+  gap: 1rem 1.25rem;
+  align-items: start;
+}
+.enroll-step {
+  margin: 0 0 0.55rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.enroll-mint-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 0.75rem;
+}
+.enroll-field {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+}
+.enroll-field > span {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.enroll-field select,
+.enroll-field input {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--bg);
+  padding: 0 0.55rem;
+  font: 500 0.85rem/1.2 var(--font);
+  color: var(--ink);
+}
+.enroll-field-grow { grid-column: 1 / -1; }
+.enroll-mint-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 0.15rem;
+}
+.enroll-flow-aside {
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--bg);
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+}
+.enroll-url-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+.enroll-url-panel code {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--surface);
+}
+.enroll-flow-aside .hint { margin: 0; }
+.enroll-result {
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0.55rem;
+}
+.enroll-result-lede { margin: -0.15rem 0 0.15rem; }
+.enroll-result-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  justify-content: space-between;
+}
 .enroll-secret-body {
   display: grid;
   gap: 0.55rem;
   width: 100%;
   min-width: 0;
+}
+@media (max-width: 900px) {
+  .enroll-flow-grid { grid-template-columns: 1fr; }
 }
 .secret-row {
   display: grid;
