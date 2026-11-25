@@ -29,6 +29,23 @@
     return `${window.location.origin}/mcp`;
   }
 
+  function setContextChip(role, businessName) {
+    const chip = $("partnerRoleChip");
+    const bizEl = $("partnerRoleBiz");
+    const roleEl = $("partnerRoleLabel");
+    if (!chip || !bizEl || !roleEl) return;
+    const biz = (businessName || "").trim() || "Business";
+    const r = (role || "").trim();
+    if (!r) {
+      chip.hidden = true;
+      return;
+    }
+    bizEl.textContent = biz;
+    roleEl.textContent = r;
+    chip.hidden = false;
+    chip.title = `${biz} · ${r}`;
+  }
+
   function renderConfig(apiKeyPlaceholder) {
     const key = apiKeyPlaceholder || "gow_mcp_YOUR_KEY";
     const cfg = $("mcpConfig");
@@ -171,16 +188,9 @@
     document.body.classList.add("is-authed");
     loginView.hidden = true;
     dashView.hidden = false;
-    const chip = $("partnerRoleChip");
-    if (chip) {
-      const primary = meRoles[0];
-      if (primary) {
-        chip.hidden = false;
-        chip.textContent = `${primary.role} · ${primary.businessName || "Business"}`;
-      } else {
-        chip.hidden = true;
-      }
-    }
+    const primary = meRoles[0];
+    if (primary) setContextChip(primary.role, primary.businessName);
+    else setContextChip("", "");
     const ub = $("partnerUserButton");
     if (window.__glowClerk && window.GlowClerkPartner && ub) {
       GlowClerkPartner.mountUserButton(window.__glowClerk, ub);
@@ -310,11 +320,9 @@
       peopleCanManage = !!data.canManage;
       const roleEl = $("peopleMyRole");
       if (roleEl) roleEl.textContent = `Your role: ${data.myRole || "—"}`;
-      const chip = $("partnerRoleChip");
-      if (chip && data.myRole) {
+      if (data.myRole) {
         const biz = businessesCache.find((b) => b.business_id === businessId);
-        chip.hidden = false;
-        chip.textContent = `${data.myRole} · ${biz?.business_name || "Business"}`;
+        setContextChip(data.myRole, biz?.business_name || "Business");
       }
       membersBody.innerHTML = (data.members || [])
         .map((m) => {

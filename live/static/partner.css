@@ -66,14 +66,43 @@
 .login-card-auth .lede { margin-bottom: 0.55rem; }
 .partner-auth .login-card,
 .login-card-auth { width: min(420px, 100%); }
-.role-chip {
+/* Context chip: business + role — quiet, not a raw "owner · name" dump */
+.ctx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  max-width: min(280px, 36vw);
+  min-height: 32px;
+  padding: 0.2rem 0.35rem 0.2rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: none;
+}
+.ctx-biz {
+  font-family: var(--font);
+  font-size: 0.8125rem;
+  font-weight: var(--w-medium);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.ctx-role {
+  flex: 0 0 auto;
   font-family: var(--mono);
   font-size: 0.62rem;
-  letter-spacing: 0.06em;
-  text-transform: none;
-  border: var(--border-w) solid var(--line);
-  padding: 0.2rem 0.4rem;
-  background: var(--surface-sel);
+  font-weight: var(--w-medium);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 0.18rem 0.5rem;
+  line-height: 1.2;
 }
 .people-toolbar { margin: 0 0.85rem 0.75rem; align-items: center; }
 .role-select {
@@ -418,7 +447,7 @@
   }
   .partner-shell .topbar { align-items: flex-start; }
   .partner-shell .rail { width: 100%; justify-content: flex-end; }
-  .who { max-width: 42vw; }
+  .ctx-chip { max-width: min(220px, 52vw); }
   .settings-section { margin-left: 0.55rem; margin-right: 0.55rem; }
   .partner-dash .table-fit { margin: 0.45rem; }
   .mint-inline, .mint-dock { gap: 0.4rem; }
