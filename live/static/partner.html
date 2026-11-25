@@ -20,6 +20,7 @@
       <button type="button" class="view-tab" data-pview="enroll" aria-selected="false">Enroll</button>
       <button type="button" class="view-tab" data-pview="biz" aria-selected="false">Businesses</button>
       <button type="button" class="view-tab" data-pview="analyze" aria-selected="false">Analyze</button>
+      <button type="button" class="view-tab" data-pview="settings" aria-selected="false">Settings</button>
     </div>
     <nav class="rail">
       <button type="button" class="btn ghost" id="homeBtn" data-pview="home" hidden>Home</button>
@@ -33,7 +34,7 @@
       <div class="login-card">
         <p class="pane-label"><span class="live"></span> Partner console</p>
         <h1>Sign in</h1>
-        <p class="lede">Add businesses, enroll devices, then open each fleet report. MCP lives under Settings.</p>
+        <p class="lede">Add businesses, enroll devices, then open each fleet report.</p>
         <form id="loginForm" class="login-form">
           <label>Email<input id="email" type="email" required autocomplete="username" value="partner@getglowop.com" /></label>
           <label>Password<input id="password" type="password" required autocomplete="current-password" value="GlowOps-Partner-2026!" /></label>
@@ -50,7 +51,7 @@
         <button type="button" class="side-link" data-pview="enroll">Enroll</button>
         <button type="button" class="side-link" data-pview="biz">Businesses</button>
         <button type="button" class="side-link" data-pview="analyze">Analyze</button>
-        <button type="button" class="side-link" data-pview="settings">Settings · MCP</button>
+        <button type="button" class="side-link" data-pview="settings">Settings</button>
 
         <p class="nav-kicker">Open report</p>
         <a class="side-link" id="navFleet" href="/app/?from=partner&view=fleet">Fleet report</a>
@@ -73,7 +74,7 @@
 
         <div class="nav-foot">
           <div><span>Businesses</span><strong id="bizCount">—</strong></div>
-          <div><span>MCP keys</span><strong id="keyCount">—</strong></div>
+          <div><span>API keys</span><strong id="keyCount">—</strong></div>
         </div>
       </aside>
 
@@ -158,27 +159,32 @@
 
         <div class="pview pview-left" id="pviewSettings" data-active="false" hidden>
           <div class="ledger-head ledger-head-left">
-            <h1>Settings · MCP</h1>
+            <h1>Settings</h1>
           </div>
-          <p class="view-lede">Optional: let partner AI agents read fleet data. Not required to enroll devices.</p>
-          <div id="freshKey" class="fresh-key" hidden>
-            <code id="freshKeyValue"></code>
-            <button type="button" class="btn ghost" id="copyKey">Copy</button>
-          </div>
-          <p class="pane-label">Endpoint · <span id="mcpUrl">/mcp</span></p>
-          <pre class="config-block" id="mcpConfig"></pre>
-          <div class="table-fit settings-keys">
-            <table>
-              <thead>
-                <tr><th>Label</th><th>Prefix</th><th>Scopes</th><th>Created</th><th>Used</th><th></th></tr>
-              </thead>
-              <tbody id="keysBody"></tbody>
-            </table>
-          </div>
-          <form id="mintForm" class="mint-dock">
-            <input id="keyLabel" placeholder="MCP label" maxlength="64" />
-            <button class="btn lime" type="submit">Mint MCP key</button>
-          </form>
+          <p class="view-lede">Partner account options. Optional AI / MCP access is only configured here — not required to run the fleet report.</p>
+
+          <section class="settings-section props-card">
+            <h3>MCP · AI agent access</h3>
+            <p class="hint">Optional. Mint a key if a partner AI agent needs read access to fleet data.</p>
+            <div id="freshKey" class="fresh-key" hidden>
+              <code id="freshKeyValue"></code>
+              <button type="button" class="btn ghost" id="copyKey">Copy</button>
+            </div>
+            <p class="pane-label">Endpoint · <span id="mcpUrl">/mcp</span></p>
+            <pre class="config-block" id="mcpConfig"></pre>
+            <div class="table-fit settings-keys">
+              <table>
+                <thead>
+                  <tr><th>Label</th><th>Prefix</th><th>Scopes</th><th>Created</th><th>Used</th><th></th></tr>
+                </thead>
+                <tbody id="keysBody"></tbody>
+              </table>
+            </div>
+            <form id="mintForm" class="mint-inline settings-mint">
+              <input id="keyLabel" placeholder="Key label" maxlength="64" />
+              <button class="btn lime" type="submit">Mint key</button>
+            </form>
+          </section>
         </div>
       </section>
     </section>

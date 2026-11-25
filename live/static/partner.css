@@ -342,7 +342,14 @@
   border: 2px solid var(--line);
   background: var(--bg);
 }
-.partner-dash .settings-keys { max-height: 40%; }
+.partner-dash .settings-keys { max-height: 40%; margin: 0.55rem 0; }
+.settings-section {
+  margin: 0 0.85rem 1rem;
+  max-width: 52rem;
+}
+.settings-section .pane-label { padding-left: 0; }
+.settings-section .config-block { margin: 0 0 0.55rem; max-height: 12rem; }
+.settings-mint { margin-top: 0.55rem; }
 .partner-dash table { font-size: 0.78rem; }
 .partner-dash tbody tr { height: 1.9rem; cursor: default; }
 .partner-dash .pane-label { padding-left: 0.85rem; }
