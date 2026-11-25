@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light only" />
     <title>GLOW Ops — Fleet Refresh Report via Intune, RMM, or Agent | Keep, Repair, or Recycle</title>
-    <meta name="description" content="GLOW Op Report for MSPs and IT: ingest from Intune, RMM, or a thin agent — or lean on Intune/SCCM when that is already the system of record. Keep, repair, redeploy, refresh, or recycle per serial with CO₂e sources and a white-label client PDF." />
+    <meta name="description" content="GLOW Op Report for MSPs and IT: keep, repair, redeploy, refresh, or recycle per serial with CO₂e sources — and a finance brief that shows how repair-before-replace can shift CapEx into deductible OpEx and document carbon avoidance for your tax advisor." />
     <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
-    <meta name="keywords" content="Intune laptop refresh policy, RMM fleet inventory, endpoint agent inventory, SCCM ConfigMgr refresh, extend laptop life enterprise, device sustainability MSP, repair before replace laptop, ghost devices Intune, IT asset disposition report, Scope 3 IT hardware, Boavizta PCF fleet" />
+    <meta name="keywords" content="Intune laptop refresh policy, RMM fleet inventory, endpoint agent inventory, SCCM ConfigMgr refresh, extend laptop life enterprise, device sustainability MSP, repair before replace laptop, ghost devices Intune, IT asset disposition report, Scope 3 IT hardware, Boavizta PCF fleet, lower taxable income IT refresh, repair OpEx vs CapEx, carbon tax fleet, manufacturing CO2e avoided" />
     <meta name="author" content="GLOW Ops" />
     <link rel="canonical" href="https://getglowop.com/" />
     <link rel="alternate" href="https://getglowop.com/dashboard.html" title="Sample dashboard and GLOW Op Report" />
@@ -16,7 +16,7 @@
     <meta property="og:site_name" content="GLOW Ops" />
     <meta property="og:url" content="https://getglowop.com/" />
     <meta property="og:title" content="GLOW Ops — Stop refreshing healthy laptops on a calendar" />
-    <meta property="og:description" content="The GLOW Op Report turns Intune, RMM, or agent inventory into keep / repair / redeploy / refresh / recycle calls — per device, with the carbon factor and source on every row." />
+    <meta property="og:description" content="Keep / repair / redeploy / refresh / recycle per device — with carbon factors on every row, and a spend brief that helps finance lower near-term taxable income by preferring deductible repair over calendar CapEx." />
     <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="GLOW Ops — Intune, RMM, or agent fleet keep / repair / recycle report" />
@@ -69,6 +69,7 @@
             "Keep, repair, redeploy, refresh, recycle calls",
             "Manufacturer PCF and Boavizta enrichment",
             "Ghost-device flags from stale check-ins",
+            "Spend and tax conversation brief (repair OpEx vs refresh CapEx, avoided CO₂e)",
             "White-label client PDF and CSV",
             "Deploy via Intune, RMM, or Nerdio per company"
           ],
@@ -108,6 +109,14 @@
               "acceptedAnswer": {
                 "@type": "Answer",
                 "text": "Peer-reviewed life-cycle studies show most of a laptop’s greenhouse-gas footprint is manufacturing, not use. Extending healthy devices and repairing batteries avoids buying new machines and the embodied carbon that comes with them. GLOW Ops cites manufacturer PCFs and published studies on each row; it is a screening report, not a full GHG Protocol inventory."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can GLOW Ops help lower taxable income?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The GLOW Op Report is built so finance can prefer repair and keep over calendar refresh. Battery and disk work is often ordinary deductible OpEx; a new fleet is usually CapEx depreciated over years. Fewer unnecessary purchases also cut cash out the door. Where a carbon tax or emissions price applies, documenting avoided manufacturing CO₂e supports that conversation with your CPA. GLOW Ops does not sell IRS credits and is not tax advice — bring the report to your advisor."
               }
             },
             {
@@ -363,6 +372,28 @@
 
       /* ---------- calculator ---------- */
       .calc-sec{ background:var(--surface-2); color:var(--ink); border-top:2px solid var(--line); border-bottom:2px solid var(--line); }
+      .tax-sec{ background:var(--ink); color:var(--bg); border-top:2px solid var(--line); border-bottom:2px solid var(--line); }
+      .tax-sec .sec-index .n{ background:var(--lime); color:#0D130B; }
+      .tax-sec h2{ color:var(--bg); }
+      .tax-sec h2 .hl{ background:var(--lime); color:#0D130B; }
+      .tax-sec .sec-lede{ color:rgba(237,241,232,.88); }
+      .tax-sec .sec-lede strong{ color:var(--bg); }
+      .tax-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1.75rem; }
+      .tax-card{
+        background:rgba(237,241,232,.06); border:2px solid rgba(237,241,232,.35);
+        padding:1.25rem 1.2rem; min-height:11rem;
+      }
+      .tax-card .mono-label{
+        font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.12em;
+        text-transform:uppercase; color:var(--lime); margin:0 0 .55rem;
+      }
+      .tax-card h3{ font-size:1.15rem; margin:0 0 .55rem; text-transform:uppercase; letter-spacing:.02em; color:var(--bg); }
+      .tax-card p{ margin:0; color:rgba(237,241,232,.82); line-height:1.45; font-size:.98rem; }
+      .tax-fine{
+        margin-top:1.4rem; font-family:"IBM Plex Mono",monospace; font-size:.78rem;
+        letter-spacing:.03em; color:rgba(237,241,232,.55); max-width:54em;
+      }
+      @media (max-width:900px){ .tax-grid{ grid-template-columns:1fr; } }
       .calc-sec .sec-index{ color:var(--lime-deep); }
       .calc-sec .sec-index::after{ border-top-color:var(--line); }
       .calc-sec .sec-lede{ color:var(--ink-2); }
@@ -534,7 +565,7 @@
   </head>
   <body>
     <header class="topbar">
-      <a class="wordmark" href="#top"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops <small>Green Lifecycle &amp; Operation Workflows</small></a>
+      <a class="wordmark" href="#top"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops<sup style="font-size:.55em;margin-left:.12em">™</sup> <small>Green Lifecycle &amp; Operation Workflows</small></a>
       <nav aria-label="Sections">
         <a href="#problem">The problem</a>
         <a href="#report">The report</a>
@@ -543,6 +574,7 @@
         <a href="#security">Security</a>
         <a href="/security.html">Security detail</a>
         <a href="#calculator">Calculator</a>
+        <a href="#tax">Tax &amp; spend</a>
         <a href="#sources">Sources</a>
       </nav>
       <a class="domain" href="/app/">Open live →</a>
@@ -556,7 +588,7 @@
           <h1>Get an IT<br /><span class="glow">Glow</span> Op.</h1>
           <div class="hero-grid">
             <div>
-              <p class="hero-lede">A <strong>GLOW Op Report</strong> is the document a business actually uses. It looks at the laptops and desktops already in your fleet — from <strong>Intune</strong>, an <strong>RMM</strong>, or a <strong>thin agent</strong> — and says which ones get to live, which need a battery, and which are genuinely done. Intune-heavy or still on <strong>SCCM</strong>? We meet you there too. <span class="serif-i">Many paths in. One call out. Refresh season can sit down.</span></p>
+              <p class="hero-lede">A <strong>GLOW Op Report</strong> is the document a business actually uses. It looks at the laptops and desktops already in your fleet — from <strong>Intune</strong>, an <strong>RMM</strong>, or a <strong>thin agent</strong> — and says which ones get to live, which need a battery, and which are genuinely done. Preferring repair and keep over calendar refresh also gives finance a clean path to <strong>lower near-term taxable income</strong> (OpEx vs CapEx) and document avoided manufacturing carbon. Intune-heavy or still on <strong>SCCM</strong>? We meet you there too. <span class="serif-i">Many paths in. One call out. Refresh season can sit down.</span></p>
               <div class="hero-ctas">
                 <a class="btn btn-lime" href="/app/">Open the live dashboard</a>
                 <a class="btn btn-ghost" href="/dashboard.html#report">See the sample report</a>
@@ -678,6 +710,7 @@
                 <li><b>The call, with a sentence.</b> Keep and optimize, repair, redeploy, refresh, or certified recycle / remarket. Written for an IT manager, not a life-cycle assessor.</li>
                 <li><b>Match confidence.</b> Exact model sheet, same-family estimate, or fallback. A guess is labeled a guess.</li>
                 <li><b>Calendar versus carbon.</b> What the current refresh policy would buy, versus what the score says — in kilograms and in purchase dollars.</li>
+                <li><b>Spend &amp; tax brief.</b> Repair / keep lines framed as near-term OpEx versus CapEx refresh — so finance can talk taxable income and carbon cost with a CPA, not invent a number.</li>
                 <li><b>Persona window.</b> A kiosk, a clinician, and a finance laptop do not share a lifespan. The mapping from the customer’s roles to a keep-window is ours.</li>
                 <li><b>Ghost flag.</b> Stale check-in, still assigned, still on the books. Their signal. Our rule for when it shows up in the report.</li>
                 <li><b>Repair-before-replace.</b> Battery or disk cost, supplied by the MSP, set next to the avoided purchase. We do not publish their vendor price list.</li>
@@ -812,8 +845,38 @@
                 </div>
               </div>
               <p class="r-fine">Avoided devices × <span id="rKgEcho">219</span> kg manufacturing CO₂e. Laptop default is 219 kg from Ferreira et al. 2025 (218.7 kg, rounded). Desktop-plus-monitor default is 531 kg from the same paper (113 + 400 + keyboard and mouse). Future machines may be cleaner or dirtier. This does not subtract use-phase energy, and it does not add repair carbon, which published reuse studies find is small next to a new device. A GLOW Op Report does this per serial number.</p>
+              <p class="r-fine" id="rTax" style="margin-top:.85rem;border-top:1px dashed var(--line);padding-top:.85rem"><b style="background:var(--lime);color:#0D130B;padding:0 .2em">Tax angle:</b> Skipped purchases are CapEx you never book. Repair / keep work is usually near-term OpEx your CPA can deduct. Bring the dollar and CO₂e lines to tax season — GLOW Ops is the evidence pack, not the filing.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <!-- ================= TAX / SPEND ================= -->
+      <section class="tax-sec" id="tax">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">TX</span> Spend · carbon · taxable income</p>
+            <h2>This tool helps you <span class="hl">lower taxable income</span> — honestly.</h2>
+            <p class="sec-lede">Calendar refresh is CapEx. Preferring <strong>repair and keep</strong> moves work into ordinary operating expense, defers hardware purchases, and documents manufacturing CO₂e you never bought. That is the lever finance and tax advisors actually use — not a fake “carbon discount” button.</p>
+          </div>
+          <div class="tax-grid">
+            <article class="tax-card">
+              <p class="mono-label">01 · OpEx vs CapEx</p>
+              <h3>Repair hits the P&amp;L</h3>
+              <p>Battery and disk work is often deductible OpEx in the year you spend it. A truck of new laptops is usually capitalized and depreciated. The GLOW call shows which serials should stay on the OpEx path.</p>
+            </article>
+            <article class="tax-card">
+              <p class="mono-label">02 · Carbon cost</p>
+              <h3>Pay less where carbon is priced</h3>
+              <p>Where a carbon tax or emissions price applies, emitting less (or buying fewer manufactured devices) reduces what you owe per ton. Even in the U.S., documented avoided manufacturing CO₂e supports ESG packs and CPA conversations about credits and incentives that actually fit your facts.</p>
+            </article>
+            <article class="tax-card">
+              <p class="mono-label">03 · Evidence pack</p>
+              <h3>Hand it to the CPA</h3>
+              <p>Every row carries the call, the factor, and the source. White-label PDF/CSV for the CFO or auditor. GLOW Ops does not sell IRS credits and does not file your return — it gives the numbers so someone licensed can.</p>
+            </article>
+          </div>
+          <p class="tax-fine">Not tax advice. Section 45Q carbon-capture credits, residential clean-energy credits, and voluntary offset deductions are separate regimes — only claim what your advisor confirms. The GLOW Op Report is a fleet decision + documentation product.</p>
         </div>
       </section>
 
@@ -994,7 +1057,7 @@
         <p class="f-big">The report is<br />the <span class="glow">product.</span></p>
         <p class="f-meta">GLOW Ops · Green Lifecycle and Operation Workflows · getglowop.com</p>
         <a class="mail" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20—%20early%20access">Ask about early access →</a>
-        <p class="f-fine">The GLOW Op Report is the product. This page is the Phase 0 brand site. The calculator is a screening tool with the assumptions printed on it. It is not an assurance opinion, a GHG inventory, or a reason to skip a security patch. <a href="/security.html" style="color:var(--lime-deep);text-decoration:underline;font-weight:700">Security &amp; tenancy →</a></p>
+        <p class="f-fine">The GLOW Op Report is the product. This page is the Phase 0 brand site. The calculator is a screening tool with the assumptions printed on it. It is not an assurance opinion, a GHG inventory, tax advice, or a reason to skip a security patch. GLOW™, GLOW Ops™, and GLOW Op Report™ are trademarks of Augmatic Holdings LLC. <a href="/security.html" style="color:var(--lime-deep);text-decoration:underline;font-weight:700">Security &amp; tenancy →</a> · <a href="#tax" style="color:var(--lime-deep);text-decoration:underline;font-weight:700">Tax &amp; spend →</a></p>
       </div>
     </footer>
 
