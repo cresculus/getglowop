@@ -304,6 +304,23 @@ def fleet_summary(conn: sqlite3.Connection, tenant_id: str | None = None) -> dic
     }
 
 
+def business_activity(conn: sqlite3.Connection, tenant_id: str) -> dict[str, Any]:
+    """First and last time anything reported for this business."""
+    row = conn.execute(
+        "SELECT MIN(created_at) AS first_at, MAX(created_at) AS last_at FROM ingest_events WHERE tenant_id = ?",
+        (tenant_id,),
+    ).fetchone()
+    hb = conn.execute(
+        "SELECT MAX(created_at) AS last_at FROM agent_heartbeats WHERE tenant_id = ?",
+        (tenant_id,),
+    ).fetchone()
+    row = dict(row) if row else {}
+    hb = dict(hb) if hb else {}
+    iso = lambda v: v.isoformat() if hasattr(v, "isoformat") else (str(v) if v else None)  # noqa: E731
+    lasts = [x for x in (iso(row.get("last_at")), iso(hb.get("last_at"))) if x]
+    return {"firstCheckIn": iso(row.get("first_at")), "lastCheckIn": max(lasts) if lasts else None}
+
+
 def record_ingest(conn: sqlite3.Connection, tenant_id: str, source: str, count: int) -> None:
     if tenant_id:
         ensure_tenant(conn, tenant_id)

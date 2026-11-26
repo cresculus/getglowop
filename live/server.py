@@ -18,6 +18,7 @@ import os
 import shutil
 import sys
 import zipfile
+from datetime import datetime, timezone
 from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -28,6 +29,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from db import (  # noqa: E402
+    business_activity,
     fleet_summary,
     get_tenant,
     list_devices,
@@ -43,6 +45,8 @@ from clerk_auth import (  # noqa: E402
     public_clerk_config,
     verify_bearer_token,
 )
+import deploy_kits  # noqa: E402
+import intune_graph  # noqa: E402
 from graph_map import map_managed_devices  # noqa: E402
 from mcp_protocol import handle_mcp_rpc  # noqa: E402
 from enrollment import (  # noqa: E402
@@ -188,6 +192,28 @@ AGENT_RELEASE_URL = os.environ.get(
     "GLOWOPS_AGENT_RELEASE_URL",
     "https://github.com/cresculus/getglowop/releases/latest/download/GlowOpsAgent.exe",
 )
+
+
+def _public_url() -> str:
+    return (os.environ.get("GLOWOPS_PUBLIC_URL") or "https://getglowop.com").rstrip("/")
+
+
+def _audit(partner_id: str, business_id: str, action: str, meta: dict) -> None:
+    try:
+        CONN.execute(
+            "INSERT INTO audit_events (partner_id, business_id, action, meta, created_at) VALUES (?,?,?,CAST(? AS jsonb),?)",
+            (partner_id, business_id, action, json.dumps(meta), datetime.now(timezone.utc).isoformat()),
+        )
+        CONN.commit()
+    except Exception as exc:
+        print(f"audit write failed: {exc}", flush=True)
+
+
+def _business_name(partner_id: str, business_id: str) -> str:
+    for b in list_partner_businesses(CONN, partner_id):
+        if b.get("business_id") == business_id:
+            return b.get("business_name") or business_id
+    return business_id
 
 
 def _json_bytes(obj: object, status: int = 200) -> tuple[int, bytes, str]:
@@ -622,6 +648,10 @@ class Handler(BaseHTTPRequestHandler):
                 if s.get("avgGlowScore") is not None and s.get("deviceCount"):
                     glow_sum += int(s["avgGlowScore"]) * int(s["deviceCount"])
                     glow_n += int(s["deviceCount"])
+                try:
+                    activity = business_activity(CONN, bid)
+                except Exception:
+                    activity = {"firstCheckIn": None, "lastCheckIn": None}
                 rolls["businesses"].append(
                     {
                         "businessId": bid,
@@ -630,6 +660,9 @@ class Handler(BaseHTTPRequestHandler):
                         "avgGlowScore": s.get("avgGlowScore"),
                         "ghostCount": s.get("ghostCount") or 0,
                         "repairCount": s.get("repairBeforeReplaceCount") or 0,
+                        "firstCheckIn": activity["firstCheckIn"],
+                        "lastCheckIn": activity["lastCheckIn"],
+                        "canDeploy": partner_can(CONN, partner["id"], bid, "enroll.manage"),
                     }
                 )
             rolls["avgGlowScore"] = round(glow_sum / glow_n) if glow_n else None
@@ -719,6 +752,47 @@ class Handler(BaseHTTPRequestHandler):
                 data,
                 "application/zip",
                 {"Content-Disposition": 'attachment; filename="glowops-agent.zip"'},
+            )
+
+        if path.rstrip("/") == "/api/partner/intune/status":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            business_id = (qs.get("businessId") or [""])[0].strip()
+            if not business_id or not partner_can(CONN, partner["id"], business_id, "enroll.manage"):
+                return self._send(403, b'{"error":"forbidden"}', "application/json")
+            try:
+                connection = intune_graph.get_connection(CONN, business_id)
+            except Exception:
+                connection = None
+            status, body, ctype = _json_bytes(
+                {
+                    "configured": intune_graph.configured(),
+                    "connected": bool(connection),
+                    "connection": connection,
+                    "canConnect": partner_can(CONN, partner["id"], business_id, "connections.manage"),
+                }
+            )
+            return self._send(status, body, ctype)
+
+        if path.rstrip("/") == "/partner/intune/callback":
+            # The signed-in console finishes this, so a consent link sent to someone
+            # else's admin cannot attach their directory to the sender's business.
+            from urllib.parse import urlencode
+
+            raw_state = (qs.get("state") or [""])[0]
+            consented = (qs.get("admin_consent") or [""])[0].lower() == "true"
+            if not consented:
+                return self._redirect("/partner/?view=biz&intune=failed")
+            return self._redirect(
+                "/partner/?"
+                + urlencode(
+                    {
+                        "view": "biz",
+                        "intuneState": raw_state,
+                        "intuneDirectory": (qs.get("tenant") or [""])[0].strip(),
+                    }
+                )
             )
 
         # Partner console + Clerk auth pages.
@@ -1057,6 +1131,138 @@ class Handler(BaseHTTPRequestHandler):
             if not ok:
                 return self._send(404, b'{"error":"key not found"}', "application/json")
             status, body, ctype = _json_bytes({"ok": True, "id": key_id})
+            return self._send(status, body, ctype)
+
+        if path == "/api/partner/deploy-kit":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"object required"}', "application/json")
+            business_id = str(payload.get("businessId") or "").strip()
+            channel = str(payload.get("channel") or "").strip()
+            if channel not in deploy_kits.CHANNELS:
+                return self._send(400, b'{"error":"channel must be intune, rmm, or device"}', "application/json")
+            if not business_id or not partner_can(CONN, partner["id"], business_id, "enroll.manage"):
+                return self._send(403, b'{"error":"forbidden - need operator+ to deploy"}', "application/json")
+            ttl = int(payload.get("ttlHours") or deploy_kits.DEFAULT_TTL_HOURS[channel])
+            name = _business_name(partner["id"], business_id)
+            who = partner.get("email") or partner.get("name") or partner["id"]
+            minted = mint_enrollment_key(
+                CONN,
+                partner_id=partner["id"],
+                business_id=business_id,
+                label=f"{ {'intune': 'Intune', 'rmm': 'RMM', 'device': 'Device'}[channel] } package · {who}"[:64],
+                ttl_hours=ttl,
+            )
+            base = f"GlowOps-{deploy_kits.slug(name)}"
+            if channel == "intune":
+                data, _ = deploy_kits.intune_bundle(minted, name)
+                filename, ctype = f"{base}-Intune.zip", "application/zip"
+            elif channel == "rmm":
+                data = deploy_kits.rmm_script(minted, name)
+                filename, ctype = f"{base}-RMM.ps1", "text/plain; charset=utf-8"
+            else:
+                data = deploy_kits.device_zip(minted, name)
+                filename, ctype = f"{base}-Install.zip", "application/zip"
+            _audit(partner["id"], business_id, "deploy.download",
+                   {"channel": channel, "keyId": minted["id"], "expiresAt": minted["expiresAt"]})
+            return self._send(
+                200,
+                data,
+                ctype,
+                {
+                    "Content-Disposition": f'attachment; filename="{filename}"',
+                    "Cache-Control": "no-store",
+                    "X-GlowOps-Key-Id": minted["id"],
+                    "X-GlowOps-Expires": minted["expiresAt"],
+                    "Access-Control-Expose-Headers": "Content-Disposition, X-GlowOps-Key-Id, X-GlowOps-Expires",
+                },
+            )
+
+        if path in ("/api/partner/intune/connect", "/api/partner/intune/complete", "/api/partner/intune/disconnect"):
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"object required"}', "application/json")
+            if not intune_graph.configured():
+                return self._send(503, b'{"error":"Intune push is not set up on this host yet"}', "application/json")
+            if path.endswith("/complete"):
+                state = intune_graph.verify_state(str(payload.get("state") or ""))
+                directory = str(payload.get("directoryId") or "").strip()
+                if not state or state.get("p") != partner["id"]:
+                    return self._send(403, b'{"error":"this consent link was started by someone else or expired"}', "application/json")
+                if not re.fullmatch(r"[0-9a-fA-F-]{36}", directory):
+                    return self._send(400, b'{"error":"Microsoft did not return a directory id"}', "application/json")
+                business_id = state["b"]
+            else:
+                business_id = str(payload.get("businessId") or "").strip()
+            if not business_id or not partner_can(CONN, partner["id"], business_id, "connections.manage"):
+                return self._send(403, b'{"error":"forbidden - need admin or owner"}', "application/json")
+            if path.endswith("/connect"):
+                url = intune_graph.consent_url(
+                    intune_graph.sign_state(partner["id"], business_id),
+                    f"{_public_url()}/partner/intune/callback",
+                )
+                status, body, ctype = _json_bytes({"consentUrl": url})
+                return self._send(status, body, ctype)
+            if path.endswith("/complete"):
+                intune_graph.save_connection(CONN, business_id, directory)
+                _audit(partner["id"], business_id, "intune.connect", {"directoryId": directory})
+                status, body, ctype = _json_bytes({"ok": True, "businessId": business_id})
+                return self._send(status, body, ctype)
+            intune_graph.clear_connection(CONN, business_id)
+            _audit(partner["id"], business_id, "intune.disconnect", {})
+            status, body, ctype = _json_bytes({"ok": True})
+            return self._send(status, body, ctype)
+
+        if path == "/api/partner/intune/deploy":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            if not isinstance(payload, dict):
+                return self._send(400, b'{"error":"object required"}', "application/json")
+            business_id = str(payload.get("businessId") or "").strip()
+            if not business_id or not partner_can(CONN, partner["id"], business_id, "enroll.manage"):
+                return self._send(403, b'{"error":"forbidden - need operator+ to deploy"}', "application/json")
+            if not intune_graph.configured():
+                return self._send(503, b'{"error":"Intune push is not set up on this host yet"}', "application/json")
+            connection = intune_graph.get_connection(CONN, business_id)
+            if not connection:
+                return self._send(409, b'{"error":"connect this business to Intune first"}', "application/json")
+            assign = str(payload.get("assign") or "none")
+            group_id = str(payload.get("groupId") or "").strip()
+            if assign not in ("none", "all", "group"):
+                return self._send(400, b'{"error":"assign must be none, all, or group"}', "application/json")
+            if assign == "group" and not re.fullmatch(r"[0-9a-fA-F-]{36}", group_id):
+                return self._send(400, b'{"error":"group id must be the Entra group object id"}', "application/json")
+            name = _business_name(partner["id"], business_id)
+            who = partner.get("email") or partner.get("name") or partner["id"]
+            minted = mint_enrollment_key(
+                CONN,
+                partner_id=partner["id"],
+                business_id=business_id,
+                label=f"Intune push · {who}"[:64],
+                ttl_hours=deploy_kits.DEFAULT_TTL_HOURS["intune"],
+            )
+            try:
+                win = deploy_kits.build_intunewin(deploy_kits.payload_files(minted, name, "intune"))
+                result = intune_graph.deploy_win32(
+                    connection["directoryId"],
+                    business_name=name,
+                    win=win,
+                    expires=minted["expiresAt"][:10],
+                    assign=assign,
+                    group_id=group_id,
+                )
+            except intune_graph.IntuneError as exc:
+                revoke_enrollment_key(CONN, partner["id"], minted["id"])
+                status, body, ctype = _json_bytes({"error": str(exc)}, 502)
+                return self._send(502, body, ctype)
+            _audit(partner["id"], business_id, "intune.deploy",
+                   {"keyId": minted["id"], "appId": result["appId"], "assigned": result["assigned"]})
+            status, body, ctype = _json_bytes({**result, "expiresAt": minted["expiresAt"], "keyId": minted["id"]})
             return self._send(status, body, ctype)
 
         if path == "/api/agent/join":

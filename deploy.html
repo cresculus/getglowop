@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light only" />
+    <title>One-click deploy to Intune, RMM, or any PC · GLOW Ops</title>
+    <meta name="description" content="Push the GlowOps agent to a client's Intune in one click, download an RMM script that is ready to join, or hand any PC a one-click installer. Every package lands devices in the right business." />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
+    <link rel="canonical" href="https://getglowop.com/deploy.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GLOW Ops" />
+    <meta property="og:url" content="https://getglowop.com/deploy.html" />
+    <meta property="og:title" content="One-click deploy to Intune, RMM, or any PC · GLOW Ops" />
+    <meta property="og:description" content="Push to Intune in one click. RMM scripts ready to join. A one-click installer for any other PC. Devices land in the right business." />
+    <link rel="icon" href="data:," />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <div id="site-nav"></div>
+    <main id="main">
+<div class="page-pad">
+      <section id="deploy">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">→</span> One-click deploy</p>
+            <h2>One click per client. <span class="hl">Every device in the right business.</span></h2>
+            <p class="sec-lede">Open a business in the partner console and press <strong>Deploy</strong>. Push straight to that client's Intune, download an RMM script that is already set to join, or hand any Windows PC a one-click installer. No copying keys, and no spreadsheet of which password goes with which client.</p>
+          </div>
+
+          <ol class="steps">
+            <li class="step">
+              <span class="s-num" aria-hidden="true">1</span>
+              <h3>Intune <span class="arrow">→</span></h3>
+              <p><strong>Push to Intune, one click.</strong> A Global Admin of the client's Microsoft 365 approves GlowOps once. After that, Deploy uploads a Win32 app to that client's Intune with the install, uninstall, and detection rules already set, and assigns it to all devices or to one group. Rather upload it yourself? Download the ready-made <code>.intunewin</code> with its settings sheet.</p>
+            </li>
+            <li class="step">
+              <span class="s-num" aria-hidden="true">2</span>
+              <h3>RMM <span class="arrow">→</span></h3>
+              <p><strong>A script that is ready to join.</strong> One PowerShell file per client, with the dashboard URL and join key for that business already inside. Drop it into the client's script library in NinjaOne, Datto, ConnectWise, or N-able and run it as SYSTEM. It installs the agent, joins, and schedules check-ins.</p>
+            </li>
+            <li class="step">
+              <span class="s-num" aria-hidden="true">3</span>
+              <h3>Any PC <span class="arrow">✓</span></h3>
+              <p><strong>One-click install for everything else.</strong> A loaner, a home office, or a client with no MDM at all. Unzip, double-click <code>Install GlowOps.cmd</code>, and approve the admin prompt. That PC reports to the right business within minutes.</p>
+            </li>
+          </ol>
+
+          <div class="gap-box">
+            <div>
+              <h3>Built for a hundred clients, not one</h3>
+              <p>The Businesses page shows every client as a card, with devices, average GLOW™, ghosts, last check-in, and where it stands: not deployed, collecting, or report ready. Search, filter, sort, pin the ones you watch, or switch to a table. Deploy sits on every card.</p>
+            </div>
+            <div class="scope">
+              <span class="stamp2">How the key stays safe</span>
+              <p>Every download creates a <strong>new join key for that business only</strong>, valid for 7 or 30 days. GlowOps keeps a hash, never the password. A package can only join devices to the business it was made for. Keys expire on their own, every download is logged, and you can revoke any key from the same screen. Only owners, admins, and operators on that business can deploy.</p>
+            </div>
+          </div>
+
+          <div class="hero-ctas" style="margin-top:2rem">
+            <a class="btn btn-lime" href="/demo.html">Get a demo</a>
+            <a class="btn btn-ghost" href="/trial.html">Try it free</a>
+            <a class="btn btn-ghost" href="/security.html">Read the security page</a>
+          </div>
+        </div>
+      </section>
+</div>
+    </main>
+    <div id="site-foot"></div>
+    <script src="/site-nav.js"></script>
+    <script src="/site-foot.js"></script>
+
+  </body>
+</html>

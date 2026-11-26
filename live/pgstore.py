@@ -95,6 +95,18 @@ class PgConn:
                 rows = []
             return _Result(rows, cur.rowcount)
 
+    def execute_native(self, sql: str, params: tuple | list = ()) -> _Result:
+        """Postgres SQL with %s placeholders, no SQLite rewrites."""
+        values = tuple(params or ())
+        with self._lock:
+            try:
+                cur = self._conn.execute(sql, values)
+            except psycopg.OperationalError:
+                self._reconnect()
+                cur = self._conn.execute(sql, values)
+            rows = [dict(row) for row in cur.fetchall()] if cur.description else []
+            return _Result(rows, cur.rowcount)
+
     def executescript(self, _sql: str) -> None:
         """Schema lives in supabase/migrations. Do not create tables from the app."""
         return None

@@ -778,6 +778,136 @@
   background: #fff1f0;
 }
 
+.biz-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.85rem 0.75rem;
+}
+.biz-toolbar input,
+.biz-toolbar select,
+.deploy-row select,
+.deploy-row input {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  padding: 0 0.55rem;
+  font: 500 0.85rem/1.2 var(--font);
+  color: var(--ink);
+}
+.biz-toolbar input[type="search"] { flex: 1 1 14rem; max-width: 22rem; }
+.biz-viewtoggle { display: inline-flex; gap: 0.25rem; }
+.biz-viewtoggle .btn[aria-pressed="true"] { background: var(--surface-sel); border-color: var(--line-strong); }
+#bizShown { margin-left: auto; font-family: var(--mono); font-size: 0.7rem; }
+
+.biz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.85rem;
+  padding: 0 0.85rem 1.35rem;
+  overflow: auto;
+  align-content: start;
+  flex: 1;
+  min-height: 0;
+}
+.biz-grid-table { display: block; }
+.biz-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-height: 13rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+}
+.biz-card.pinned { border-color: var(--line-strong); box-shadow: inset 3px 0 0 var(--accent); }
+.biz-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.biz-card-head h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: var(--w-title);
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.biz-card .biz-manage { border: 0; padding: 0; background: transparent; }
+.biz-card-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 0.75rem;
+  margin: 0;
+}
+.biz-card-kpis dt {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+}
+.biz-card-kpis dd { margin: 0; font-size: 1.15rem; font-weight: var(--w-strong); }
+.biz-card-actions { display: flex; gap: 0.5rem; margin-top: auto; }
+.biz-card-actions .btn { flex: 1; justify-content: center; }
+.biz-row-actions { display: flex; gap: 0.35rem; align-items: center; justify-content: flex-end; }
+.biz-row-actions .biz-manage { border: 0; background: transparent; padding: 0; }
+
+.biz-status {
+  align-self: flex-start;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.biz-status.s-collecting { background: var(--teal-bg); color: var(--teal); }
+.biz-status.s-ready { background: #f0fbd6; color: var(--accent-text); }
+.biz-status.s-stale { background: var(--amber-bg); color: #8a5a00; }
+
+.deploy-dialog {
+  width: min(680px, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: var(--shadow-float);
+}
+.deploy-dialog::backdrop { background: rgba(20, 24, 15, 0.35); }
+.deploy-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.deploy-head h2 { margin: 0.15rem 0 0; font-size: 1.35rem; letter-spacing: -0.02em; }
+.deploy-lede { margin: 0.5rem 0 1rem; }
+.deploy-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.95rem 1rem;
+  margin-bottom: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+}
+.deploy-card strong { font-size: 1rem; font-weight: var(--w-title); }
+.deploy-card .res-desc { max-width: none; }
+.deploy-card-head { display: flex; justify-content: space-between; align-items: center; }
+.deploy-pill {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.deploy-pill.on { background: #f0fbd6; color: var(--accent-text); }
+.deploy-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.deploy-row input { flex: 1 1 16rem; }
+.deploy-ttl { margin: 0 0 0.8rem; }
+.deploy-ttl select { min-height: 32px; border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--surface); padding: 0 0.5rem; font: 500 0.85rem/1.2 var(--font); }
+.deploy-foot { display: grid; gap: 0.5rem; margin-top: 0.4rem; }
+.deploy-foot h3 { margin: 0.4rem 0 0; font-size: 0.9rem; }
+
 .analyze-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

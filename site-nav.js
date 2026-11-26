@@ -18,6 +18,7 @@
                 '<p class="mega-col-label">The product</p>' +
                 '<a class="mlink" href="/report.html"' + on("/report.html") + '><strong>GLOW Op Report</strong><span>The keep / repair / recycle call, per serial.</span></a>' +
                 '<a class="mlink" href="/how.html"' + on("/how.html") + '><strong>How it is made</strong><span>Intune, RMM, agent, or SCCM — one report.</span></a>' +
+                '<a class="mlink" href="/deploy.html"' + on("/deploy.html") + '><strong>One-click deploy</strong><span>Push to Intune, ready-to-join RMM scripts, any PC.</span></a>' +
               '</div>' +
               '<div>' +
                 '<p class="mega-col-label">See it</p>' +

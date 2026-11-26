@@ -238,6 +238,7 @@
           const hit = [...enrollBiz.options].some((o) => o.value === tenantPref);
           if (hit) enrollBiz.value = tenantPref;
         }
+        return finishIntuneConsent();
       })
       .catch((err) => {
         console.error(err);
@@ -521,31 +522,8 @@
         )
         .join("");
     }
-    $("bizList").innerHTML = businessesCache
-      .map((b) => {
-        const href = `/app/?from=partner&tenant=${encodeURIComponent(b.business_id)}&view=fleet`;
-        const name = b.business_name || "Business";
-        const id = b.business_id;
-        return `<li class="biz-tile">
-          <div class="biz-tile-row">
-            <a class="biz-tile-link" href="${href}" title="Open report">
-              <span><b>${esc(name)}</b></span>
-              <span class="btn lime open-report-label">Open report</span>
-            </a>
-            <details class="biz-manage">
-              <summary class="btn ghost">Manage</summary>
-              <div class="biz-manage-menu" role="menu">
-                <button type="button" role="menuitem" data-biz-rename="${esc(id)}" data-biz-name="${esc(name)}">Rename</button>
-                <a role="menuitem" href="${href}">Open report</a>
-                <a role="menuitem" href="/partner/?view=enroll&tenant=${encodeURIComponent(id)}">Enroll devices</a>
-                <a role="menuitem" href="/partner/?view=people&tenant=${encodeURIComponent(id)}">People</a>
-                <button type="button" role="menuitem" class="danger" data-biz-remove="${esc(id)}" data-biz-name="${esc(name)}">Remove from console</button>
-              </div>
-            </details>
-          </div>
-        </li>`;
-      })
-      .join("");
+    enrollKeysCache = enroll.keys || [];
+    loadBizRows();
     const active = (keys.keys || []).filter((k) => !k.revoked_at);
     if ($("keyCount")) $("keyCount").textContent = active.length;
     $("keysBody").innerHTML = (keys.keys || [])
@@ -590,6 +568,371 @@
     if ($("pviewHome")?.dataset.active === "true") renderHome();
     if ($("pviewAnalyze")?.dataset.active === "true") renderAnalyze();
     if ($("pviewPeople")?.dataset.active === "true") renderPeople();
+  }
+
+  // ---- Businesses grid ----
+  let bizRows = [];
+  let enrollKeysCache = [];
+  let bizLayout = localStorage.getItem("glowops.bizLayout") || "cards";
+  const pins = new Set(JSON.parse(localStorage.getItem("glowops.bizPins") || "[]"));
+  const DAY = 86400000;
+
+  function bizStatus(b) {
+    const last = b.lastCheckIn ? Date.parse(b.lastCheckIn) : 0;
+    if (!b.deviceCount && !last) return { key: "none", label: "Not deployed" };
+    if (last && Date.now() - last > 7 * DAY) {
+      return { key: "stale", label: `Stale · quiet ${Math.floor((Date.now() - last) / DAY)} days` };
+    }
+    const first = b.firstCheckIn ? Date.parse(b.firstCheckIn) : last || Date.now();
+    const day = Math.max(1, Math.floor((Date.now() - first) / DAY) + 1);
+    if (day < 30) return { key: "collecting", label: `Collecting · day ${day} of 30` };
+    return { key: "ready", label: "Report ready" };
+  }
+
+  function sinceText(iso) {
+    if (!iso) return "never";
+    const mins = Math.floor((Date.now() - Date.parse(iso)) / 60000);
+    if (mins < 60) return `${Math.max(1, mins)}m ago`;
+    if (mins < 1440) return `${Math.floor(mins / 60)}h ago`;
+    return `${Math.floor(mins / 1440)}d ago`;
+  }
+
+  async function loadBizRows() {
+    const grid = $("bizList");
+    if (!grid) return;
+    bizRows = businessesCache.map((b) => ({
+      businessId: b.business_id,
+      businessName: b.business_name || "Business",
+      deviceCount: 0,
+      loading: true,
+    }));
+    renderBizGrid();
+    try {
+      const p = await api("/api/partner/portfolio");
+      const byId = new Map((p.businesses || []).map((r) => [r.businessId, r]));
+      bizRows = bizRows.map((r) => ({ ...r, ...(byId.get(r.businessId) || {}), loading: false }));
+    } catch (_) {
+      bizRows = bizRows.map((r) => ({ ...r, loading: false }));
+    }
+    renderBizGrid();
+  }
+
+  function visibleBizRows() {
+    const q = ($("bizSearch")?.value || "").trim().toLowerCase();
+    const filter = $("bizFilter")?.value || "";
+    const sort = $("bizSort")?.value || "name";
+    const rows = bizRows
+      .map((r) => ({ ...r, status: bizStatus(r) }))
+      .filter((r) => !q || r.businessName.toLowerCase().includes(q))
+      .filter((r) => !filter || r.status.key === filter);
+    const cmp = {
+      name: (a, b) => a.businessName.localeCompare(b.businessName),
+      ghosts: (a, b) => (b.ghostCount || 0) - (a.ghostCount || 0),
+      glow: (a, b) => (a.avgGlowScore ?? 999) - (b.avgGlowScore ?? 999),
+      devices: (a, b) => (b.deviceCount || 0) - (a.deviceCount || 0),
+      recent: (a, b) => (Date.parse(b.lastCheckIn || 0) || 0) - (Date.parse(a.lastCheckIn || 0) || 0),
+    }[sort];
+    return rows.sort((a, b) => (pins.has(b.businessId) - pins.has(a.businessId)) || cmp(a, b));
+  }
+
+  function manageMenu(id, name, href) {
+    return `<details class="biz-manage">
+      <summary class="btn ghost" aria-label="More">More</summary>
+      <div class="biz-manage-menu" role="menu">
+        <button type="button" role="menuitem" data-biz-pin="${esc(id)}">${pins.has(id) ? "Unpin" : "Pin to top"}</button>
+        <button type="button" role="menuitem" data-biz-rename="${esc(id)}" data-biz-name="${esc(name)}">Rename</button>
+        <a role="menuitem" href="/partner/?view=people&tenant=${encodeURIComponent(id)}">People</a>
+        <a role="menuitem" href="${href}">Open report</a>
+        <button type="button" role="menuitem" class="danger" data-biz-remove="${esc(id)}" data-biz-name="${esc(name)}">Remove from console</button>
+      </div>
+    </details>`;
+  }
+
+  function renderBizGrid() {
+    const grid = $("bizList");
+    if (!grid) return;
+    document.querySelectorAll("[data-bizlayout]").forEach((b) =>
+      b.setAttribute("aria-pressed", b.getAttribute("data-bizlayout") === bizLayout ? "true" : "false")
+    );
+    if (!bizRows.length) {
+      grid.className = "biz-grid";
+      grid.innerHTML = `<p class="people-empty">No businesses yet. Add one above, then press Deploy.</p>`;
+      if ($("bizShown")) $("bizShown").textContent = "";
+      return;
+    }
+    const rows = visibleBizRows();
+    if ($("bizShown")) $("bizShown").textContent = `${rows.length} of ${bizRows.length}`;
+    const num = (r, v) => (r.loading ? "…" : esc(v));
+    if (bizLayout === "table") {
+      grid.className = "biz-grid biz-grid-table table-fit";
+      grid.innerHTML = `<table>
+        <thead><tr><th>Business</th><th>Status</th><th>Devices</th><th>GLOW™</th><th>Ghosts</th><th>Last check-in</th><th></th></tr></thead>
+        <tbody>${rows
+          .map((r) => {
+            const href = `/app/?from=partner&tenant=${encodeURIComponent(r.businessId)}&view=fleet`;
+            return `<tr>
+              <td><b>${pins.has(r.businessId) ? "★ " : ""}${esc(r.businessName)}</b></td>
+              <td><span class="biz-status s-${r.status.key}">${esc(r.status.label)}</span></td>
+              <td>${num(r, r.deviceCount ?? 0)}</td>
+              <td>${num(r, r.avgGlowScore ?? "—")}</td>
+              <td>${num(r, r.ghostCount ?? 0)}</td>
+              <td>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</td>
+              <td class="biz-row-actions">
+                <a class="btn ghost" href="${href}">Report</a>
+                ${r.canDeploy === false ? "" : `<button type="button" class="btn lime" data-deploy="${esc(r.businessId)}">Deploy</button>`}
+                ${manageMenu(r.businessId, r.businessName, href)}
+              </td>
+            </tr>`;
+          })
+          .join("")}</tbody></table>`;
+      return;
+    }
+    grid.className = "biz-grid";
+    grid.innerHTML = rows
+      .map((r) => {
+        const href = `/app/?from=partner&tenant=${encodeURIComponent(r.businessId)}&view=fleet`;
+        return `<article class="biz-card${pins.has(r.businessId) ? " pinned" : ""}">
+          <header class="biz-card-head">
+            <h3 title="${esc(r.businessName)}">${esc(r.businessName)}</h3>
+            ${manageMenu(r.businessId, r.businessName, href)}
+          </header>
+          <span class="biz-status s-${r.status.key}">${r.loading ? "Loading…" : esc(r.status.label)}</span>
+          <dl class="biz-card-kpis">
+            <div><dt>Devices</dt><dd>${num(r, r.deviceCount ?? 0)}</dd></div>
+            <div><dt>Avg GLOW™</dt><dd>${num(r, r.avgGlowScore ?? "—")}</dd></div>
+            <div><dt>Ghosts</dt><dd>${num(r, r.ghostCount ?? 0)}</dd></div>
+            <div><dt>Last check-in</dt><dd>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</dd></div>
+          </dl>
+          <div class="biz-card-actions">
+            <a class="btn ghost" href="${href}">Open report</a>
+            ${r.canDeploy === false ? "" : `<button type="button" class="btn lime" data-deploy="${esc(r.businessId)}">Deploy</button>`}
+          </div>
+        </article>`;
+      })
+      .join("") || `<p class="people-empty">No businesses match.</p>`;
+  }
+
+  ["bizSearch", "bizFilter", "bizSort"].forEach((id) => {
+    const el = $(id);
+    if (el) el.addEventListener(id === "bizSearch" ? "input" : "change", renderBizGrid);
+  });
+  document.querySelectorAll("[data-bizlayout]").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      bizLayout = btn.getAttribute("data-bizlayout");
+      localStorage.setItem("glowops.bizLayout", bizLayout);
+      renderBizGrid();
+    })
+  );
+
+  // ---- Deploy dialog ----
+  let deployBizId = "";
+
+  async function apiDownload(path, body) {
+    await refreshClerkToken();
+    const headers = { "Content-Type": "application/json" };
+    if (clerkToken) headers.Authorization = `Bearer ${clerkToken}`;
+    const res = await fetch(path, {
+      method: "POST",
+      credentials: "same-origin",
+      headers,
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || `HTTP ${res.status}`);
+    }
+    const disp = res.headers.get("Content-Disposition") || "";
+    const name = (disp.match(/filename="([^"]+)"/) || [])[1] || "glowops-package";
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    }, 1000);
+    return { name, expiresAt: res.headers.get("X-GlowOps-Expires") || "" };
+  }
+
+  function renderDeployKeys() {
+    const box = $("deployKeys");
+    if (!box) return;
+    const keys = enrollKeysCache.filter((k) => k.business_id === deployBizId).slice(0, 12);
+    box.innerHTML =
+      keys
+        .map(
+          (k) => `<div class="people-row">
+            <span class="p-email">${esc(k.label)}</span>
+            <span class="p-meta"><code>${esc(k.key_prefix)}…</code></span>
+            <span class="p-meta">${esc(k.status)} · ${esc((k.expires_at || "").slice(0, 10))} · ${esc(k.use_count ?? 0)} joins</span>
+            ${
+              k.status === "active"
+                ? `<button type="button" class="btn ghost danger" data-revoke-enroll="${esc(k.id)}">Revoke</button>`
+                : "<span></span>"
+            }
+          </div>`
+        )
+        .join("") || `<p class="people-empty">No keys yet. Each download makes one.</p>`;
+  }
+
+  async function renderIntuneState() {
+    const pill = $("intuneState");
+    const lede = $("intuneLede");
+    const connectRow = $("intuneConnectRow");
+    const pushRow = $("intunePushRow");
+    connectRow.hidden = true;
+    pushRow.hidden = true;
+    pill.textContent = "Checking…";
+    pill.className = "deploy-pill";
+    try {
+      const s = await api(`/api/partner/intune/status?businessId=${encodeURIComponent(deployBizId)}`);
+      if (!s.configured) {
+        pill.textContent = "Coming to this host";
+        lede.textContent =
+          "Direct push needs the GlowOps Microsoft app on this host. Until then, download the .intunewin below and upload it in Intune.";
+        return;
+      }
+      if (s.connected) {
+        pill.textContent = "Connected";
+        pill.classList.add("on");
+        pushRow.hidden = false;
+        lede.textContent =
+          "Uploads the GlowOps Win32 app to this customer's Intune with install, uninstall, and detection already set. Pushing again swaps in a fresh key for new devices.";
+      } else {
+        pill.textContent = "Not connected";
+        connectRow.hidden = !s.canConnect;
+        lede.textContent = s.canConnect
+          ? "Connect this business to its Microsoft 365 once. After that, Push to Intune is one click."
+          : "An admin or owner on this business connects Intune once. You can still download the package below.";
+      }
+    } catch (err) {
+      pill.textContent = "Unavailable";
+      lede.textContent = String(err.message || err);
+    }
+  }
+
+  function openDeploy(businessId) {
+    const dlg = $("deployDialog");
+    if (!dlg) return;
+    deployBizId = businessId;
+    const row = bizRows.find((r) => r.businessId === businessId);
+    $("deployTitle").textContent =
+      row?.businessName || businessesCache.find((b) => b.business_id === businessId)?.business_name || "Business";
+    $("deployStatus").textContent = "";
+    $("intuneResult").textContent = "";
+    renderDeployKeys();
+    renderIntuneState();
+    if (!dlg.open) dlg.showModal();
+  }
+
+  async function reloadKeys() {
+    const enroll = await api("/api/partner/enrollment-keys");
+    enrollKeysCache = enroll.keys || [];
+    renderDeployKeys();
+  }
+
+  const deployDialog = $("deployDialog");
+  if (deployDialog) {
+    deployDialog.addEventListener("click", async (e) => {
+      const kitBtn = e.target.closest("[data-kit]");
+      if (kitBtn) {
+        const st = $("deployStatus");
+        kitBtn.disabled = true;
+        st.textContent = "Building package…";
+        try {
+          const got = await apiDownload("/api/partner/deploy-kit", {
+            businessId: deployBizId,
+            channel: kitBtn.getAttribute("data-kit"),
+            ttlHours: Number($("deployTtl").value || 720),
+          });
+          st.textContent = `Downloaded ${got.name}. Key works until ${got.expiresAt.slice(0, 10)}. It holds a join password, so don't email or post it.`;
+          await reloadKeys();
+        } catch (err) {
+          st.textContent = String(err.message || err);
+        } finally {
+          kitBtn.disabled = false;
+        }
+        return;
+      }
+      const revokeBtn = e.target.closest("[data-revoke-enroll]");
+      if (revokeBtn) {
+        e.stopPropagation();
+        if (!confirm("Revoke this key? Devices that joined with it stop reporting too.")) return;
+        try {
+          await api(`/api/partner/enrollment-keys/${encodeURIComponent(revokeBtn.getAttribute("data-revoke-enroll"))}/revoke`, {
+            method: "POST",
+            body: "{}",
+          });
+          await reloadKeys();
+        } catch (err) {
+          alert(String(err.message || err));
+        }
+      }
+    });
+    $("intuneAssign").addEventListener("change", () => {
+      $("intuneGroup").hidden = $("intuneAssign").value !== "group";
+    });
+    $("intuneConnect").addEventListener("click", async () => {
+      try {
+        const r = await api("/api/partner/intune/connect", {
+          method: "POST",
+          body: JSON.stringify({ businessId: deployBizId }),
+        });
+        location.href = r.consentUrl;
+      } catch (err) {
+        $("intuneResult").textContent = String(err.message || err);
+      }
+    });
+    $("intunePush").addEventListener("click", async () => {
+      const btn = $("intunePush");
+      const out = $("intuneResult");
+      btn.disabled = true;
+      out.textContent = "Uploading to Intune. This takes about a minute…";
+      try {
+        const r = await api("/api/partner/intune/deploy", {
+          method: "POST",
+          body: JSON.stringify({
+            businessId: deployBizId,
+            assign: $("intuneAssign").value,
+            groupId: ($("intuneGroup").value || "").trim(),
+          }),
+        });
+        out.innerHTML = `${r.created ? "Created" : "Updated"} the GlowOps app${
+          r.assigned ? `, assigned to ${esc(r.assigned)}` : ""
+        }. Key works until ${esc((r.expiresAt || "").slice(0, 10))}. <a href="${esc(r.portalUrl)}" target="_blank" rel="noopener">Open in Intune</a>`;
+        await reloadKeys();
+      } catch (err) {
+        out.textContent = String(err.message || err);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  async function finishIntuneConsent() {
+    const params = new URLSearchParams(location.search);
+    const state = params.get("intuneState");
+    const failed = params.get("intune") === "failed";
+    if (!state && !failed) return;
+    const clean = new URL(location.href);
+    ["intuneState", "intuneDirectory", "intune"].forEach((k) => clean.searchParams.delete(k));
+    history.replaceState(null, "", clean.pathname + clean.search);
+    if (failed) {
+      alert("Microsoft consent was not granted. Try Connect Intune again with a Global Admin.");
+      return;
+    }
+    try {
+      const r = await api("/api/partner/intune/complete", {
+        method: "POST",
+        body: JSON.stringify({ state, directoryId: params.get("intuneDirectory") || "" }),
+      });
+      setPView("biz");
+      openDeploy(r.businessId);
+    } catch (err) {
+      alert(String(err.message || err));
+    }
   }
 
   function esc(s) {
@@ -677,6 +1020,20 @@
   const bizList = $("bizList");
   if (bizList) {
     bizList.addEventListener("click", async (e) => {
+      const deployBtn = e.target.closest("[data-deploy]");
+      if (deployBtn) {
+        openDeploy(deployBtn.getAttribute("data-deploy"));
+        return;
+      }
+      const pinBtn = e.target.closest("[data-biz-pin]");
+      if (pinBtn) {
+        const id = pinBtn.getAttribute("data-biz-pin");
+        if (pins.has(id)) pins.delete(id);
+        else pins.add(id);
+        localStorage.setItem("glowops.bizPins", JSON.stringify([...pins]));
+        renderBizGrid();
+        return;
+      }
       const renameBtn = e.target.closest("[data-biz-rename]");
       if (renameBtn) {
         e.preventDefault();
@@ -692,7 +1049,6 @@
             body: JSON.stringify({ tenantId: businessId, businessId, name }),
           });
           await refresh();
-          renderHome();
         } catch (err) {
           alert(String(err.message || err));
         }

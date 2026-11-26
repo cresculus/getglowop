@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-16" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-16" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-16" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-17" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-17" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-17" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -177,9 +177,31 @@
               <button class="btn lime" type="submit">Add business</button>
             </form>
           </div>
-          <p class="view-lede">Customer fleets for this partner. Open a report or use Manage for rename / remove.</p>
+          <p class="view-lede">Every business you manage. Deploy puts the agent on that business's devices through Intune, an RMM, or a one-click installer.</p>
           <p class="hint biz-add-status" id="addBizStatus"></p>
-          <ul class="biz-list" id="bizList"></ul>
+          <div class="biz-toolbar">
+            <input id="bizSearch" type="search" placeholder="Search businesses" aria-label="Search businesses" />
+            <select id="bizFilter" aria-label="Filter by status">
+              <option value="">All statuses</option>
+              <option value="none">Not deployed</option>
+              <option value="collecting">Collecting</option>
+              <option value="ready">Report ready</option>
+              <option value="stale">Stale</option>
+            </select>
+            <select id="bizSort" aria-label="Sort">
+              <option value="name">Name</option>
+              <option value="ghosts">Most ghosts</option>
+              <option value="glow">Lowest GLOW</option>
+              <option value="devices">Most devices</option>
+              <option value="recent">Last check-in</option>
+            </select>
+            <div class="biz-viewtoggle" role="group" aria-label="Layout">
+              <button type="button" class="btn ghost" data-bizlayout="cards" aria-pressed="true">Cards</button>
+              <button type="button" class="btn ghost" data-bizlayout="table" aria-pressed="false">Table</button>
+            </div>
+            <span class="hint" id="bizShown"></span>
+          </div>
+          <div class="biz-grid" id="bizList"></div>
         </div>
 
         <div class="pview pview-left people-view" id="pviewPeople" data-active="false" hidden>
@@ -260,7 +282,7 @@
             <a class="res-card" href="/download/GlowOpsAgent-Win32.zip">
               <span class="res-kicker">Fleet</span>
               <strong>Win32 / Intune pack</strong>
-              <span class="res-desc">Install.ps1 as System — schedules inventory + heartbeat. Mint a 7d/30d join key first.</span>
+              <span class="res-desc">Generic pack with no key inside. For a package already tied to one business, use Businesses → Deploy.</span>
               <span class="res-action">Download ZIP</span>
             </a>
             <div class="res-card res-card-static">
@@ -304,7 +326,76 @@
       </section>
     </section>
   </main>
-  <script src="/app/clerk-partner.js?v=lux-16"></script>
-  <script src="/app/partner.js?v=lux-16"></script>
+  <dialog id="deployDialog" class="deploy-dialog" aria-labelledby="deployTitle">
+    <form method="dialog" class="deploy-head">
+      <div>
+        <p class="res-kicker">Deploy the agent</p>
+        <h2 id="deployTitle">Business</h2>
+      </div>
+      <button class="btn ghost" value="close" aria-label="Close">Close</button>
+    </form>
+    <p class="hint deploy-lede">Each download carries a new join key for this business only. Devices that run it land here. GlowOps keeps only a hash of the password.</p>
+    <div class="deploy-row deploy-ttl">
+      <label for="deployTtl" class="res-kicker">Key works for</label>
+      <select id="deployTtl">
+        <option value="168">7 days</option>
+        <option value="720" selected>30 days</option>
+      </select>
+    </div>
+
+    <section class="deploy-card" id="deployIntune">
+      <div class="deploy-card-head">
+        <span class="res-kicker">Intune</span>
+        <span class="deploy-pill" id="intuneState">Checking…</span>
+      </div>
+      <strong>Push to Intune</strong>
+      <p class="res-desc" id="intuneLede">Uploads a Win32 app to this customer's Intune and assigns it. Devices install as System and join this business.</p>
+      <div class="deploy-row" id="intuneConnectRow" hidden>
+        <button type="button" class="btn lime" id="intuneConnect">Connect Intune</button>
+        <span class="hint">A Global Admin of the customer's Microsoft 365 approves once.</span>
+      </div>
+      <div class="deploy-row" id="intunePushRow" hidden>
+        <select id="intuneAssign" aria-label="Assignment">
+          <option value="all">Required · all devices</option>
+          <option value="group">Required · one Entra group</option>
+          <option value="none">Upload only, I'll assign</option>
+        </select>
+        <input id="intuneGroup" placeholder="Entra group object id" hidden />
+        <button type="button" class="btn lime" id="intunePush">Push to Intune</button>
+      </div>
+      <p class="hint" id="intuneResult"></p>
+      <div class="deploy-row">
+        <button type="button" class="btn ghost" data-kit="intune">Download .intunewin</button>
+        <span class="hint">Upload by hand. Settings sheet and Detect.ps1 are in the zip.</span>
+      </div>
+    </section>
+
+    <section class="deploy-card">
+      <div class="deploy-card-head"><span class="res-kicker">RMM</span></div>
+      <strong>RMM script</strong>
+      <p class="res-desc">One PowerShell file for this business. Add it to this client's script library in NinjaOne, Datto, ConnectWise, or N-able and run it as SYSTEM.</p>
+      <div class="deploy-row">
+        <button type="button" class="btn lime" data-kit="rmm">Download RMM script</button>
+      </div>
+    </section>
+
+    <section class="deploy-card">
+      <div class="deploy-card-head"><span class="res-kicker">Any Windows PC</span></div>
+      <strong>One-click installer</strong>
+      <p class="res-desc">Unzip, double-click <code>Install GlowOps.cmd</code>, approve the admin prompt. That PC joins this business.</p>
+      <div class="deploy-row">
+        <button type="button" class="btn lime" data-kit="device">Download installer</button>
+      </div>
+    </section>
+
+    <div class="deploy-foot">
+      <p class="hint" id="deployStatus"></p>
+      <h3>Join keys for this business</h3>
+      <div class="people-list" id="deployKeys"></div>
+      <p class="hint">Keys stop new joins when they expire, and devices that already joined keep reporting. Revoke also stops devices that joined with that key.</p>
+    </div>
+  </dialog>
+  <script src="/app/clerk-partner.js?v=lux-17"></script>
+  <script src="/app/partner.js?v=lux-17"></script>
 </body>
 </html>
