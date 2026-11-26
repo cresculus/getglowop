@@ -99,7 +99,7 @@ def create_partner(
     conn.execute(
         """
         INSERT INTO partners (id, name, email, password_hash, password_salt, created_at, active)
-        VALUES (?, ?, ?, ?, ?, ?, 1)
+        VALUES (?, ?, ?, ?, ?, ?, true)
         ON CONFLICT(id) DO UPDATE SET
           name=excluded.name,
           email=excluded.email,
@@ -149,7 +149,7 @@ def list_partner_businesses(conn: sqlite3.Connection, partner_id: str) -> list[d
         """
         SELECT pb.business_id,
                COALESCE(NULLIF(t.name, ''), NULLIF(pb.business_name, ''), pb.business_id) AS business_name,
-               COALESCE(bm.created_at, '') AS bound_at
+               COALESCE(bm.created_at::text, '') AS bound_at
         FROM partner_businesses pb
         LEFT JOIN tenants t ON t.id = pb.business_id
         LEFT JOIN business_memberships bm
@@ -339,9 +339,10 @@ def ensure_clerk_partner(
     name_n = (name or "").strip() or "Partner"
     existing = conn.execute("SELECT id, name, email FROM partners WHERE id = ?", (partner_id,)).fetchone()
     if existing:
+        sub = partner_id[6:] if partner_id.startswith("clerk_") else None
         conn.execute(
-            "UPDATE partners SET name = ?, email = ?, active = 1 WHERE id = ?",
-            (name_n, email_n, partner_id),
+            "UPDATE partners SET name = ?, email = ?, active = true, clerk_user_id = COALESCE(clerk_user_id, ?) WHERE id = ?",
+            (name_n, email_n, sub, partner_id),
         )
         conn.commit()
         partner = {"id": partner_id, "name": name_n, "email": email_n, "auth": "clerk"}
@@ -352,6 +353,12 @@ def ensure_clerk_partner(
             email_n = f"{partner_id[:12]}-{email_n}"
         pw = secrets.token_urlsafe(32)
         create_partner(conn, partner_id=partner_id, name=name_n, email=email_n, password=pw)
+        sub = partner_id[6:] if partner_id.startswith("clerk_") else None
+        if sub:
+            conn.execute(
+                "UPDATE partners SET clerk_user_id = ? WHERE id = ? AND clerk_user_id IS NULL",
+                (sub, partner_id),
+            )
         partner = {"id": partner_id, "name": name_n, "email": email_n, "auth": "clerk"}
     # Every signed-in partner gets their own empty business — never the seeded demo fleet.
     ensure_partner_home_business(conn, partner)
@@ -377,27 +384,29 @@ def rename_business_id(conn: sqlite3.Connection, old_id: str, new_id: str) -> st
         return old_id
     ensure_partner_schema(conn)
     # tenants
-    row = conn.execute("SELECT name, created_at FROM tenants WHERE id = ?", (old_id,)).fetchone()
+    row = conn.execute("SELECT name, created_at FROM businesses WHERE id = ?", (old_id,)).fetchone()
     if row:
         conn.execute(
-            "INSERT OR IGNORE INTO tenants (id, name, created_at) VALUES (?, ?, ?)",
+            "INSERT INTO businesses (id, name, created_at) VALUES (?, ?, ?) ON CONFLICT (id) DO NOTHING",
             (new_id, row["name"], row["created_at"]),
         )
-        conn.execute("UPDATE tenants SET name = ? WHERE id = ?", (row["name"], new_id))
-        conn.execute("DELETE FROM tenants WHERE id = ?", (old_id,))
+        conn.execute("UPDATE businesses SET name = ? WHERE id = ?", (row["name"], new_id))
     for table, col in (
-        ("devices", "tenant_id"),
-        ("ingest_events", "tenant_id"),
-        ("agent_heartbeats", "tenant_id"),
+        ("devices", "business_id"),
+        ("ingest_events", "business_id"),
+        ("agent_heartbeats", "business_id"),
         ("partner_businesses", "business_id"),
         ("enrollment_keys", "business_id"),
         ("business_memberships", "business_id"),
         ("business_invitations", "business_id"),
+        ("connections_intune", "business_id"),
     ):
         try:
             conn.execute(f"UPDATE {table} SET {col} = ? WHERE {col} = ?", (new_id, old_id))
-        except sqlite3.OperationalError:
+        except Exception:
             pass
+    if row:
+        conn.execute("DELETE FROM businesses WHERE id = ?", (old_id,))
     conn.commit()
     return new_id
 

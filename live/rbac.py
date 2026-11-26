@@ -72,8 +72,11 @@ def _iso(dt: datetime | None = None) -> str:
     return (dt or _now()).isoformat()
 
 
-def _parse(value: str) -> datetime:
-    dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+def _parse(value: str | datetime) -> datetime:
+    if isinstance(value, datetime):
+        dt = value
+    else:
+        dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
     return dt.astimezone(timezone.utc)

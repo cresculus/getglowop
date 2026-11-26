@@ -28,7 +28,6 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from db import (  # noqa: E402
-    connect,
     fleet_summary,
     get_tenant,
     list_devices,
@@ -137,8 +136,8 @@ def _data_looks_persistent(path: Path) -> bool:
         return False
 
 
-DATA_DIR = _resolve_data_dir()
-DB_PATH = DATA_DIR / "glowops.db"
+DATA_DIR = Path("supabase")
+DB_PATH = None
 STATIC_DIR = ROOT / "static"
 AGENT_DIR = ROOT / "agent"
 HOST = os.environ.get("GLOWOPS_HOST", "0.0.0.0")
@@ -164,23 +163,10 @@ else:
     MARKETING_ROOT = None
 
 
-def _prepare_db() -> Path:
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    if DB_PATH.is_file() and DB_PATH.stat().st_size > 0:
-        return DB_PATH
-    # Rescue a prior /tmp install after switching GLOWOPS_DATA to a volume.
-    for legacy in (Path("/tmp/glowops-data/glowops.db"), ROOT / "data" / "glowops.db"):
-        if legacy.is_file() and legacy.stat().st_size > 0 and legacy.resolve() != DB_PATH.resolve():
-            shutil.copy2(legacy, DB_PATH)
-            print(f"migrated inventory from {legacy} -> {DB_PATH}", flush=True)
-            return DB_PATH
-    if BOOTSTRAP_DB.is_file() and BOOTSTRAP_DB.resolve() != DB_PATH.resolve():
-        shutil.copy2(BOOTSTRAP_DB, DB_PATH)
-        print(f"bootstrapped inventory from {BOOTSTRAP_DB} -> {DB_PATH}", flush=True)
-    return DB_PATH
+from pgstore import connect_postgres, import_sqlite_if_present  # noqa: E402
 
-
-CONN = connect(_prepare_db())
+CONN = connect_postgres()
+import_sqlite_if_present(CONN)
 ensure_rbac_schema(CONN)
 # Seeded demo fleet is lab-only. Signed-in partners never get this data.
 # Set GLOWOPS_SEED_DEMO=1 on a lab host if you want the public /app/?tenant=demo sample.
@@ -446,8 +432,9 @@ class Handler(BaseHTTPRequestHandler):
                         (os.environ.get("CLERK_PUBLISHABLE_KEY") or os.environ.get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY") or "").strip()
                     ),
                     "clerkSecretSet": bool((os.environ.get("CLERK_SECRET_KEY") or "").strip()),
-                    "dataDir": str(DATA_DIR),
-                    "dataPersistent": _data_looks_persistent(DATA_DIR),
+                    "dataDir": "supabase",
+                    "dataPersistent": True,
+                    "database": "supabase",
                     "agentIntervals": {
                         "inventoryHours": 6,
                         "heartbeatMinutes": 15,
@@ -510,7 +497,7 @@ class Handler(BaseHTTPRequestHandler):
                 except Exception:
                     match["inventory"] = None
                     match["raw"] = None
-            status, body, ctype = _json_bytes({"tenantId": match.get("tenant_id") or tenant, "device": match})
+            status, body, ctype = _json_bytes({"tenantId": match.get("business_id") or match.get("tenant_id") or tenant, "device": match})
             return self._send(status, body, ctype)
 
         if path.rstrip("/") == "/api/export.csv":
@@ -1219,7 +1206,7 @@ def main() -> None:
         print(f"  Bootstrap key    {DEMO_PARTNER['bootstrapKey']['apiKey']}")
     else:
         print("  Demo seed        off (set GLOWOPS_SEED_DEMO=1 for lab sample fleet)")
-    print(f"  SQLite           {DB_PATH}")
+    print("  Database         Supabase (DATABASE_URL)")
     httpd = ThreadingHTTPServer((HOST, PORT), Handler)
     try:
         httpd.serve_forever()

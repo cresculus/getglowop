@@ -164,7 +164,7 @@ def upsert_device(conn: sqlite3.Connection, tenant_id: str, device: dict[str, An
           battery_health, warranty_end, user_upn, persona, device_class, health_notes,
           azure_device_id, intune_device_id, raw_json, call_label, glow_score, rationale,
           age_years, check_in_days, mfg_kg, updated_at
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CAST(? AS jsonb),?,?,?,?,?,?,?)
         ON CONFLICT(id) DO UPDATE SET
           tenant_id=excluded.tenant_id,
           source=excluded.source,
@@ -257,8 +257,9 @@ def _prefer_rich_rows(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _richness(row: dict[str, Any]) -> int:
-    raw = row.get("raw_json") or ""
-    score = len(raw) if isinstance(raw, str) else 0
+    raw_val = row.get("raw_json") or ""
+    raw = raw_val if isinstance(raw_val, str) else json.dumps(raw_val)
+    score = len(raw)
     if row.get("battery_health") is not None:
         score += 50
     if row.get("health_notes"):
@@ -304,6 +305,8 @@ def fleet_summary(conn: sqlite3.Connection, tenant_id: str | None = None) -> dic
 
 
 def record_ingest(conn: sqlite3.Connection, tenant_id: str, source: str, count: int) -> None:
+    if tenant_id:
+        ensure_tenant(conn, tenant_id)
     now = datetime.now(timezone.utc).isoformat()
     conn.execute(
         "INSERT INTO ingest_events (tenant_id, source, payload_count, created_at) VALUES (?,?,?,?)",
@@ -313,9 +316,12 @@ def record_ingest(conn: sqlite3.Connection, tenant_id: str, source: str, count: 
 
 
 def record_heartbeat(conn: sqlite3.Connection, payload: dict[str, Any]) -> None:
+    biz = payload.get("tenantId") or payload.get("tenant_id") or payload.get("businessId")
+    if biz:
+        ensure_tenant(conn, str(biz))
     now = datetime.now(timezone.utc).isoformat()
     conn.execute(
-        "INSERT INTO agent_heartbeats (agent_id, hostname, tenant_id, version, payload_json, created_at) VALUES (?,?,?,?,?,?)",
+        "INSERT INTO agent_heartbeats (agent_id, hostname, tenant_id, version, payload_json, created_at) VALUES (?,?,?,?,CAST(? AS jsonb),?)",
         (
             payload.get("agentId") or payload.get("agent_id") or "unknown",
             payload.get("hostname"),
