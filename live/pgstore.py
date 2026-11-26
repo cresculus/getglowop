@@ -7,6 +7,7 @@ import sqlite3
 import threading
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote, unquote, urlparse, urlunparse
 
 import psycopg
 from psycopg.rows import dict_row
@@ -20,9 +21,33 @@ def database_url() -> str:
         )
     if url.startswith("postgres://"):
         url = "postgresql://" + url[len("postgres://") :]
+    url = _use_ipv4_pooler(url)
     if "sslmode=" not in url:
         url += ("&" if "?" in url else "?") + "sslmode=require"
+    host = urlparse(url).hostname or ""
+    print(f"database host={host}", flush=True)
     return url
+
+
+def _use_ipv4_pooler(url: str) -> str:
+    """Direct db.<ref>.supabase.co is IPv6-only. Railway cannot reach it.
+
+    Session pooler on aws-0-us-east-2 is IPv4. Username must be postgres.<ref>.
+    """
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    match = re.fullmatch(r"db\.([a-z0-9]+)\.supabase\.co", host)
+    if not match:
+        return url
+    ref = match.group(1)
+    pooler = (os.environ.get("SUPABASE_POOLER_HOST") or "aws-0-us-east-2.pooler.supabase.com").strip()
+    user = unquote(parsed.username or "postgres")
+    if "." not in user:
+        user = f"{user}.{ref}"
+    password = unquote(parsed.password or "")
+    port = parsed.port or 5432
+    netloc = f"{quote(user, safe='')}:{quote(password, safe='')}@{pooler}:{port}"
+    return urlunparse(parsed._replace(netloc=netloc))
 
 
 def adapt_sql(sql: str) -> str:
