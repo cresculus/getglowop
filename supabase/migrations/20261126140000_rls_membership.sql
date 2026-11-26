@@ -30,6 +30,49 @@ alter table public.businesses
 create index if not exists idx_businesses_install on public.businesses (install_id);
 
 -- ---------------------------------------------------------------------------
+-- Memberships. Missing on this project (init ran, RBAC migration did not).
+-- ---------------------------------------------------------------------------
+create table if not exists public.business_memberships (
+  id text primary key,
+  business_id text not null references public.businesses (id) on delete cascade,
+  partner_id text not null references public.partners (id) on delete cascade,
+  role text not null check (role in ('owner', 'admin', 'operator', 'viewer')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  revoked_at timestamptz,
+  unique (business_id, partner_id)
+);
+
+create index if not exists idx_bm_partner on public.business_memberships (partner_id);
+create index if not exists idx_bm_business on public.business_memberships (business_id);
+
+create table if not exists public.business_invitations (
+  id text primary key,
+  business_id text not null references public.businesses (id) on delete cascade,
+  email text not null,
+  role text not null check (role in ('owner', 'admin', 'operator', 'viewer')),
+  token_hash text not null unique,
+  invited_by text not null references public.partners (id),
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null,
+  accepted_at timestamptz,
+  revoked_at timestamptz,
+  accepted_partner_id text references public.partners (id)
+);
+
+create index if not exists idx_inv_business on public.business_invitations (business_id);
+create index if not exists idx_inv_email on public.business_invitations (email);
+
+insert into public.business_memberships (id, business_id, partner_id, role)
+select
+  'bm_' || substr(md5(pb.partner_id || ':' || pb.business_id), 1, 16),
+  pb.business_id,
+  pb.partner_id,
+  'owner'
+from public.partner_businesses pb
+on conflict (business_id, partner_id) do nothing;
+
+-- ---------------------------------------------------------------------------
 -- Who is calling. JWT sub only. Not a client-supplied business list.
 -- ---------------------------------------------------------------------------
 create or replace function public.glow_clerk_sub()
@@ -243,6 +286,8 @@ revoke select (password_hash, password_salt) on public.partners from authenticat
 revoke select (token_hash) on public.business_invitations from authenticated;
 
 alter table public.installs enable row level security;
+alter table public.business_memberships enable row level security;
+alter table public.business_invitations enable row level security;
 
 alter table public.partners force row level security;
 alter table public.businesses force row level security;
