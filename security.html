@@ -70,6 +70,7 @@
       ]
     }
     </script>
+    <link rel="stylesheet" href="/site-nav.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
@@ -175,17 +176,7 @@
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <a class="wordmark" href="/"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops <small>Security</small></a>
-      <nav aria-label="Site">
-        <a href="/">Home</a>
-        <a href="/app/">Live dashboard</a>
-        <a href="/dashboard.html">Sample</a>
-        <a href="/#security">Security summary</a>
-        <a href="/security.html" aria-current="page">This page</a>
-      </nav>
-      <a class="domain" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20security">Ask →</a>
-    </header>
+    <div id="site-nav"></div>
 
     <main>
       <div class="hero">
@@ -353,5 +344,6 @@ Mismatch between claimed business and key  -->  403
         <p class="f-fine">Designed for SOC 2-relevant controls: encryption in transit and at rest, tenant isolation, RBAC, audit logging, and access reviews. Certification is evidence over time — not a homepage badge.</p>
       </div>
     </footer>
+      <script src="/site-nav.js"></script>
   </body>
 </html>

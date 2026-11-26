@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light only" />
+    <title>Screening calculator — GLOW Ops</title>
+    <meta name="description" content="Estimate how many endpoints a short refresh buys versus a longer keep, in dollars and manufacturing CO₂e. A screening tool, not a certified footprint." />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
+    <link rel="canonical" href="https://getglowop.com/calculator.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GLOW Ops" />
+    <meta property="og:url" content="https://getglowop.com/calculator.html" />
+    <meta property="og:title" content="Screening calculator — GLOW Ops" />
+    <meta property="og:description" content="Estimate how many endpoints a short refresh buys versus a longer keep, in dollars and manufacturing CO₂e. A screening tool, not a certified footprint." />
+    <link rel="icon" href="data:," />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <div id="site-nav"></div>
+    <main id="main">
+<div class="page-pad">
+<!-- ================= CALCULATOR ================= -->
+      <section class="calc-sec" id="calculator">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">03</span> Screening calculator</p>
+            <h2>How many laptops does the calendar buy that the fleet <span class="hl">does not need?</span></h2>
+            <p class="sec-lede">This is not a certified product carbon footprint. <strong>It is the argument, in arithmetic.</strong> Over a planning window, a short refresh buys more machines than a longer keep. Each extra machine carries a manufacturing footprint. Change the numbers. They are yours.</p>
+          </div>
+
+          <div class="calc-grid">
+            <form class="controls" id="calcForm" aria-label="Screening calculator inputs">
+              <div class="ctl">
+                <label for="fleetNum">Endpoints in the fleet
+                  <span class="numbox"><input type="number" id="fleetNum" min="1" max="100000" step="1" value="150" /><span class="unit">devices</span></span>
+                </label>
+                <input type="range" id="fleetRange" min="10" max="2000" step="10" value="150" aria-label="Endpoints in the fleet (slider)" />
+              </div>
+              <div class="ctl-row2">
+                <div class="ctl">
+                  <label for="policyNum">Current refresh policy
+                    <span class="numbox"><input type="number" id="policyNum" min="1" max="10" step="0.5" value="3" /><span class="unit">yrs</span></span>
+                  </label>
+                </div>
+                <div class="ctl">
+                  <label for="keepNum">Keep window, healthy devices
+                    <span class="numbox"><input type="number" id="keepNum" min="1" max="12" step="0.5" value="5" /><span class="unit">yrs</span></span>
+                  </label>
+                </div>
+              </div>
+              <div class="ctl">
+                <label for="healthyNum">Share healthy enough to extend
+                  <span class="numbox"><input type="number" id="healthyNum" min="0" max="100" step="1" value="70" /><span class="unit">%</span></span>
+                </label>
+                <input type="range" id="healthyRange" min="0" max="100" step="1" value="70" aria-label="Share healthy enough to extend (slider)" />
+              </div>
+              <div class="ctl-row2">
+                <div class="ctl">
+                  <label for="horizonNum">Look ahead
+                    <span class="numbox"><input type="number" id="horizonNum" min="1" max="40" step="1" value="15" /><span class="unit">yrs</span></span>
+                  </label>
+                </div>
+                <div class="ctl">
+                  <label for="priceNum">Price of a new one
+                    <span class="numbox"><input type="number" id="priceNum" min="0" max="100000" step="50" value="1100" /><span class="unit">USD</span></span>
+                  </label>
+                </div>
+              </div>
+              <div class="ctl">
+                <label for="classSel">Device class for the default factor</label>
+                <select id="classSel">
+                  <option value="219" selected>Laptop — 219 kg manufacturing (Ferreira et al. 2025)</option>
+                  <option value="531">Desktop + monitor — 531 kg manufacturing (Ferreira et al. 2025)</option>
+                </select>
+              </div>
+              <div class="ctl">
+                <label for="kgNum">Or type a manufacturing factor per device
+                  <span class="numbox"><input type="number" id="kgNum" min="0" max="5000" step="1" value="219" /><span class="unit">kg CO₂e</span></span>
+                </label>
+              </div>
+            </form>
+
+            <div class="receipt" aria-live="polite">
+              <div class="r-head"><span>Screening result</span><b>Not a GLOW Op Report</b></div>
+              <p class="r-narr" id="rNarr">The calendar was about to go shopping.</p>
+              <div class="r-stats">
+                <div class="r-stat"><span class="k">Devices you don’t manufacture</span><span class="v lime" id="rAvoided">210</span></div>
+                <div class="r-stat"><span class="k">Manufacturing CO₂e avoided</span><span class="v" id="rCo2">46.0 t</span></div>
+                <div class="r-stat"><span class="k">Purchases the policy skips</span><span class="v" id="rDollars">$231,000</span></div>
+              </div>
+              <div class="bars">
+                <div class="bar-row">
+                  <div class="b-head"><span>Buys on the calendar</span><span id="rCalLabel">750</span></div>
+                  <div class="bar-track"><div class="bar-fill bar-cal" id="barCal" style="width:100%"></div></div>
+                </div>
+                <div class="bar-row">
+                  <div class="b-head"><span>Buys on the GLOW call</span><span id="rGlowLabel">540</span></div>
+                  <div class="bar-track"><div class="bar-fill bar-glow" id="barGlow" style="width:72%"></div></div>
+                </div>
+              </div>
+              <p class="r-fine">Avoided devices × <span id="rKgEcho">219</span> kg manufacturing CO₂e. Laptop default is 219 kg from Ferreira et al. 2025 (218.7 kg, rounded). Desktop-plus-monitor default is 531 kg from the same paper (113 + 400 + keyboard and mouse). Future machines may be cleaner or dirtier. This does not subtract use-phase energy, and it does not add repair carbon, which published reuse studies find is small next to a new device. A GLOW Op Report does this per serial number.</p>
+              <p class="r-fine" id="rTax" style="margin-top:.85rem;border-top:1px dashed var(--line);padding-top:.85rem"><b style="background:var(--lime);color:#0D130B;padding:0 .2em">Tax angle:</b> Skipped purchases are CapEx you never book. Repair / keep work is usually near-term OpEx your CPA can deduct. Bring the dollar and CO₂e lines to tax season — GLOW Ops is the evidence pack, not the filing.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+</div>
+    </main>
+    <div id="site-foot"></div>
+    <script src="/site-nav.js"></script>
+    <script src="/site-foot.js"></script>
+    <script>
+      (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var fleetNum = $('fleetNum'), fleetRange = $('fleetRange');
+        var policyNum = $('policyNum'), keepNum = $('keepNum');
+        var healthyNum = $('healthyNum'), healthyRange = $('healthyRange');
+        var horizonNum = $('horizonNum'), priceNum = $('priceNum');
+        var classSel = $('classSel'), kgNum = $('kgNum');
+        var narr = $('rNarr'), rAvoided = $('rAvoided'), rCo2 = $('rCo2'),
+            rDollars = $('rDollars'), rCalLabel = $('rCalLabel'), rGlowLabel = $('rGlowLabel'),
+            barCal = $('barCal'), barGlow = $('barGlow'), rKgEcho = $('rKgEcho');
+
+        function val(el, fallback) {
+          var v = parseFloat(el.value);
+          return isFinite(v) ? v : fallback;
+        }
+        function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+
+        function calc() {
+          var N = Math.max(0, val(fleetNum, 150));
+          var P = Math.max(0.5, val(policyNum, 3));
+          var K = Math.max(0.5, val(keepNum, 5));
+          var s = Math.min(100, Math.max(0, val(healthyNum, 70))) / 100;
+          var H = Math.max(0, val(horizonNum, 15));
+          var kg = Math.max(0, val(kgNum, 219));
+          var price = Math.max(0, val(priceNum, 1100));
+
+          var calBuys = N * (H / P);
+          var glowBuys = N * ((1 - s) * (H / P) + s * (H / K));
+          var avoided = Math.max(0, calBuys - glowBuys);
+          var co2t = avoided * kg / 1000;
+          var dollars = avoided * price;
+
+          narr.innerHTML = 'Over <b>' + fmt(H) + ' years</b>, a <b>' + P + '-year refresh</b> of ' +
+            fmt(N) + ' devices buys about <b>' + fmt(calBuys) + ' machines</b>. Keeping the healthy <b>' +
+            Math.round(s * 100) + '%</b> for <b>' + K + ' years</b> buys about <b>' + fmt(glowBuys) +
+            '</b>. The difference is manufacturing you skip.';
+          rAvoided.textContent = fmt(avoided);
+          rCo2.textContent = (co2t >= 1000 ? fmt(co2t) : co2t.toFixed(1)) + ' t';
+          rDollars.textContent = '$' + fmt(dollars);
+          rCalLabel.textContent = fmt(calBuys);
+          rGlowLabel.textContent = fmt(glowBuys);
+          var max = Math.max(calBuys, glowBuys, 1);
+          barCal.style.width = (calBuys / max * 100) + '%';
+          barGlow.style.width = (glowBuys / max * 100) + '%';
+          rKgEcho.textContent = fmt(kg);
+        }
+
+        function syncPair(num, range) {
+          num.addEventListener('input', function () { range.value = num.value; calc(); });
+          range.addEventListener('input', function () { num.value = range.value; calc(); });
+        }
+        syncPair(fleetNum, fleetRange);
+        syncPair(healthyNum, healthyRange);
+        [policyNum, keepNum, horizonNum, priceNum, kgNum].forEach(function (el) {
+          el.addEventListener('input', calc);
+        });
+        classSel.addEventListener('change', function () {
+          kgNum.value = classSel.value;
+          calc();
+        });
+        $('calcForm').addEventListener('submit', function (e) { e.preventDefault(); });
+        calc();
+      })();
+    </script>
+  </body>
+</html>

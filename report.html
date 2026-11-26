@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light only" />
+    <title>The GLOW Op Report — Keep, repair, or recycle</title>
+    <meta name="description" content="A per-serial keep, repair, redeploy, refresh, or recycle report with the carbon factor and source on every row." />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
+    <link rel="canonical" href="https://getglowop.com/report.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GLOW Ops" />
+    <meta property="og:url" content="https://getglowop.com/report.html" />
+    <meta property="og:title" content="The GLOW Op Report — Keep, repair, or recycle" />
+    <meta property="og:description" content="A per-serial keep, repair, redeploy, refresh, or recycle report with the carbon factor and source on every row." />
+    <link rel="icon" href="data:," />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <div id="site-nav"></div>
+    <main id="main">
+<div class="page-pad">
+<!-- ================= THE REPORT ================= -->
+      <section id="report" style="padding-top:0;">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">02</span> The product</p>
+            <h2>The GLOW <span class="hl">Op Report.</span></h2>
+            <p class="sec-lede">Businesses do not need another maturity model. They need a report they can hand a CFO, a client, or an auditor <strong>without inventing a carbon number.</strong> Some lines in that report are public. The call — keep, repair, redeploy, refresh, recycle — is ours.</p>
+          </div>
+
+          <div class="versus">
+            <div class="panel panel-public">
+              <span class="p-tag">Public — we cite it</span>
+              <h3>We do not pretend we invented it.</h3>
+              <ul>
+                <li><b>Manufacturer product carbon footprints,</b> including the open Boavizta compilation of those sheets. Boavizta’s own warning applies: methodologies differ, margins of error are large — use them as orders of magnitude and for same-brand comparisons.</li>
+                <li><b>Intune / Graph, RMM export, thin agent, or SCCM-oriented inventory:</b> make, model, serial, OS, last check-in, compliance, warranty when the source has it.</li>
+                <li><b>CSV upload</b> when an API is not ready yet. The fleet still gets a report.</li>
+              </ul>
+            </div>
+            <div class="panel panel-prop">
+              <span class="p-tag">Proprietary — this is the GLOW Op</span>
+              <h3>The judgment layer is the company.</h3>
+              <ul>
+                <li><b>GLOW Score.</b> One number from embodied carbon, age, health, warranty, compliance, and how long the device has been quiet. The weights are ours.</li>
+                <li><b>The call, with a sentence.</b> Keep and optimize, repair, redeploy, refresh, or certified recycle / remarket. Written for an IT manager, not a life-cycle assessor.</li>
+                <li><b>Match confidence.</b> Exact model sheet, same-family estimate, or fallback. A guess is labeled a guess.</li>
+                <li><b>Calendar versus carbon.</b> What the current refresh policy would buy, versus what the score says — in kilograms and in purchase dollars.</li>
+                <li><b>Spend &amp; tax brief.</b> Repair / keep lines framed as near-term OpEx versus CapEx refresh — so finance can talk taxable income and carbon cost with a CPA, not invent a number.</li>
+                <li><b>Persona window.</b> A kiosk, a clinician, and a finance laptop do not share a lifespan. The mapping from the customer’s roles to a keep-window is ours.</li>
+                <li><b>Ghost flag.</b> Stale check-in, still assigned, still on the books. Their signal. Our rule for when it shows up in the report.</li>
+                <li><b>Repair-before-replace.</b> Battery or disk cost, supplied by the MSP, set next to the avoided purchase. We do not publish their vendor price list.</li>
+                <li><b>The client page.</b> White-label PDF and CSV an MSP can put their name on. Scope 3 language that stays inside what the factors support. Not a full GHG Protocol inventory. Not the user’s files. We are not reading anyone’s email to save the climate.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="sample">
+            <div class="sample-head">
+              <h3>A page from a sample report</h3>
+              <span>Five devices · five different answers</span>
+            </div>
+            <table class="sample-table">
+              <thead>
+                <tr><th scope="col">Device</th><th scope="col">Factor</th><th scope="col">Confidence</th><th scope="col">GLOW call</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="dev" data-l="Device">Latitude 5440<small>1.4 yrs · health 96</small></td>
+                  <td data-l="Factor">Manufacturing factor on file</td>
+                  <td class="conf" data-l="Confidence">Exact model, when the PCF exists</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-keep">Keep</span><p>Tune power policy. The calendar is early.</p></td>
+                </tr>
+                <tr>
+                  <td class="dev" data-l="Device">EliteBook 840 G6<small>battery 64%</small></td>
+                  <td data-l="Factor">About 300 kg, illustrative until the model sheet is matched</td>
+                  <td class="conf" data-l="Confidence">Family estimate</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-repair">Repair</span><p>Battery, not a new laptop.</p></td>
+                </tr>
+                <tr>
+                  <td class="dev" data-l="Device">OptiPlex desktop<small>disk failing · CPU fine</small></td>
+                  <td data-l="Factor">Desktop-class manufacturing, higher than a laptop</td>
+                  <td class="conf" data-l="Confidence">Family estimate</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-redeploy">Redeploy</span><p>After an SSD. The tower is not the failure.</p></td>
+                </tr>
+                <tr>
+                  <td class="dev" data-l="Device">Unknown device<small>checked in 11 months ago</small></td>
+                  <td data-l="Factor">Unknown until someone finds it</td>
+                  <td class="conf" data-l="Confidence">No factor yet</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-ghost">Ghost flag</span><p>Find it before you buy its replacement.</p></td>
+                </tr>
+                <tr>
+                  <td class="dev" data-l="Device">8-year laptop<small>failed board</small></td>
+                  <td data-l="Factor">Manufacturing already spent</td>
+                  <td class="conf" data-l="Confidence">Exact or family</td>
+                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-recycle">Recycle</span><p>Or remarket. This is the refresh the policy was for.</p></td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="sample-cap">Sample calls for the walkthrough. A production report names the factor URL, the year of the datasheet, and the confidence on every row.</p>
+          </div>
+        </div>
+      </section>
+</div>
+    </main>
+    <div id="site-foot"></div>
+    <script src="/site-nav.js"></script>
+    <script src="/site-foot.js"></script>
+
+  </body>
+</html>
