@@ -1,3 +1,5 @@
+-- Migration 2 of 3 — memberships and invitations.
+-- Run after 01_init. 03 also creates these tables if they are missing, so a rebuild still runs this file.
 -- Tenant RBAC: memberships + invitations (shared DB, scoped by business_id)
 
 create table if not exists public.business_memberships (

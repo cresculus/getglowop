@@ -1,3 +1,6 @@
+-- Migration 3 of 3 — install id, membership RLS, hidden secrets.
+-- Run after 01 and 02. Replaces the session-variable policies from 01 and 02.
+-- Next change is a new file: 2026MMDDHHMMSS_04_short_name.sql. Do not edit 01–03 after they are applied.
 -- Membership RLS for GLOWOpsDB.
 -- Isolation key is business_id (the customer fleet), not the commercial install.
 -- Clerk user id must be partners.clerk_user_id. Policies read auth.jwt()->>'sub'.

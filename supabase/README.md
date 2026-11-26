@@ -27,21 +27,34 @@ npx supabase link --project-ref goxottatihejvzakhdho
 npx supabase db push
 ```
 
+## Rebuild order
+
+On an empty database, run these three files in the SQL editor, top to bottom, one at a time. Then run the test.
+
+| # | File | What it does |
+| --- | --- | --- |
+| 1 | `migrations/20261124120000_01_init.sql` | Partners, businesses, devices, keys, first policies |
+| 2 | `migrations/20261124230000_02_memberships.sql` | `business_memberships` and invitations |
+| 3 | `migrations/20261126140000_03_rls.sql` | `installs`, Clerk membership policies, hidden secrets |
+
+GLOWOpsDB already has 1–3 applied. Do not run them again on that project.
+
+The next migration is **4**. Add `migrations/2026MMDDHHMMSS_04_short_name.sql`. Do not edit 01, 02, or 03 after they have been applied.
+
+After a rebuild, run `tests/rls_cross_tenant.sql`. It rolls back. `other_devices` must be 0.
+
 ## Layout
 
 ```
 supabase/
   README.md
   migrations/
-    20261124120000_init.sql   ← partners, businesses, devices, keys, RLS
+    20261124120000_01_init.sql
+    20261124230000_02_memberships.sql
+    20261126140000_03_rls.sql
+  tests/
+    rls_cross_tenant.sql
 ```
-
-## Apply order
-
-1. `migrations/20261124120000_init.sql`
-2. `migrations/20261124230000_rbac_invites.sql`
-3. `migrations/20261126140000_rls_membership.sql` — membership RLS, install id, secret columns hidden
-4. SQL editor: `tests/rls_cross_tenant.sql` (rolls back). `other_devices` must be 0.
 
 Live fleet rows today are SQLite on the Railway volume (`GLOWOPS_DATA`). This SQL does not move them. RLS protects GLOWOpsDB and the Supabase Data API. The Railway process uses a role that bypasses RLS, so the Python membership check stays mandatory until queries run as the Clerk user.
 
