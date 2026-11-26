@@ -288,14 +288,15 @@ Mismatch between claimed business and key  -->  403
           <h2>The database is only visible to <span class="hl">who is assigned</span></h2>
           <p class="sec-lede">Humans log in with an identity provider. The API loads their business assignments before any query runs.</p>
           <ul class="roles">
-            <li><b>MSP admin</b><span>All businesses under that MSP org.</span></li>
+            <li><b>MSP admin</b><span>Every business they are a member of. Membership is the boundary, not the whole book by default.</span></li>
             <li><b>MSP technician</b><span>Only the businesses they are assigned to — not the whole book of business by default.</span></li>
             <li><b>Customer admin / viewer</b><span>Their business only. Viewer is read-only.</span></li>
             <li><b>Device / enrollment</b><span>Write inventory to ingest. Cannot open the dashboard.</span></li>
             <li><b>Platform break-glass</b><span>GlowOps staff only, audited, time-bound.</span></li>
           </ul>
           <div class="callout">
-            <p>Defense in depth: application filters <strong>and</strong> database row-level security on <strong>business_id</strong>. A buggy report query still cannot leak another tenant.</p>
+            <p><strong>Enforced now.</strong> Fleet reads and dashboard pastes check membership on that <strong>business_id</strong> before any device query. A guessed id from someone who is not a member returns 403. Device join keys are bound to one business; a mismatched claim is rejected. Anonymous callers cannot list another company’s inventory. The lab demo tenant is served only when demo seed is explicitly turned on.</p>
+            <p>Postgres row-level security is the next store control. This page does not claim it is already on the current database, and it does not claim a finished SOC 2 report.</p>
           </div>
         </div>
       </section>
@@ -341,7 +342,7 @@ Mismatch between claimed business and key  -->  403
         <p class="f-big">Assigned access.<br /><span class="glow">Encrypted path.</span></p>
         <p class="f-meta">GLOW Ops · Security · getglowop.com/security.html</p>
         <a class="mail" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20security">Talk security →</a>
-        <p class="f-fine">Designed for SOC 2-relevant controls: encryption in transit and at rest, tenant isolation, RBAC, audit logging, and access reviews. Certification is evidence over time — not a homepage badge.</p>
+        <p class="f-fine">Designed for SOC 2-relevant controls: encryption in transit and at rest, tenant isolation, RBAC, and access checks per business. Certification is evidence over time — not a homepage badge. A business of <a href="https://augmaticholdings.com/" style="color:var(--lime-deep);font-weight:700">Augmatic Holdings LLC</a>.</p>
       </div>
     </footer>
       <script src="/site-nav.js"></script>

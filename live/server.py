@@ -62,7 +62,6 @@ from partners import (  # noqa: E402
     mint_mcp_key,
     partner_from_mcp_key,
     partner_from_session,
-    partner_may_access,
     revoke_mcp_key,
     revoke_session,
     seed_demo_partner,
@@ -361,6 +360,29 @@ class Handler(BaseHTTPRequestHandler):
                 )
         return self._session_partner()
 
+    def _fleet_tenant_for_read(self, tenant: str) -> str | None:
+        """Business id this caller may read. None means deny.
+
+        Signed-in partners only see businesses they belong to. Anonymous callers
+        only see the lab demo tenant, and only when GLOWOPS_SEED_DEMO=1.
+        """
+        asked = (tenant or "").strip()
+        if asked in ("*", "all"):
+            return None
+        partner = self._partner_principal()
+        demo_on = os.environ.get("GLOWOPS_SEED_DEMO", "").strip() == "1"
+        if partner and partner.get("id") != "partner_demo":
+            if not asked or asked == "demo":
+                from partners import ensure_partner_home_business
+
+                asked = ensure_partner_home_business(CONN, partner).get("business_id") or ""
+            if asked and partner_can(CONN, partner["id"], asked, "devices.read"):
+                return asked
+            return None
+        if demo_on and asked in ("", "demo"):
+            return "demo"
+        return None
+
     def do_OPTIONS(self) -> None:  # noqa: N802
         self.send_response(204)
         self._cors()
@@ -434,6 +456,18 @@ class Handler(BaseHTTPRequestHandler):
             )
             return self._send(status, body, ctype)
 
+        fleet_read = path.rstrip("/") in (
+            "/api/summary",
+            "/api/business",
+            "/api/devices",
+            "/api/export.csv",
+        ) or path.startswith("/api/devices/")
+        if fleet_read:
+            allowed = self._fleet_tenant_for_read(tenant)
+            if not allowed:
+                return self._send(403, b'{"error":"business not assigned"}', "application/json")
+            tenant = allowed
+
         if path.rstrip("/") == "/api/summary":
             status, body, ctype = _json_bytes(fleet_summary(CONN, tenant))
             return self._send(status, body, ctype)
@@ -461,11 +495,6 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(400, b'{"error":"device id required"}', "application/json")
             rows = list_devices(CONN, tenant)
             match = next((dict(r) for r in rows if str(r.get("id")) == device_id), None)
-            if not match:
-                # Fall back across tenants only when explicitly asked via tenant=*
-                if tenant == "*":
-                    rows = list_devices(CONN, None)
-                    match = next((dict(r) for r in rows if str(r.get("id")) == device_id), None)
             if not match:
                 return self._send(404, b'{"error":"device not found"}', "application/json")
             inv = None
@@ -1095,11 +1124,24 @@ class Handler(BaseHTTPRequestHandler):
                 tenant = enrollment["businessId"]
                 source = "agent-refresh" if enrollment.get("refreshOnly") else "agent-join"
             else:
-                # Dashboard paste / lab ingest (partner session or open demo tenant)
+                # Dashboard paste only into a business this partner belongs to.
+                # Anonymous callers may write the lab demo tenant only when that seed is on.
                 partner = self._partner_principal()
-                tenant = str(payload.get("tenantId") or payload.get("businessId") or (qs.get("tenant") or ["demo"])[0])
-                if partner and not partner_may_access(CONN, partner["id"], tenant):
-                    return self._send(403, b'{"error":"business not assigned"}', "application/json")
+                tenant = str(payload.get("tenantId") or payload.get("businessId") or "").strip()
+                demo_on = os.environ.get("GLOWOPS_SEED_DEMO", "").strip() == "1"
+                if tenant in ("*", "all"):
+                    return self._send(400, b'{"error":"business id required"}', "application/json")
+                if partner and partner.get("id") != "partner_demo":
+                    if not tenant or tenant == "demo":
+                        from partners import ensure_partner_home_business
+
+                        tenant = ensure_partner_home_business(CONN, partner).get("business_id") or ""
+                    if not tenant or not partner_can(CONN, partner["id"], tenant, "devices.write"):
+                        return self._send(403, b'{"error":"business not assigned"}', "application/json")
+                elif not (demo_on and (not tenant or tenant == "demo")):
+                    return self._send(401, b'{"error":"unauthorized"}', "application/json")
+                else:
+                    tenant = "demo"
             body = payload.get("devices") or payload.get("value") or payload.get("managedDevices") or payload
             devices = map_managed_devices(body)
             if not devices and (payload.get("deviceName") or payload.get("serialNumber")):

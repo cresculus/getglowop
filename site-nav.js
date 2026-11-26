@@ -46,6 +46,21 @@
               '</div>' +
             '</div>' +
           '</div>' +
+          '<div class="nav-item">' +
+            '<button type="button" aria-expanded="false">Start <span class="caret" aria-hidden="true">▾</span></button>' +
+            '<div class="mega mega-2" role="group" aria-label="Start">' +
+              '<div>' +
+                '<p class="mega-col-label">Talk to us</p>' +
+                '<a class="mlink" href="/demo.html"' + on("/demo.html") + '><strong>Get a demo</strong><span>A walkthrough of your fleet, not a slide deck.</span></a>' +
+                '<a class="mlink" href="/network.html"' + on("/network.html") + '><strong>Augmatic Network</strong><span>Private toolkit for MSPs, CTOs, and technologists.</span></a>' +
+              '</div>' +
+              '<div>' +
+                '<p class="mega-col-label">Use it</p>' +
+                '<a class="mlink" href="/trial.html"' + on("/trial.html") + '><strong>Try it free</strong><span>30-day internal-use license on your own environment.</span></a>' +
+                '<a class="mlink" href="/security.html"' + on("/security.html") + '><strong>Per-business security</strong><span>Another company id cannot read your devices.</span></a>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
           '<div class="nav-item"><a href="/security.html"' + on("/security.html") + '>Security</a></div>' +
           '<div class="nav-item">' +
             '<button type="button" aria-expanded="false">Resources <span class="caret" aria-hidden="true">▾</span></button>' +
@@ -63,7 +78,7 @@
             '</div>' +
           '</div>' +
         '</nav>' +
-        '<a class="nav-cta" href="/app/">Open live →</a>' +
+        '<a class="nav-cta" href="/demo.html">Get a demo</a>' +
       '</div>' +
     '</header>';
   var mount = document.getElementById("site-nav");
