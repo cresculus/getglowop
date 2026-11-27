@@ -32,27 +32,27 @@ body.shell.has-side {
   min-width: 0;
   min-height: 0;
 }
-.side {
+.has-side .side {
   display: flex;
   flex-direction: column;
   min-height: 0;
   border-right: 1px solid var(--line);
   background: var(--surface);
 }
-.side-brand {
+.has-side .side-brand {
   display: flex;
   align-items: center;
   height: 3.5rem;
   padding: 0 1rem;
   border-bottom: 1px solid var(--line);
 }
-.side-nav {
+.has-side .side-nav {
   flex: 1;
   min-height: 0;
   overflow: auto;
   padding: 0.75rem;
 }
-.side-label {
+.has-side .side-label {
   margin: 0.35rem 0.4rem 0.35rem;
   font-size: 11px;
   font-weight: 650;
@@ -60,7 +60,7 @@ body.shell.has-side {
   text-transform: uppercase;
   color: var(--muted);
 }
-.side-link {
+.has-side .side-link {
   display: flex;
   width: 100%;
   align-items: center;
@@ -74,13 +74,13 @@ body.shell.has-side {
   text-align: left;
   cursor: pointer;
 }
-.side-link:hover { background: var(--surface-2); color: var(--ink); }
-.side-link[aria-selected="true"] {
+.has-side .side-link:hover { background: var(--surface-2); color: var(--ink); }
+.has-side .side-link[aria-selected="true"] {
   background: rgba(191, 247, 71, 0.28);
   color: var(--ink);
   box-shadow: inset 0 0 0 1px rgba(74, 106, 0, 0.35);
 }
-.side-user {
+.has-side .side-user {
   display: flex;
   align-items: center;
   gap: 0.7rem;
@@ -88,7 +88,7 @@ body.shell.has-side {
   padding: 0.55rem 0.65rem;
   border-top: 1px solid var(--line);
 }
-.side-avatar {
+.has-side .side-avatar {
   display: grid;
   place-items: center;
   width: 2rem;
@@ -98,9 +98,9 @@ body.shell.has-side {
   font-size: 0.8rem;
   font-weight: 650;
 }
-.side-user-copy { display: grid; min-width: 0; }
-.side-user-copy b { font-size: 0.85rem; font-weight: 600; }
-.side-user-copy span { color: var(--muted); font-size: 0.75rem; }
+.has-side .side-user-copy { display: grid; min-width: 0; }
+.has-side .side-user-copy b { font-size: 0.85rem; font-weight: 600; }
+.has-side .side-user-copy span { color: var(--muted); font-size: 0.75rem; }
 .logs-fit { display: grid; gap: 0.8rem; min-height: 0; }
 .logs-fit .hint:empty { display: none; }
 
@@ -1292,7 +1292,7 @@ tbody tr.flash-update {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
   }
-  .side { display: none; }
+  .has-side .side { display: none; }
   .topbar {
     position: sticky;
     top: 0;
