@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light only" />
     <title>How a GLOW Op Report is made</title>
-    <meta name="description" content="Ingest from Intune, RMM, a thin agent, or SCCM. Enrich with a manufacturer factor. Decide. Report." />
+    <meta name="description" content="The fleet you already run. A keep, repair, or replace call." />
     <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large" />
     <link rel="canonical" href="https://getglowop.com/how.html" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="GLOW Ops" />
     <meta property="og:url" content="https://getglowop.com/how.html" />
     <meta property="og:title" content="How a GLOW Op Report is made" />
-    <meta property="og:description" content="Ingest from Intune, RMM, a thin agent, or SCCM. Enrich with a manufacturer factor. Decide. Report." />
+    <meta property="og:description" content="The fleet you already run. A keep, repair, or replace call." />
     <link rel="icon" href="data:," />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -37,17 +37,17 @@
             <li class="step">
               <span class="s-num" aria-hidden="true">1</span>
               <h3>Ingest <span class="arrow">→</span></h3>
-              <p><strong>Intune / Graph</strong> when that is the system of record. <strong>RMM</strong> export or scripted pull when ConnectWise, Ninja, Datto, or similar already owns the box. <strong>Thin GlowOps agent</strong> when there is no MDM — inventory only, HTTPS, per-business enrollment key. <strong>SCCM / ConfigMgr</strong>-friendly feeds when the estate is still ConfigMgr-first. CSV if you just need a pilot. <a href="/deploy.html">One-click deploy</a> to Intune, an RMM, or any PC, packaged for <strong>that company only</strong>.</p>
+              <p><strong>Intune</strong> when that is the system of record. An <strong>RMM</strong> when that already owns the box. A <strong>thin agent</strong> when there is no management tool. <strong>SCCM</strong> when the estate is still ConfigMgr-first. <a href="/deploy.html">One-click deploy</a>, packaged for <strong>that company only</strong>.</p>
             </li>
             <li class="step">
               <span class="s-num" aria-hidden="true">2</span>
               <h3>Enrich <span class="arrow">→</span></h3>
-              <p>Match the model to a manufacturer PCF or to Boavizta’s open compilation. If the exact sheet does not exist, say so and use a documented fallback. Do not average the internet and call it science.</p>
+              <p>Each row carries a manufacturing factor. The source of that factor is named.</p>
             </li>
             <li class="step">
               <span class="s-num" aria-hidden="true">3</span>
               <h3>Decide <span class="arrow">→</span></h3>
-              <p>Rules first. Machine learning only after the rules have been wrong in public often enough to deserve it. Security and a dead motherboard still win. Carbon does not ask you to keep a machine that cannot take the current OS.</p>
+              <p>Security and a dead machine still win.</p>
             </li>
             <li class="step">
               <span class="s-num" aria-hidden="true">4</span>
@@ -58,8 +58,8 @@
 
           <div class="gap-box">
             <div>
-              <h3>What is already public</h3>
-              <p>Boavizta’s environmental-footprint-data repository is the open pile of manufacturer PCFs; their API looks up a model. Intune can push a power policy and, on Surface, estimate emissions. Warranty-and-refresh packs for MSPs plan a calendar.</p>
+              <h3>The call</h3>
+              <p>Keep, repair, or replace. The calendar is not the decision.</p>
             </div>
             <div class="scope">
               <span class="stamp2">Haul-away</span>
