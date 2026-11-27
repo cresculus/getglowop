@@ -75,6 +75,12 @@
         box-shadow:0 0 44px rgba(166,230,46,.65), 0 0 10px rgba(166,230,46,.8);
         transform:rotate(-1.2deg);
       }
+      .hero h1{ text-transform:none; }
+      .hero h1 .it{
+        font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:.58em;
+        letter-spacing:.16em; line-height:1; display:inline-block; vertical-align:.22em;
+        padding:.04em .06em .08em .18em; border-bottom:.07em solid var(--ink);
+      }
       .hero-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:clamp(1.5rem,4vw,3.5rem); align-items:start; padding-bottom:clamp(2.5rem,6vw,4.5rem); }
       .hero-lede{ font-size:clamp(1.12rem,2vw,1.35rem); line-height:1.5; max-width:34em; color:var(--ink); }
       .hero-lede strong{ font-weight:800; }
@@ -468,8 +474,9 @@
         text-transform:uppercase; color:var(--muted); margin:0 .7rem .25rem;
       }
       .mega-promo{
-        background:#E7F6C8; border:2px solid #0D130B; padding:1rem .95rem;
-        display:flex; flex-direction:column; justify-content:space-between; gap:.8rem; text-decoration:none;
+        background:#E7F6C8; border:2px solid #0D130B; padding:.9rem .9rem;
+        display:flex; flex-direction:column; justify-content:flex-start; gap:.55rem;
+        align-self:start; text-decoration:none;
       }
       .mega-promo b{ font-size:1.05rem; letter-spacing:-.02em; text-transform:uppercase; line-height:1.15; }
       .mega-promo span{ font-size:.88rem; color:var(--ink-2); }

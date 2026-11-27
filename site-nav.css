@@ -56,8 +56,9 @@
         text-transform:uppercase; color:var(--muted); margin:0 .7rem .25rem;
       }
       .mega-promo{
-        background:#E7F6C8; border:2px solid #0D130B; padding:1rem .95rem;
-        display:flex; flex-direction:column; justify-content:space-between; gap:.8rem; text-decoration:none;
+        background:#E7F6C8; border:2px solid #0D130B; padding:.9rem .9rem;
+        display:flex; flex-direction:column; justify-content:flex-start; gap:.55rem;
+        align-self:start; text-decoration:none;
       }
       .mega-promo b{ font-size:1.05rem; letter-spacing:-.02em; text-transform:uppercase; line-height:1.15; }
       .mega-promo span{ font-size:.88rem; color:var(--ink-2); }
