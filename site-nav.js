@@ -54,7 +54,6 @@
               '<div>' +
                 '<p class="mega-col-label">Talk to us</p>' +
                 '<a class="mlink" href="/demo.html"' + on("/demo.html") + '><strong>Get a demo</strong><span>A walkthrough of your fleet, not a slide deck.</span></a>' +
-                '<a class="mlink" href="/network.html"' + on("/network.html") + '><strong>Augmatic Network</strong><span>Private toolkit for MSPs, CTOs, and technologists.</span></a>' +
               '</div>' +
               '<div>' +
                 '<p class="mega-col-label">Use it</p>' +
