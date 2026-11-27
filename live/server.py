@@ -851,11 +851,21 @@ class Handler(BaseHTTPRequestHandler):
                 rel = path.strip("/") + "/index.html"
             f = _safe_file(MARKETING_ROOT, rel)
             if f and "live" not in Path(rel).parts[:1]:
-                return self._send(200, f.read_bytes(), _content_type(f))
+                return self._send(
+                    200,
+                    f.read_bytes(),
+                    _content_type(f),
+                    {"Cache-Control": "no-store, max-age=0"},
+                )
             if path == "/" or path == "":
                 index = MARKETING_ROOT / "index.html"
                 if index.is_file():
-                    return self._send(200, index.read_bytes(), _content_type(index))
+                    return self._send(
+                        200,
+                        index.read_bytes(),
+                        _content_type(index),
+                        {"Cache-Control": "no-store, max-age=0"},
+                    )
 
         if path in ("/", ""):
             return self._redirect("/app/")
