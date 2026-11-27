@@ -490,8 +490,14 @@
         font-style:normal; font-weight:800; text-transform:uppercase; font-size:.78rem;
         display:inline-flex; align-items:center; gap:.35rem;
       }
+      .nav-signin{
+        margin-left:auto; color:#EDF1E8; text-decoration:none; white-space:nowrap;
+        font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weight:600;
+        letter-spacing:.08em; text-transform:uppercase; padding:.85rem .7rem;
+      }
+      .nav-signin:hover{ color:var(--lime); }
       .nav-cta{
-        margin-left:auto; background:var(--lime); color:#0D130B; text-decoration:none;
+        margin-left:.35rem; background:var(--lime); color:#0D130B; text-decoration:none;
         font-weight:800; text-transform:uppercase; letter-spacing:.03em; font-size:.78rem;
         border:2px solid var(--lime); padding:.55rem .85rem; white-space:nowrap;
       }

@@ -79,6 +79,7 @@
             '</div>' +
           '</div>' +
         '</nav>' +
+        '<a class="nav-signin" href="/partner/sign-in">Sign in</a>' +
         '<a class="nav-cta" href="/demo.html">Get a demo</a>' +
       '</div>' +
     '</header>';
