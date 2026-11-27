@@ -179,14 +179,14 @@ tr:hover td{background:var(--surface2)}
 </head>
 <body>
 <header class="topbar"><div class="topbar-inner">
-  <a class="brand" href="/" style="text-decoration:none;color:inherit"><div class="mark">G</div><div><b>GLOW Ops</b><span>Green Lifecycle &amp; Operations Workflows</span></div></a>
+  <a class="brand" href="/" style="text-decoration:none;color:inherit"><div class="mark">G</div><div><b>GLOW Ops</b></div></a>
   <nav class="toggle" aria-label="View toggle">
     <button id="btnDash" class="active" onclick="showView('dash')">◈ Dashboard</button>
     <button id="btnReport" onclick="showView('report')">▤ GLOW Op Report</button>
     <a href="/" style="align-self:center;font-size:13px;font-weight:700;padding:0 8px">Site</a>
     <a href="/security.html" style="align-self:center;font-size:13px;font-weight:700;padding:0 8px">Security</a>
   </nav>
-  <div style="display:flex;gap:8px"><span class="pill lime">Sample · Harbor Clinic</span><span class="pill">Phase 0</span></div>
+  <div style="display:flex;gap:8px"><span class="pill lime">Harbor Clinic</span></div>
 </div></header>
 
 <main class="wrap">
@@ -194,7 +194,7 @@ tr:hover td{background:var(--surface2)}
 <section id="view-dash" class="view active">
   <div class="dash-head">
     <div>
-      <div class="eyebrow"><span class="dot"></span> MSP Portfolio · Live design mock · Intune / RMM / agent sample</div>
+      <div class="eyebrow"><span class="dot"></span> Harbor Clinic · Intune / RMM / agent</div>
       <h1>The calendar was<br>about to go <em>shopping.</em></h1>
       <p>One fleet, every device scored. Keep what’s healthy, repair what’s cheap to fix, and only refresh what’s genuinely done — with the carbon factor and its source on every row.</p>
     </div>
@@ -202,7 +202,7 @@ tr:hover td{background:var(--surface2)}
       <dt>Client</dt><dd>Harbor Clinic</dd>
       <dt>Source</dt><dd>Intune · RMM · Agent</dd>
       <dt>Devices</dt><dd>148 endpoints</dd>
-      <dt>Last sync</dt><dd>Sample — not a live tenant</dd>
+      <dt>Last sync</dt><dd>Sample</dd>
       <dt>Report</dt><dd>GLOW Op #2026-014</dd>
     </dl></aside>
   </div>
@@ -287,7 +287,6 @@ tr:hover td{background:var(--surface2)}
     <button class="chip" data-f="Recycle" onclick="setFilter(this)">Recycle</button>
     <button class="chip" data-f="Ghost" onclick="setFilter(this)">Ghost flag</button>
   </div>
-  <p class="mono" style="font-size:11px;color:var(--muted);margin:10px 2px">SHOWING SAMPLE ROWS FROM THE REPORT — PRODUCTION SHOWS ALL 148 WITH FACTOR URL + DATASHEET YEAR PER ROW</p>
   <div class="table-wrap"><table><thead><tr><th>Device</th><th>Age / Health</th><th>GLOW Score</th><th>Factor &amp; confidence</th><th>Call</th></tr></thead><tbody id="tbody"></tbody></table></div>
   <p id="empty" style="display:none;text-align:center;padding:20px;color:var(--muted)">No sample devices match that filter.</p>
 </section>
@@ -295,16 +294,16 @@ tr:hover td{background:var(--surface2)}
 <!-- ============ REPORT ============ -->
 <section id="view-report" class="view">
   <div class="report-toolbar">
-    <div><div class="eyebrow">Client-facing document · White-label ready</div><h1 class="display" style="font-size:clamp(28px,4vw,40px);margin:6px 0 0;letter-spacing:-.03em">The GLOW Op Report design</h1><p>This is the page an MSP hands a CFO, a client, or an auditor. Every number carries its source. A guess is labelled a guess.</p></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="showView('dash')" style="padding:12px 16px;border-radius:999px;border:2px solid var(--line2);background:var(--surface);font-weight:700;cursor:pointer">← Back to dashboard</button><span class="pill lime" style="display:inline-flex;align-items:center">PDF + CSV in production</span></div>
+    <div><h1 class="display" style="font-size:clamp(28px,4vw,40px);margin:6px 0 0;letter-spacing:-.03em">Harbor Clinic</h1><p>Every number carries its source. A guess is labelled a guess.</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="showView('dash')" style="padding:12px 16px;border-radius:999px;border:2px solid var(--line2);background:var(--surface);font-weight:700;cursor:pointer">← Back to dashboard</button></div>
   </div>
 
   <article class="sheet" aria-label="Sample GLOW Op Report">
     <header class="sheet-head">
-      <div class="kicker">GLOW Ops · Green Lifecycle and Operation Workflows</div>
+      <div class="kicker">Harbor Clinic</div>
       <h2>GLOW Op <span>Report</span></h2>
       <p style="color:#CBD3C2;max-width:560px;margin:0">Which devices get to live, which need a battery, and which are genuinely done. Refresh season can sit down.</p>
-      <div class="sheet-meta"><span>CLIENT — HARBOR CLINIC</span><span>REPORT — #2026-014</span><span>SAMPLE · NOT A TENANT</span><span>SOURCE — INTUNE / GRAPH</span></div>
+      <div class="sheet-meta"><span>CLIENT — HARBOR CLINIC</span><span>REPORT — #2026-014</span><span>SOURCE — INTUNE / GRAPH</span></div>
     </header>
     <div class="sheet-body">
       <h3>Executive verdict</h3>
@@ -319,7 +318,7 @@ tr:hover td{background:var(--surface2)}
         <div><span>Purchases deferred</span><b>$63,800</b><small>Before repair costs, shown per row</small></div>
       </div>
 
-      <h3>Spotlight — the device that explains the whole report</h3>
+      <h3>EliteBook 840 G6</h3>
       <div class="spotlight">
         <div>
           <div class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#777">HP EliteBook 840 G6 · 4.8 years · Warranty expired</div>
@@ -346,10 +345,9 @@ tr:hover td{background:var(--surface2)}
         <tr><td><b>Checked in 11 months ago</b></td><td>Unknown until someone finds it</td><td>No factor yet</td><td><b>Ghost flag.</b> Find it before you buy its replacement.</td></tr>
         <tr><td><b>8-year laptop</b> · failed board</td><td>Manufacturing already spent</td><td>Exact or family</td><td><b>Recycle or remarket.</b> This is the refresh the policy was for.</td></tr>
       </tbody></table>
-      <p style="font-size:12px;color:#777">Sample calls for the walkthrough. A production report names the factor URL, the year of the datasheet, and the confidence on every row.</p>
 
       <h3>Calendar versus carbon — the screening math</h3>
-      <p>Over 15 years, a 3-year refresh of 150 devices buys about <b>750 machines</b>. Keeping the healthy 70% for 5 years buys about <b>540</b>. The difference is manufacturing you skip: <b>210 devices · 46.0 t CO₂e · $231,000</b> at 219 kg and $1,100 per device. This is screening arithmetic with its assumptions printed on it — not a certified footprint. The report above does it per serial number.</p>
+      <p>Over 15 years, a 3-year refresh of 150 devices buys about <b>750 machines</b>. Keeping the healthy 70% for 5 years buys about <b>540</b>. The difference is manufacturing you skip: <b>210 devices · 46.0 t CO₂e · $231,000</b> at 219 kg and $1,100 per device.</p>
 
       <h3>How this report was made</h3>
       <div class="steps">
@@ -358,20 +356,14 @@ tr:hover td{background:var(--surface2)}
         <div><b>3 · Decide</b><span style="font-size:13px;color:#555">Rules first. Security and a dead board still win over carbon.</span></div>
         <div><b>4 · Report</b><span style="font-size:13px;color:#555">One report per client. Portfolio view for the MSP. PDF + CSV, white-label.</span></div>
       </div>
-      <p style="font-size:13px"><b>Public vs. proprietary, plainly:</b> Manufacturer PCFs, Boavizta’s compilation, and the client’s own Intune / RMM / agent inventory are public / client data — cited, not claimed. The GLOW Score weights, the call, match confidence, persona windows, ghost rule, and calendar-vs-carbon comparison are the GLOW Op.</p>
-
-      <h3>Scope — what this is not</h3>
-      <p style="font-size:13px">Not a full GHG Protocol inventory. Not an assurance opinion. Not a reason to skip a security patch. Scope 3 language stays inside what the factors support. Phase 0: no production connector and no paying tenant yet — this is a sample report design, not a live tenant export.</p>
-
       <div class="sources">
         <b style="color:#141614">Sources on this page</b> · Ferreira et al., <i>Sustainability</i> 2025, 17(10), 4455 — laptop 286.1 kg CO₂e total, 218.7 kg manufacturing · German Environment Agency / Öko-Institut / Fraunhofer IZM — production ~56% of notebook GHG, 33–89 yr payback for a 10% efficiency gain · André et al., <i>Waste Management</i> 2019 — reuse prep negligible vs. extending use · Gartner, Best Practices for Device Sustainability, 13 Mar 2024 · Boavizta environmental-footprint-data (open PCF compilation) · ITU/UNITAR Global E-waste Monitor 2024 — 62 Mt in 2022, 22.3% formally recycled.
       </div>
     </div>
-    <footer class="sheet-foot"><span>GLOW Ops · Green Lifecycle and Operation Workflows · getglowop.com</span><span class="mono">MSP WHITE-LABEL AREA — YOUR LOGO HERE IN PRODUCTION</span></footer>
+    <footer class="sheet-foot"><span>getglowop.com</span></footer>
   </article>
 </section>
 
-<p class="foot">GLOW Ops is Phase 0 — pre-revenue, no paying tenant, no production connector yet. Both designs above use the Harbor Clinic sample fleet from the GLOW Op walkthrough. Dashboard numbers are the sample’s internal screening math; the report’s per-device factors are labelled by confidence (exact model / family estimate / no factor yet) exactly as a production report would label them. Full source list lives on the <a href="/#sources">GLOW Ops site</a>.</p>
 </main>
 
 <script>

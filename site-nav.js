@@ -15,15 +15,15 @@
             '<button type="button" aria-expanded="false">Product <span class="caret" aria-hidden="true">▾</span></button>' +
             '<div class="mega" role="group" aria-label="Product">' +
               '<div>' +
-                '<p class="mega-col-label">The product</p>' +
+                '<p class="mega-col-label">Fleet</p>' +
                 '<a class="mlink" href="/report.html"' + on("/report.html") + '><strong>GLOW Op Report</strong><span>The keep / repair / recycle call, per serial.</span></a>' +
                 '<a class="mlink" href="/how.html"' + on("/how.html") + '><strong>How it is made</strong><span>Intune, RMM, agent, or SCCM — one report.</span></a>' +
                 '<a class="mlink" href="/deploy.html"' + on("/deploy.html") + '><strong>One-click deploy</strong><span>Push to Intune, ready-to-join RMM scripts, any PC.</span></a>' +
               '</div>' +
               '<div>' +
                 '<p class="mega-col-label">See it</p>' +
-                '<a class="mlink" href="/dashboard.html"' + on("/dashboard.html") + '><strong>Sample dashboard</strong><span>A walkthrough UI, not a live tenant.</span></a>' +
-                '<a class="mlink" href="/app/"><strong>Live dashboard</strong><span>Open the working fleet report.</span></a>' +
+                '<a class="mlink" href="/dashboard.html"' + on("/dashboard.html") + '><strong>Sample dashboard</strong><span>Harbor Clinic, 148 devices.</span></a>' +
+                '<a class="mlink" href="/app/"><strong>Live dashboard</strong><span>The fleet you are signed into.</span></a>' +
               '</div>' +
               '<a class="mega-promo" href="/tax.html">' +
                 '<b>Lower near-term taxable income</b>' +
@@ -69,12 +69,12 @@
               '<div>' +
                 '<p class="mega-col-label">Read</p>' +
                 '<a class="mlink" href="/sources.html"' + on("/sources.html") + '><strong>Sources</strong><span>Papers and notes behind the claims.</span></a>' +
-                '<a class="mlink" href="/security.html"' + on("/security.html") + '><strong>Security detail</strong><span>TLS, tenancy, and what we do not claim.</span></a>' +
+                '<a class="mlink" href="/security.html"' + on("/security.html") + '><strong>Security detail</strong><span>TLS, tenancy, and who can open a fleet.</span></a>' +
               '</div>' +
               '<div>' +
                 '<p class="mega-col-label">Talk</p>' +
                 '<a class="mlink" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20%E2%80%94%20early%20access"><strong>Early access</strong><span>Ask for a walkthrough of a real fleet.</span></a>' +
-                '<a class="mlink" href="/report.html"' + on("/report.html") + '><strong>What the report contains</strong><span>Public factors. Proprietary call.</span></a>' +
+                '<a class="mlink" href="/report.html"' + on("/report.html") + '><strong>Sample rows</strong><span>Five devices, five calls.</span></a>' +
               '</div>' +
             '</div>' +
           '</div>' +

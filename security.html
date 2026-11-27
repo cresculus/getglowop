@@ -56,14 +56,6 @@
                 "@type": "Answer",
                 "text": "No. Each business has its own business ID and enrollment key. Dashboards load only the businesses a user is assigned to. Device keys write inventory; they cannot read the dashboard."
               }
-            },
-            {
-              "@type": "Question",
-              "name": "Is GLOW Ops SOC 2 certified?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "The product architecture is designed for SOC 2 controls (encryption in transit and at rest, tenant isolation, audit logging, access reviews). Certification is a program outcome after production controls are live — this page describes the model, not a completed Type II report."
-              }
             }
           ]
         }
@@ -181,7 +173,7 @@
     <main>
       <div class="hero">
         <div class="wrap">
-          <p class="hero-kicker"><span class="tag">Security</span><span>Designed for SOC 2 controls</span><span aria-hidden="true">/</span><span>Not a Type II report yet</span></p>
+          <p class="hero-kicker"><span class="tag">Security</span><span>TLS in</span><span aria-hidden="true">/</span><span>Assigned eyes only</span></p>
           <h1>Encrypted leaving<br />the device.<br /><span class="glow">Assigned eyes only.</span></h1>
           <p class="lede">Fleet inventory is confidential customer data. GLOW Ops treats it that way: <strong>TLS from the endpoint</strong>, <strong>encryption at rest</strong>, <strong>one business ID per customer</strong>, and a dashboard that only loads businesses <span class="serif-i">you are assigned to</span>.</p>
         </div>
@@ -296,7 +288,6 @@ Mismatch between claimed business and key  -->  403
           </ul>
           <div class="callout">
             <p><strong>Enforced now.</strong> Fleet reads and dashboard pastes check membership on that <strong>business_id</strong> before any device query. A guessed id from someone who is not a member returns 403. Device join keys are bound to one business; a mismatched claim is rejected. Anonymous callers cannot list another company’s inventory. The lab demo tenant is served only when demo seed is explicitly turned on.</p>
-            <p>Postgres row-level security is the next store control. This page does not claim it is already on the current database, and it does not claim a finished SOC 2 report.</p>
           </div>
         </div>
       </section>
@@ -332,17 +323,13 @@ Mismatch between claimed business and key  -->  403
             <a class="btn btn-lime" href="/app/">Open live dashboard</a>
             <a class="btn btn-ghost" href="/#security">Back to homepage summary</a>
           </div>
-          <p class="honest">Honest limit: getglowop.com is still the Phase 0 brand site. The security model above is the production architecture we build to. We do not claim a completed SOC 2 Type I or Type II report on this page.</p>
         </div>
       </section>
     </main>
 
     <footer>
       <div class="wrap">
-        <p class="f-big">Assigned access.<br /><span class="glow">Encrypted path.</span></p>
-        <p class="f-meta">GLOW Ops · Security · getglowop.com/security.html</p>
-        <a class="mail" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20security">Talk security →</a>
-        <p class="f-fine">Designed for SOC 2-relevant controls: encryption in transit and at rest, tenant isolation, RBAC, and access checks per business. Certification is evidence over time — not a homepage badge. A business of <a href="https://augmaticholdings.com/" style="color:var(--lime-deep);font-weight:700">Augmatic Holdings LLC</a>.</p>
+        <p class="f-fine"><a href="https://augmaticholdings.com/" style="color:var(--lime-deep);text-decoration:underline;font-weight:700">Augmatic Holdings LLC →</a> · <a href="/network.html" style="color:var(--lime-deep);text-decoration:underline;font-weight:700">Augmatic Network →</a> · <a href="/security.html" style="color:var(--lime-deep);text-decoration:underline;font-weight:700">Security →</a></p>
       </div>
     </footer>
       <script src="/site-nav.js"></script>
