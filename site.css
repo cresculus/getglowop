@@ -410,7 +410,7 @@
       }
     
 
-      /* ---------- multi-page nav (Nerdio-style dropdowns) ---------- */
+      /* ---------- multi-page nav dropdowns ---------- */
       .site-nav{
         position:sticky; top:0; z-index:80;
         background:#0D130B; color:#EDF1E8;

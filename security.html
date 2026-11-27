@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light only" />
     <title>Security &amp; Tenant Isolation | GLOW Ops</title>
-    <meta name="description" content="How GLOW Ops protects fleet inventory: TLS from the device, encryption at rest, ConnectWise-style business IDs, enrollment keys, and dashboards only visible to assigned users. Designed for SOC 2 controls." />
+    <meta name="description" content="Fleet inventory stays with the business it belongs to. Encrypted in transit and at rest. Only assigned people can open it." />
     <meta name="robots" content="index,follow,max-snippet:-1" />
     <link rel="canonical" href="https://getglowop.com/security.html" />
     <meta property="og:type" content="website" />
@@ -15,8 +15,8 @@
     <meta property="og:description" content="Encrypted leaving the device. Encrypted at rest. Each business only visible to people assigned to it." />
     <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="GLOW Ops security — TLS, tenancy, assignment" />
-    <meta name="twitter:description" content="Designed for SOC 2: TLS ingest, encrypted storage, business-scoped dashboards." />
+    <meta name="twitter:title" content="GLOW Ops security" />
+    <meta name="twitter:description" content="Encrypted in transit and at rest. Each business only visible to the people assigned to it." />
     <link rel="icon" href="data:," />
     <script type="application/ld+json">
     {
@@ -27,7 +27,7 @@
           "@id": "https://getglowop.com/security.html#webpage",
           "url": "https://getglowop.com/security.html",
           "name": "Security & Tenant Isolation",
-          "description": "GLOW Ops security model: TLS from endpoints, encryption at rest, per-business enrollment, and RBAC so only assigned users see a tenant.",
+          "description": "Fleet inventory is encrypted in transit and at rest. Each business is only visible to the people assigned to it.",
           "isPartOf": { "@id": "https://getglowop.com/#website" },
           "about": { "@id": "https://getglowop.com/#software" }
         },
@@ -46,7 +46,7 @@
               "name": "Is fleet data encrypted when it leaves the device?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Yes. Inventory posts to ingest over HTTPS only (TLS 1.2+). The enrollment key is sent in the Authorization header, never in the URL."
+                "text": "Yes. Device data is encrypted on the way out. There is no unencrypted path."
               }
             },
             {
@@ -54,7 +54,7 @@
               "name": "Can one customer see another customer's devices?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "No. Each business has its own business ID and enrollment key. Dashboards load only the businesses a user is assigned to. Device keys write inventory; they cannot read the dashboard."
+                "text": "No. A dashboard loads only the businesses a person is assigned to. A device reports only into the business it was installed for."
               }
             }
           ]
@@ -228,6 +228,6 @@
       </section>
     </main>
 
-      <script src="/site-nav.js?v=20261127c"></script>
+      <script src="/site-nav.js?v=20261127e"></script>
   </body>
 </html>

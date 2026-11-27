@@ -69,7 +69,7 @@
               '<div>' +
                 '<p class="mega-col-label">Read</p>' +
                 '<a class="mlink" href="/sources.html"' + on("/sources.html") + '><strong>Sources</strong><span>Papers and notes behind the claims.</span></a>' +
-                '<a class="mlink" href="/security.html"' + on("/security.html") + '><strong>Security detail</strong><span>TLS, tenancy, and who can open a fleet.</span></a>' +
+                '<a class="mlink" href="/security.html"' + on("/security.html") + '><strong>Security</strong><span>Encrypted, and only the people assigned to that business.</span></a>' +
               '</div>' +
               '<div>' +
                 '<p class="mega-col-label">Talk</p>' +
