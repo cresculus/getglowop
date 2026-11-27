@@ -485,6 +485,35 @@ class Handler(BaseHTTPRequestHandler):
             status, body, ctype = _json_bytes(fleet_summary(CONN, tenant))
             return self._send(status, body, ctype)
 
+        if path.rstrip("/") == "/api/logs":
+            partner = self._partner_principal()
+            if not partner or partner.get("id") == "partner_demo":
+                return self._send(401, b'{"error":"sign in"}', "application/json")
+            try:
+                result = CONN.execute(
+                    "SELECT business_id, action, meta, created_at FROM audit_events WHERE partner_id = ? ORDER BY created_at DESC LIMIT 200",
+                    (partner["id"],),
+                )
+                logs = []
+                for raw in result.fetchall():
+                    row = dict(raw)
+                    meta = row.get("meta")
+                    if isinstance(meta, str):
+                        try:
+                            meta = json.loads(meta)
+                        except json.JSONDecodeError:
+                            meta = {"note": meta}
+                    created = row.get("created_at")
+                    logs.append({
+                        "at": created.isoformat() if hasattr(created, "isoformat") else created,
+                        "action": row.get("action"),
+                        "businessId": row.get("business_id"),
+                        "detail": meta if isinstance(meta, dict) else {},
+                    })
+            except Exception as exc:
+                return self._send(500, json.dumps({"error": "logs unavailable"}).encode(), "application/json")
+            return self._send(*_json_bytes({"logs": logs}))
+
         if path.rstrip("/") == "/api/business":
             status, body, ctype = _json_bytes(
                 {"business": get_tenant(CONN, tenant), "tenantId": tenant}

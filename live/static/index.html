@@ -9,32 +9,45 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-21" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-21" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-22" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-22" />
 </head>
 <body class="shell">
-  <header class="topbar">
-    <div class="topbar-left">
+  <aside class="side" aria-label="Dashboard">
+    <div class="side-brand">
       <a class="wordmark" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
-      <nav class="crumb" aria-label="Context">
-        <a id="partnerBack" href="/partner/">Console</a>
-        <span class="crumb-sep" aria-hidden="true">/</span>
-        <button type="button" class="crumb-biz" id="bizBadge" title="Open Settings to rename">
-          <span id="bizNameLabel">My business</span>
-        </button>
-        <input type="hidden" id="tenant" value="" />
-      </nav>
     </div>
-    <div class="views desktop-nav" role="tablist" aria-label="Views">
-      <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
-      <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
-      <button type="button" class="view-tab" data-view="resources" aria-selected="false">Resources</button>
-      <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
-      <button type="button" class="view-tab" data-view="settings" aria-selected="false">Settings</button>
+    <nav class="side-nav">
+      <p class="side-label">Navigate</p>
+      <button type="button" class="view-tab side-link" data-view="fleet" aria-selected="true">Fleet</button>
+      <button type="button" class="view-tab side-link" data-view="dashboard" aria-selected="false">Dashboard</button>
+      <button type="button" class="view-tab side-link" data-view="resources" aria-selected="false">Resources</button>
+      <button type="button" class="view-tab side-link" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
+      <p class="side-label">More</p>
+      <button type="button" class="view-tab side-link" data-view="logs" aria-selected="false">Logs</button>
+      <button type="button" class="view-tab side-link" data-view="settings" aria-selected="false">Settings</button>
+    </nav>
+    <div class="side-user">
+      <span class="side-avatar" aria-hidden="true">G</span>
+      <span class="side-user-copy">
+        <b id="sideUserName">Signed out</b>
+        <span>GLOW Ops</span>
+      </span>
     </div>
+  </aside>
+  <div class="shell-main">
+  <header class="topbar">
+    <nav class="crumb" aria-label="Context">
+      <a id="partnerBack" href="/partner/">Console</a>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <button type="button" class="crumb-biz" id="bizBadge" title="Open Settings to rename">
+        <span id="bizNameLabel">My business</span>
+      </button>
+      <input type="hidden" id="tenant" value="" />
+    </nav>
     <div class="rail">
       <span class="meta-ago" id="updatedAgo">Updated just now</span>
-      <button type="button" class="btn ghost" id="refresh" title="Reload" aria-label="Refresh">↻</button>
+      <button type="button" class="btn ghost icon-btn" id="refresh" title="Reload" aria-label="Refresh">↻</button>
       <a class="btn ghost" id="fleetSignIn" href="/partner/sign-in">Sign in</a>
       <div id="userButton" class="user-button-mount" hidden aria-label="Account"></div>
     </div>
@@ -314,6 +327,31 @@
     </section>
 
     <!-- LAB INGEST -->
+    </section>
+
+    <section class="view view-logs" id="viewLogs" data-active="false" hidden>
+      <div class="logs-fit">
+        <div class="ledger-head">
+          <h1>Logs</h1>
+          <p class="hint">Who did what, and when. Deploys, connects, and disconnects for your businesses.</p>
+        </div>
+        <div class="table-fit">
+          <table>
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Action</th>
+                <th>Business</th>
+                <th>Detail</th>
+              </tr>
+            </thead>
+            <tbody id="logsBody"></tbody>
+          </table>
+        </div>
+        <p class="hint" id="logsEmpty">No log rows yet.</p>
+      </div>
+    </section>
+
     <section class="view view-ingest" id="viewIngest" data-active="false" hidden>
       <div class="ingest-fit">
         <div>
@@ -331,11 +369,13 @@
       </div>
     </section>
   </main>
+  </div>
 
   <nav class="bottom-nav" id="bottomNav" aria-label="Primary">
     <button type="button" data-view="fleet" aria-selected="true">Fleet</button>
     <button type="button" data-view="dashboard" aria-selected="false">Dashboard</button>
     <button type="button" data-view="resources" aria-selected="false">Resources</button>
+    <button type="button" data-view="logs" aria-selected="false">Logs</button>
     <button type="button" data-view="settings" aria-selected="false">Settings</button>
     <button type="button" data-view="properties" aria-selected="false">Properties</button>
   </nav>
@@ -367,8 +407,8 @@
     </div>
   </div>
 
-  <script src="/app/report.js?v=lux-21"></script>
-  <script src="/app/clerk-partner.js?v=lux-21"></script>
-  <script src="/app/app.js?v=lux-21"></script>
+  <script src="/app/report.js?v=lux-22"></script>
+  <script src="/app/clerk-partner.js?v=lux-22"></script>
+  <script src="/app/app.js?v=lux-22"></script>
 </body>
 </html>

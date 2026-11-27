@@ -3,7 +3,7 @@
   const CALLS = ["all", "keep", "repair", "redeploy", "refresh", "recycle", "ghost"];
   // Top nav: Fleet → Dashboard → Resources → Properties → Settings.
   // Ingest stays lab-only (opened from Resources).
-  const VIEWS = ["fleet", "dashboard", "resources", "properties", "settings", "ingest"];
+  const VIEWS = ["fleet", "dashboard", "resources", "properties", "settings", "logs", "ingest"];
 
   let devices = [];
   let summary = null;
@@ -631,6 +631,31 @@
     showDetail(selected, { openDrawer: false });
   }
 
+  async function loadLogs() {
+    const body = $("logsBody");
+    const empty = $("logsEmpty");
+    if (!body) return;
+    if (!signedIn) {
+      body.innerHTML = "";
+      if (empty) empty.textContent = "Sign in to see logs.";
+      return;
+    }
+    try {
+      const res = await fetch("/api/logs", { credentials: "same-origin", headers: apiHeaders() });
+      const data = await res.json();
+      const rows = Array.isArray(data.logs) ? data.logs : [];
+      const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      body.innerHTML = rows.map((row) => {
+        const when = row.at ? new Date(row.at).toLocaleString() : "—";
+        const detail = row.detail ? JSON.stringify(row.detail) : "";
+        return `<tr><td>${esc(when)}</td><td>${esc(row.action || "—")}</td><td>${esc(row.businessId || "—")}</td><td class="mono">${esc(detail)}</td></tr>`;
+      }).join("");
+      if (empty) empty.textContent = rows.length ? "" : "No log rows yet.";
+    } catch (err) {
+      if (empty) empty.textContent = "Could not load logs.";
+    }
+  }
+
   function setView(name, { sync = true, push = false } = {}) {
     if (!VIEWS.includes(name)) name = "fleet";
     currentView = name;
@@ -640,6 +665,7 @@
       properties: "viewProperties",
       resources: "viewResources",
       settings: "viewSettings",
+      logs: "viewLogs",
       ingest: "viewIngest",
     };
     Object.entries(map).forEach(([key, id]) => {
@@ -660,6 +686,7 @@
       });
     }
     if (name === "dashboard") renderDashboard();
+    if (name === "logs") loadLogs();
     if (name === "properties") {
       const d = propertiesDevice || findDevice(selectedId);
       renderProperties(d, propertiesDevice);
@@ -969,6 +996,13 @@
     const who = $("settingsWho");
     const people = $("managePeople");
     if (signIn) signIn.hidden = true;
+    const sideName = $("sideUserName");
+    const sideAvatar = document.querySelector(".side-avatar");
+    if (sideName) sideName.textContent = email || "Signed in";
+    if (sideAvatar) {
+      const bits = String(email || "G").split(/[@\s.]+/).filter(Boolean);
+      sideAvatar.textContent = (bits[0] || "G").slice(0, 1).toUpperCase();
+    }
     if (settingsSignIn) settingsSignIn.hidden = true;
     if (who) who.textContent = email ? `Signed in as ${email}` : "Signed in.";
     if (people) people.hidden = false;
@@ -981,6 +1015,8 @@
     const people = $("managePeople");
     const ub = $("userButton");
     if (signIn) signIn.hidden = false;
+    const sideName = $("sideUserName");
+    if (sideName) sideName.textContent = "Signed out";
     if (settingsSignIn) settingsSignIn.hidden = false;
     if (who) who.textContent = "Not signed in.";
     if (people) people.hidden = true;
