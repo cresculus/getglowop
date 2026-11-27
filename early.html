@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="/site.css?v=20261127k" />
     <style>
       .ea { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+      .ea-copy { min-width: 0; }
+      .ea-copy h2 { font-size: clamp(2rem, 3.2vw, 3.25rem); max-width: 100%; }
       .ea-copy .sec-lede { margin-bottom: 1.75rem; }
       .ea-steps { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--line); }
       .ea-steps li { display: grid; grid-template-columns: 2.25rem 1fr; gap: .75rem; padding: 1rem 0; border-bottom: 1px solid var(--line-soft); }
@@ -21,7 +23,7 @@
       .ea-steps strong { display: block; font-size: 1rem; letter-spacing: -.01em; }
       .ea-steps span { color: var(--ink-2); font-size: .95rem; }
 
-      .ea-card { background: var(--surface); border: 2px solid var(--line); box-shadow: 8px 8px 0 var(--ink); padding: clamp(1.4rem, 3vw, 2rem); }
+      .ea-card { position: relative; z-index: 1; background: var(--surface); border: 2px solid var(--line); box-shadow: 8px 8px 0 var(--ink); padding: clamp(1.4rem, 3vw, 2rem); }
       .ea-card h3 { margin: 0 0 .35rem; font-size: 1.25rem; font-weight: 900; letter-spacing: -.02em; text-transform: uppercase; }
       .ea-card .hint { margin: 0 0 1.5rem; color: var(--muted); font-size: .92rem; }
       .ea-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -59,7 +61,7 @@
           <div class="ea-copy">
             <div class="sec-head">
               <p class="sec-index"><span class="n">Talk</span> Early access</p>
-              <h2>Ask for a <span class="hl">walkthrough.</span></h2>
+              <h2>Ask for a<br /><span class="hl">walkthrough.</span></h2>
               <p class="sec-lede">Your devices, about thirty minutes.</p>
             </div>
             <ol class="ea-steps">
