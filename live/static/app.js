@@ -873,6 +873,14 @@
   });
 
   $("refresh").addEventListener("click", load);
+  function fleetDoc() {
+    const name = bizNameSaved || (summary && summary.businessName) || "Business";
+    return { title: name, sections: [{ name, summary, devices }] };
+  }
+  const printReport = $("printReport");
+  const sendReport = $("sendReport");
+  if (printReport) printReport.addEventListener("click", () => GlowReport.openPrint(fleetDoc()));
+  if (sendReport) sendReport.addEventListener("click", () => GlowReport.send(fleetDoc()));
   $("bizRenameForm")?.addEventListener("submit", (e) => {
     e.preventDefault();
     saveBizNameFromSettings(bizNameInput?.value);

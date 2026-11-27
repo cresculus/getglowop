@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-20" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-20" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-21" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-21" />
 </head>
 <body class="shell">
   <header class="topbar">
@@ -67,6 +67,8 @@
         <div class="ledger-head">
           <h1>Fleet report</h1>
           <div class="pager">
+            <button type="button" class="btn ghost" id="printReport">Print PDF</button>
+            <button type="button" class="btn ghost" id="sendReport">Send</button>
             <button type="button" class="btn ghost" id="prevPage" aria-label="Previous">‹</button>
             <span id="pageInfo">1 / 1</span>
             <button type="button" class="btn ghost" id="nextPage" aria-label="Next">›</button>
@@ -365,7 +367,8 @@
     </div>
   </div>
 
-  <script src="/app/clerk-partner.js?v=lux-20"></script>
-  <script src="/app/app.js?v=lux-20"></script>
+  <script src="/app/report.js?v=lux-21"></script>
+  <script src="/app/clerk-partner.js?v=lux-21"></script>
+  <script src="/app/app.js?v=lux-21"></script>
 </body>
 </html>

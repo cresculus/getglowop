@@ -19,6 +19,34 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/site.css" />
+    <style>
+      .fleet-mock { border: 2px solid var(--line); background: #f4f5f1; color: #14180f; margin-top: 1.5rem; }
+      .fm-top { display: flex; align-items: center; gap: 1rem; padding: .7rem 1rem; background: #fff; border-bottom: 1px solid rgba(20,24,15,.12); }
+      .fm-top b { letter-spacing: -.02em; }
+      .fm-top span { color: #697160; font-size: .85rem; }
+      .fm-top .spacer { margin-left: auto; display: flex; gap: .4rem; }
+      .fm-body { display: grid; grid-template-columns: 220px 1fr 240px; min-height: 420px; }
+      .fm-side, .fm-detail { background: #fff; padding: .9rem; }
+      .fm-side { border-right: 1px solid rgba(20,24,15,.12); }
+      .fm-detail { border-left: 1px solid rgba(20,24,15,.12); }
+      .fm-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; margin: .6rem 0 1rem; }
+      .fm-kpis div { border: 1px solid rgba(20,24,15,.1); padding: .4rem .45rem; }
+      .fm-kpis span { display: block; font-family: "IBM Plex Mono", monospace; font-size: .62rem; color: #697160; }
+      .fm-kpis strong { font-size: 1.05rem; }
+      .fm-main { padding: .4rem .8rem 1rem; }
+      .fm-main table { width: 100%; border-collapse: collapse; background: #fff; }
+      .fm-main th, .fm-main td { text-align: left; padding: .55rem .4rem; border-bottom: 1px solid rgba(20,24,15,.08); font-size: .88rem; }
+      .fm-main th { font-family: "IBM Plex Mono", monospace; font-size: .66rem; letter-spacing: .04em; text-transform: uppercase; color: #697160; }
+      .fm-main tr.is-selected { background: #f4f8e4; }
+      .fm-pill { display: inline-block; padding: .1rem .45rem; border-radius: 999px; font-size: .75rem; }
+      .fm-pill.keep { background: #d9efec; } .fm-pill.repair { background: #e6f3f7; }
+      .fm-pill.redeploy { background: #eeeaff; } .fm-pill.recycle { background: #f3ebe3; }
+      .fm-pill.ghost { background: #fadfdc; }
+      .fm-detail h3 { margin: .2rem 0; font-size: 1.05rem; }
+      .fm-detail p { margin: .2rem 0 .6rem; color: #697160; font-size: .82rem; }
+      .fm-row { display: flex; justify-content: space-between; gap: .5rem; padding: .35rem 0; border-top: 1px solid rgba(20,24,15,.08); font-size: .88rem; }
+      @media (max-width: 900px) { .fm-body { grid-template-columns: 1fr; } .fm-detail { border-left: 0; border-top: 1px solid rgba(20,24,15,.12); } }
+    </style>
   </head>
   <body>
     <div id="site-nav"></div>
@@ -33,81 +61,77 @@
             <p class="sec-lede">Hand it to a CFO, a client, or an auditor <strong>without inventing a carbon number.</strong> Keep, repair, redeploy, refresh, or recycle.</p>
           </div>
 
-          <div class="versus">
-            <div class="panel panel-public">
-              <span class="p-tag">Public — we cite it</span>
-              <h3>Cited on the row.</h3>
-              <ul>
-                <li><b>Manufacturer product carbon footprints,</b> including the open Boavizta compilation of those sheets. Boavizta’s own warning applies: methodologies differ, margins of error are large — use them as orders of magnitude and for same-brand comparisons.</li>
-                <li><b>Intune / Graph, RMM export, thin agent, or SCCM-oriented inventory:</b> make, model, serial, OS, last check-in, compliance, warranty when the source has it.</li>
-                <li><b>CSV upload</b> when an API is not ready yet. The fleet still gets a report.</li>
-              </ul>
+          <div class="fleet-mock" aria-label="Fleet screen">
+            <div class="fm-top">
+              <b>GLOW Ops</b>
+              <span>Harbor Clinic</span>
+              <span>Fleet</span>
+              <div class="spacer">
+                <button type="button" class="btn btn-ghost" id="samplePrint">Print PDF</button>
+                <button type="button" class="btn btn-ghost" id="sampleSend">Send</button>
+              </div>
             </div>
-            <div class="panel panel-prop">
-              <span class="p-tag">The call</span>
-              <h3>Keep, repair, redeploy, refresh, or recycle.</h3>
-              <ul>
-                <li><b>GLOW Score.</b> One number from embodied carbon, age, health, warranty, compliance, and how long the device has been quiet. The weights are ours.</li>
-                <li><b>The call, with a sentence.</b> Keep and optimize, repair, redeploy, refresh, or certified recycle / remarket. Written for an IT manager, not a life-cycle assessor.</li>
-                <li><b>Match confidence.</b> Exact model sheet, same-family estimate, or fallback. A guess is labeled a guess.</li>
-                <li><b>Calendar versus carbon.</b> What the current refresh policy would buy, versus what the score says — in kilograms and in purchase dollars.</li>
-                <li><b>Spend &amp; tax brief.</b> Repair / keep lines framed as near-term OpEx versus CapEx refresh — so finance can talk taxable income and carbon cost with a CPA, not invent a number.</li>
-                <li><b>Persona window.</b> A kiosk, a clinician, and a finance laptop do not share a lifespan. The mapping from the customer’s roles to a keep-window is ours.</li>
-                <li><b>Ghost flag.</b> Stale check-in, still assigned, still on the books. Their signal. Our rule for when it shows up in the report.</li>
-                <li><b>Repair-before-replace.</b> Battery or disk cost, supplied by the MSP, set next to the avoided purchase. We do not publish their vendor price list.</li>
-                <li><b>The client page.</b> White-label PDF and CSV an MSP can put their name on.</li>
-              </ul>
+            <div class="fm-body">
+              <aside class="fm-side">
+                <div class="fm-kpis">
+                  <div><span>Devices</span><strong>5</strong></div>
+                  <div><span>Avg GLOW</span><strong>50</strong></div>
+                  <div><span>Ghosts</span><strong>1</strong></div>
+                  <div><span>Repair</span><strong>1</strong></div>
+                  <div><span>Mfg kg</span><strong>1,100</strong></div>
+                  <div><span>Avoid</span><strong>2</strong></div>
+                </div>
+              </aside>
+              <div class="fm-main">
+                <table>
+                  <thead><tr><th>Device</th><th>Call</th><th>GLOW</th><th>Age</th><th>Sync</th></tr></thead>
+                  <tbody>
+                    <tr><td>Latitude 5440</td><td><span class="fm-pill keep">keep</span></td><td>92</td><td>1.4y</td><td>2d</td></tr>
+                    <tr class="is-selected"><td>EliteBook 840 G6</td><td><span class="fm-pill repair">repair</span></td><td>61</td><td>4.8y</td><td>1d</td></tr>
+                    <tr><td>OptiPlex</td><td><span class="fm-pill redeploy">redeploy</span></td><td>58</td><td>6y</td><td>4d</td></tr>
+                    <tr><td>Unknown device</td><td><span class="fm-pill ghost">ghost</span></td><td>22</td><td>—</td><td>330d</td></tr>
+                    <tr><td>8-year laptop</td><td><span class="fm-pill recycle">recycle</span></td><td>18</td><td>8y</td><td>3d</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <aside class="fm-detail">
+                <p class="sec-index" style="margin:0">Selected</p>
+                <h3>EliteBook 840 G6</h3>
+                <p>HP · battery 64%</p>
+                <div class="fm-row"><span>Call</span><b>repair</b></div>
+                <div class="fm-row"><span>GLOW</span><b>61</b></div>
+                <div class="fm-row"><span>Battery</span><b>64%</b></div>
+                <p>Battery, not a new laptop.</p>
+              </aside>
             </div>
-          </div>
-
-          <div class="sample">
-            <div class="sample-head">
-              <h3>A page from a sample report</h3>
-              <span>Five devices · five different answers</span>
-            </div>
-            <table class="sample-table">
-              <thead>
-                <tr><th scope="col">Device</th><th scope="col">Factor</th><th scope="col">Confidence</th><th scope="col">GLOW call</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="dev" data-l="Device">Latitude 5440<small>1.4 yrs · health 96</small></td>
-                  <td data-l="Factor">Manufacturing factor on file</td>
-                  <td class="conf" data-l="Confidence">Exact model, when the PCF exists</td>
-                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-keep">Keep</span><p>Tune power policy. The calendar is early.</p></td>
-                </tr>
-                <tr>
-                  <td class="dev" data-l="Device">EliteBook 840 G6<small>battery 64%</small></td>
-                  <td data-l="Factor">About 300 kg, illustrative until the model sheet is matched</td>
-                  <td class="conf" data-l="Confidence">Family estimate</td>
-                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-repair">Repair</span><p>Battery, not a new laptop.</p></td>
-                </tr>
-                <tr>
-                  <td class="dev" data-l="Device">OptiPlex desktop<small>disk failing · CPU fine</small></td>
-                  <td data-l="Factor">Desktop-class manufacturing, higher than a laptop</td>
-                  <td class="conf" data-l="Confidence">Family estimate</td>
-                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-redeploy">Redeploy</span><p>After an SSD. The tower is not the failure.</p></td>
-                </tr>
-                <tr>
-                  <td class="dev" data-l="Device">Unknown device<small>checked in 11 months ago</small></td>
-                  <td data-l="Factor">Unknown until someone finds it</td>
-                  <td class="conf" data-l="Confidence">No factor yet</td>
-                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-ghost">Ghost flag</span><p>Find it before you buy its replacement.</p></td>
-                </tr>
-                <tr>
-                  <td class="dev" data-l="Device">8-year laptop<small>failed board</small></td>
-                  <td data-l="Factor">Manufacturing already spent</td>
-                  <td class="conf" data-l="Confidence">Exact or family</td>
-                  <td class="call" data-l="GLOW call"><span class="verdict-chip v-recycle">Recycle</span><p>Or remarket. This is the refresh the policy was for.</p></td>
-                </tr>
-              </tbody>
-            </table>
           </div>
         </div>
       </section>
 </div>
     </main>
     <div id="site-foot"></div>
+    <script src="/app/report.js?v=lux-21"></script>
+    <script>
+      (function () {
+        var doc = {
+          title: "Harbor Clinic",
+          kpis: { devices: 5, glow: 50, ghosts: 1, repair: 1, kg: 1100 },
+          sections: [{
+            name: "Harbor Clinic",
+            summary: { deviceCount: 5, avgGlowScore: 50, ghostCount: 1, repairBeforeReplaceCount: 1, manufacturingKgOnBooks: 1100 },
+            devices: [
+              { device_name: "Latitude 5440", manufacturer: "Dell", model: "Latitude 5440", serial_number: "DL5440", call_label: "keep", glow_score: 92, age_years: 1.4, check_in_days: 2, battery_health: 96, mfg_kg: 220, rationale: "Tune power policy. The calendar is early." },
+              { device_name: "EliteBook 840 G6", manufacturer: "HP", model: "EliteBook 840 G6", serial_number: "HP840", call_label: "repair", glow_score: 61, age_years: 4.8, check_in_days: 1, battery_health: 64, mfg_kg: 300, rationale: "Battery, not a new laptop." },
+              { device_name: "OptiPlex", manufacturer: "Dell", model: "OptiPlex", serial_number: "OP7070", call_label: "redeploy", glow_score: 58, age_years: 6, check_in_days: 4, battery_health: null, mfg_kg: 400, rationale: "After an SSD. The tower is not the failure." },
+              { device_name: "Unknown device", serial_number: "", call_label: "ghost", glow_score: 22, check_in_days: 330, rationale: "Find it before you buy its replacement." },
+              { device_name: "8-year laptop", call_label: "recycle", glow_score: 18, age_years: 8, check_in_days: 3, mfg_kg: 280, rationale: "Failed board. This is the refresh the policy was for." }
+            ]
+          }]
+        };
+        document.getElementById("samplePrint").addEventListener("click", function () { GlowReport.openPrint(doc); });
+        document.getElementById("sampleSend").addEventListener("click", function () { GlowReport.send(doc); });
+      })();
+    </script>
     <script src="/site-nav.js?v=20261127c"></script>
     <script src="/site-foot.js?v=20261127c"></script>
 

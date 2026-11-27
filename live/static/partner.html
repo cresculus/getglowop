@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-18" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-18" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-18" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-21" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-21" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-21" />
 </head>
 <body class="shell partner-shell">
   <header class="topbar">
@@ -76,8 +76,12 @@
         <div class="pview pview-left" id="pviewHome" data-active="true">
           <div class="ledger-head ledger-head-left">
             <h1>Partner <em>Home</em></h1>
+            <div class="pager">
+              <button type="button" class="btn ghost" id="printPortfolio">Print PDF</button>
+              <button type="button" class="btn ghost" id="sendPortfolio">Send</button>
+            </div>
           </div>
-          <p class="view-lede">Portfolio across the businesses you manage.</p>
+          <p class="view-lede">Every business. Print or send the device list for all of them, or for one business from its card.</p>
           <div class="home-kpis" id="homeKpis">
             <div><span>Businesses</span><strong>—</strong></div>
             <div><span>Devices</span><strong>—</strong></div>
@@ -395,7 +399,8 @@
       <p class="hint">Keys stop new joins when they expire, and devices that already joined keep reporting. Revoke also stops devices that joined with that key.</p>
     </div>
   </dialog>
-  <script src="/app/clerk-partner.js?v=lux-18"></script>
-  <script src="/app/partner.js?v=lux-18"></script>
+  <script src="/app/report.js?v=lux-21"></script>
+  <script src="/app/clerk-partner.js?v=lux-21"></script>
+  <script src="/app/partner.js?v=lux-21"></script>
 </body>
 </html>

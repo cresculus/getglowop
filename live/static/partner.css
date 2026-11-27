@@ -684,6 +684,9 @@
 .biz-tile-link:hover { background: #f7ffe0; }
 .biz-list b { font-weight: var(--w-strong); font-size: 0.95rem; }
 .open-report-label { pointer-events: none; }
+.ledger-head-left { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.ledger-head-left h1 { margin: 0; }
+
 .ledger-head-biz {
   display: flex !important;
   align-items: center;

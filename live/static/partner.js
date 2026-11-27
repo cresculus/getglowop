@@ -680,7 +680,9 @@
               <td>${num(r, r.ghostCount ?? 0)}</td>
               <td>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</td>
               <td class="biz-row-actions">
-                <a class="btn ghost" href="${href}">Report</a>
+                <a class="btn ghost" href="${href}">Open</a>
+                <button type="button" class="btn ghost" data-print="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Print PDF</button>
+                <button type="button" class="btn ghost" data-send="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Send</button>
                 ${r.canDeploy === false ? "" : `<button type="button" class="btn lime" data-deploy="${esc(r.businessId)}">Deploy</button>`}
                 ${manageMenu(r.businessId, r.businessName, href)}
               </td>
@@ -706,7 +708,9 @@
             <div><dt>Last check-in</dt><dd>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</dd></div>
           </dl>
           <div class="biz-card-actions">
-            <a class="btn ghost" href="${href}">Open report</a>
+            <a class="btn ghost" href="${href}">Open</a>
+            <button type="button" class="btn ghost" data-print="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Print PDF</button>
+            <button type="button" class="btn ghost" data-send="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Send</button>
             ${r.canDeploy === false ? "" : `<button type="button" class="btn lime" data-deploy="${esc(r.businessId)}">Deploy</button>`}
           </div>
         </article>`;
@@ -1021,7 +1025,74 @@
 
   const bizList = $("bizList");
   if (bizList) {
+    async function businessDoc(id, name) {
+      const [summary, devices] = await Promise.all([
+        api(`/api/summary?tenant=${encodeURIComponent(id)}`),
+        api(`/api/devices?tenant=${encodeURIComponent(id)}`),
+      ]);
+      return {
+        title: name || summary.businessName || "Business",
+        sections: [{ name: name || summary.businessName || "Business", summary, devices: devices.devices || [] }],
+      };
+    }
+
+    async function portfolioDoc() {
+      const portfolio = await api("/api/partner/portfolio");
+      const sections = await Promise.all(
+        (portfolio.businesses || []).map(async (b) => {
+          const devices = await api(`/api/devices?tenant=${encodeURIComponent(b.businessId)}`);
+          return {
+            name: b.businessName || "Business",
+            summary: {
+              deviceCount: b.deviceCount,
+              avgGlowScore: b.avgGlowScore,
+              ghostCount: b.ghostCount,
+              repairBeforeReplaceCount: b.repairCount,
+            },
+            devices: devices.devices || [],
+          };
+        })
+      );
+      return {
+        title: "All businesses",
+        kpis: {
+          devices: portfolio.deviceCount,
+          glow: portfolio.avgGlowScore,
+          ghosts: portfolio.ghostCount,
+          repair: portfolio.repairCount,
+          kg: portfolio.manufacturingKgOnBooks,
+        },
+        sections,
+      };
+    }
+
+    const printPortfolio = $("printPortfolio");
+    const sendPortfolio = $("sendPortfolio");
+    if (printPortfolio) {
+      printPortfolio.addEventListener("click", async () => {
+        try { GlowReport.openPrint(await portfolioDoc()); } catch (err) { alert(String(err.message || err)); }
+      });
+    }
+    if (sendPortfolio) {
+      sendPortfolio.addEventListener("click", async () => {
+        try { await GlowReport.send(await portfolioDoc()); } catch (err) { alert(String(err.message || err)); }
+      });
+    }
+
     bizList.addEventListener("click", async (e) => {
+      const reportBtn = e.target.closest("[data-print], [data-send]");
+      if (reportBtn) {
+        const id = reportBtn.getAttribute("data-print") || reportBtn.getAttribute("data-send");
+        const name = reportBtn.getAttribute("data-biz-name");
+        try {
+          const doc = await businessDoc(id, name);
+          if (reportBtn.hasAttribute("data-print")) GlowReport.openPrint(doc);
+          else await GlowReport.send(doc);
+        } catch (err) {
+          alert(String(err.message || err));
+        }
+        return;
+      }
       const deployBtn = e.target.closest("[data-deploy]");
       if (deployBtn) {
         openDeploy(deployBtn.getAttribute("data-deploy"));
