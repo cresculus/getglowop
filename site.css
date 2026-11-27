@@ -75,12 +75,17 @@
         box-shadow:0 0 44px rgba(166,230,46,.65), 0 0 10px rgba(166,230,46,.8);
         transform:rotate(-1.2deg);
       }
-      .hero h1{ text-transform:none; }
-      .hero h1 .it{
-        font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:.58em;
-        letter-spacing:.16em; line-height:1; display:inline-block; vertical-align:.22em;
-        padding:.04em .06em .08em .18em; border-bottom:.07em solid var(--ink);
+      .hero h1{
+        text-transform:none;
+        font-size:clamp(1.85rem, 4.4vw, 3.5rem);
+        line-height:1.02;
       }
+      .hero h1 .it{
+        font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:1.85em;
+        letter-spacing:.04em; line-height:.85; display:inline-block; vertical-align:baseline;
+        padding:0 .02em .02em .06em; border-bottom:.045em solid var(--ink);
+      }
+      .hero h1 .glow{ font-size:2.2em; line-height:.82; vertical-align:-.02em; }
       .hero-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:clamp(1.5rem,4vw,3.5rem); align-items:start; padding-bottom:clamp(2.5rem,6vw,4.5rem); }
       .hero-lede{ font-size:clamp(1.12rem,2vw,1.35rem); line-height:1.5; max-width:34em; color:var(--ink); }
       .hero-lede strong{ font-weight:800; }
