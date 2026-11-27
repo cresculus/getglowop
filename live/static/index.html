@@ -8,33 +8,88 @@
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-24" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-24" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-25" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-25" />
+  <link rel="stylesheet" href="/app/shell.css?v=lux-25" />
 </head>
 <body class="shell has-side">
-  <aside class="side" aria-label="Dashboard">
+  <script>try{if(localStorage.getItem("glowSideCollapsed")==="true")document.body.classList.add("side-collapsed")}catch(e){}</script>
+  <button type="button" class="menu-btn" id="sideOpen" aria-label="Open menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M4 6h16M4 18h16"/></svg>
+  </button>
+  <button type="button" class="side-overlay" id="sideOverlay" aria-label="Close menu" tabindex="-1"></button>
+
+  <aside class="side" id="side" aria-label="Dashboard">
     <div class="side-brand">
-      <a class="wordmark" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
+      <div class="side-brand-row">
+        <a class="wordmark" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
+        <button type="button" class="side-close" id="sideClose" aria-label="Close menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
     </div>
+
     <nav class="side-nav">
-      <p class="side-label">Navigate</p>
-      <button type="button" class="view-tab side-link" data-view="fleet" aria-selected="true">Fleet</button>
-      <button type="button" class="view-tab side-link" data-view="dashboard" aria-selected="false">Dashboard</button>
-      <button type="button" class="view-tab side-link" data-view="resources" aria-selected="false">Resources</button>
-      <button type="button" class="view-tab side-link" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
-      <p class="side-label">More</p>
-      <button type="button" class="view-tab side-link" data-view="logs" aria-selected="false">Logs</button>
-      <button type="button" class="view-tab side-link" data-view="settings" aria-selected="false">Settings</button>
+      <div class="side-scroll">
+        <div class="side-sec">
+          <p class="side-label">Navigate</p>
+          <div class="side-items">
+            <button type="button" class="view-tab side-link" data-view="fleet" aria-selected="true" title="Fleet">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>
+              <span>Fleet</span>
+            </button>
+            <button type="button" class="view-tab side-link" data-view="dashboard" aria-selected="false" title="Dashboard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+              <span>Dashboard</span>
+            </button>
+            <button type="button" class="view-tab side-link" data-view="properties" aria-selected="false" id="tabProperties" title="Properties">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></svg>
+              <span>Properties</span>
+            </button>
+            <button type="button" class="view-tab side-link" data-view="resources" aria-selected="false" title="Resources">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <span>Resources</span>
+            </button>
+          </div>
+        </div>
+        <div class="side-sec" data-sec="more">
+          <button type="button" class="side-label" aria-expanded="true">More
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="side-items">
+            <a class="side-link" href="/partner/" title="Partner console">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></svg>
+              <span>Console</span>
+            </a>
+            <button type="button" class="view-tab side-link" data-view="logs" aria-selected="false" title="Logs">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8M16 13H8M16 17H8"/></svg>
+              <span>Logs</span>
+            </button>
+            <button type="button" class="view-tab side-link" data-view="settings" aria-selected="false" title="Settings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>Settings</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-foot">
+        <div class="side-user">
+          <span class="side-avatar" aria-hidden="true">G</span>
+          <span class="side-user-copy">
+            <b id="sideUserName">Signed out</b>
+            <span id="sideUserSub">GLOW Ops</span>
+          </span>
+        </div>
+      </div>
     </nav>
-    <div class="side-user">
-      <span class="side-avatar" aria-hidden="true">G</span>
-      <span class="side-user-copy">
-        <b id="sideUserName">Signed out</b>
-        <span>GLOW Ops</span>
-      </span>
-    </div>
+
+    <button type="button" class="side-toggle" id="sideToggle" aria-label="Collapse sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
   </aside>
+
   <div class="shell-main">
   <header class="topbar">
     <nav class="crumb" aria-label="Context">
@@ -47,8 +102,13 @@
     </nav>
     <div class="rail">
       <span class="meta-ago" id="updatedAgo">Updated just now</span>
-      <button type="button" class="btn ghost icon-btn" id="refresh" title="Reload" aria-label="Refresh">↻</button>
-      <a class="btn ghost" id="fleetSignIn" href="/partner/sign-in">Sign in</a>
+      <button type="button" class="rail-btn icon" id="refresh" title="Reload" aria-label="Refresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+      </button>
+      <a class="rail-btn" id="fleetSignIn" href="/partner/sign-in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>
+        Sign in
+      </a>
       <div id="userButton" class="user-button-mount" hidden aria-label="Account"></div>
     </div>
   </header>
@@ -326,8 +386,6 @@
       </div>
     </section>
 
-    <!-- LAB INGEST -->
-    </section>
 
     <section class="view view-logs" id="viewLogs" data-active="false" hidden>
       <div class="logs-fit">
@@ -407,8 +465,9 @@
     </div>
   </div>
 
-  <script src="/app/report.js?v=lux-24"></script>
-  <script src="/app/clerk-partner.js?v=lux-24"></script>
-  <script src="/app/app.js?v=lux-24"></script>
+  <script src="/app/report.js?v=lux-25"></script>
+  <script src="/app/clerk-partner.js?v=lux-25"></script>
+  <script src="/app/app.js?v=lux-25"></script>
+  <script src="/app/shell.js?v=lux-25"></script>
 </body>
 </html>
