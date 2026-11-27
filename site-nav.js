@@ -74,7 +74,7 @@
               '</div>' +
               '<div>' +
                 '<p class="mega-col-label">Talk</p>' +
-                '<a class="mlink" href="mailto:brandon.sardelli@gmail.com?subject=GLOW%20Ops%20%E2%80%94%20early%20access"><strong>Early access</strong><span>Ask for a walkthrough of a real fleet.</span></a>' +
+                '<a class="mlink" href="/early.html"' + on("/early.html") + '><strong>Early access</strong><span>Ask for a walkthrough of a real fleet.</span></a>' +
                 '<a class="mlink" href="/report.html"' + on("/report.html") + '><strong>Sample rows</strong><span>Five devices, five calls.</span></a>' +
               '</div>' +
             '</div>' +

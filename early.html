@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Early access — GLOW Ops</title>
+    <meta name="description" content="Ask for a walkthrough of a real fleet." />
+    <link rel="canonical" href="https://getglowop.com/early.html" />
+    <meta name="robots" content="index,follow" />
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <div id="site-nav"></div>
+    <main id="main">
+      <section class="page-pad">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="sec-index"><span class="n">Talk</span> Early access</p>
+            <h2>Ask for a <span class="hl">walkthrough.</span></h2>
+            <p class="sec-lede">Tell us the fleet and how you want to start. We reply from Augmatic Holdings.</p>
+          </div>
+
+          <div id="thanks" hidden>
+            <p class="sec-lede">Received. We’ll reply by email.</p>
+            <div class="hero-ctas" style="margin-top:1.25rem">
+              <a class="btn btn-ghost" href="/">Back to the site</a>
+            </div>
+          </div>
+
+          <form id="earlyForm" class="intake" action="https://formsubmit.co/purchasing@augmaticholdings.com" method="POST">
+            <input type="hidden" name="_subject" value="GLOW Ops — early access" />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_next" value="https://getglowop.com/early.html?sent=1" />
+            <p class="hp" aria-hidden="true"><label>Leave blank<input type="text" name="_honey" tabindex="-1" autocomplete="off" /></label></p>
+
+            <label>Name<input name="name" required maxlength="80" autocomplete="name" /></label>
+            <label>Work email<input name="email" type="email" required maxlength="120" autocomplete="email" /></label>
+            <label>Company<input name="company" required maxlength="120" autocomplete="organization" /></label>
+            <label>About
+              <select name="about" id="about">
+                <option value="Early access">Early access</option>
+                <option value="Demo">Demo</option>
+                <option value="30-day trial">30-day trial</option>
+              </select>
+            </label>
+            <label>Fleet size<input name="fleet_size" required maxlength="40" placeholder="e.g. 150 laptops" /></label>
+            <label>Devices live in
+              <select name="source">
+                <option>Intune</option>
+                <option>RMM</option>
+                <option>No MDM yet</option>
+                <option>SCCM</option>
+                <option>Not sure</option>
+              </select>
+            </label>
+            <label>Note<textarea name="note" maxlength="2000" placeholder="Sites, and who should be on the walkthrough."></textarea></label>
+            <button class="btn btn-lime" type="submit" style="justify-self:start">Send</button>
+          </form>
+        </div>
+      </section>
+    </main>
+    <div id="site-foot"></div>
+    <script>
+      (function () {
+        var q = new URLSearchParams(location.search);
+        var about = document.getElementById("about");
+        var map = { demo: "Demo", trial: "30-day trial", early: "Early access" };
+        if (about && map[q.get("topic")]) about.value = map[q.get("topic")];
+        if (q.get("sent") === "1") {
+          document.getElementById("earlyForm").hidden = true;
+          document.getElementById("thanks").hidden = false;
+        }
+      })();
+    </script>
+    <script src="/site-nav.js?v=20261127b"></script>
+    <script src="/site-foot.js?v=20261127b"></script>
+  </body>
+</html>

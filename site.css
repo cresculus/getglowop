@@ -528,3 +528,13 @@
 
       .site-links .nav-item:last-child > .mega{ left:auto; right:0; }
       .site-links .nav-item:nth-child(2) > .mega{ left:0; }
+
+      .intake{ display:grid; gap:1rem; max-width:36rem; }
+      .intake label{ display:grid; gap:.35rem; font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+      .intake input, .intake select, .intake textarea{
+        width:100%; min-height:48px; background:var(--surface); color:var(--ink);
+        border:2px solid var(--line); padding:.6rem .7rem; font-family:"Archivo",sans-serif; font-size:1rem; letter-spacing:0; text-transform:none;
+      }
+      .intake textarea{ min-height:8rem; resize:vertical; }
+      .intake input:focus, .intake select:focus, .intake textarea:focus{ border-color:var(--lime-deep); outline:none; }
+      .intake .hp{ position:absolute; left:-9999px; height:0; overflow:hidden; }
