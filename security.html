@@ -173,156 +173,57 @@
     <main>
       <div class="hero">
         <div class="wrap">
-          <p class="hero-kicker"><span class="tag">Security</span><span>TLS in</span><span aria-hidden="true">/</span><span>Assigned eyes only</span></p>
+          <p class="hero-kicker"><span class="tag">Security</span><span>Encrypted</span><span aria-hidden="true">/</span><span>Assigned eyes only</span></p>
           <h1>Encrypted leaving<br />the device.<br /><span class="glow">Assigned eyes only.</span></h1>
-          <p class="lede">Fleet inventory is confidential customer data. GLOW Ops treats it that way: <strong>TLS from the endpoint</strong>, <strong>encryption at rest</strong>, <strong>one business ID per customer</strong>, and a dashboard that only loads businesses <span class="serif-i">you are assigned to</span>.</p>
+          <p class="lede">Fleet inventory is confidential. Each customer sees its own devices and nothing else.</p>
         </div>
       </div>
 
-      <section id="transit">
+      <section id="promises">
         <div class="wrap">
-          <p class="sec-index"><span class="n">01</span> In transit</p>
-          <h2>Data leaves the PC on <span class="hl">HTTPS only</span></h2>
-          <p class="sec-lede">Collector and agent post inventory to ingest over TLS 1.2+. No cleartext upload path in production.</p>
+          <p class="sec-index"><span class="n">01</span> What we promise</p>
+          <h2>Your fleet stays <span class="hl">yours</span></h2>
           <div class="grid">
             <article class="card">
-              <p class="mono-label">Transport</p>
-              <h3>TLS to ingest</h3>
-              <p>Inventory posts to <strong>https://ingest…</strong> only. HTTP is rejected. Modern ciphers; HSTS on the edge.</p>
+              <p class="mono-label">In transit</p>
+              <h3>Encrypted end to end</h3>
+              <p>Device data travels encrypted. There is no unencrypted path.</p>
             </article>
             <article class="card">
-              <p class="mono-label">Auth</p>
-              <h3>Enrollment key in the header</h3>
-              <p>Bearer token proves which business may receive the device. The key never goes in the query string.</p>
+              <p class="mono-label">At rest</p>
+              <h3>Encrypted storage</h3>
+              <p>Stored data is encrypted.</p>
             </article>
             <article class="card">
-              <p class="mono-label">Least privilege</p>
-              <h3>Inventory only</h3>
-              <p>No keylogging, no mailbox scrape, no “power spy.” Hardware and health signals for the GLOW Op Report — that is the scope.</p>
+              <p class="mono-label">Scope</p>
+              <h3>Hardware and health only</h3>
+              <p>No keystrokes, no mail, no files, no screens.</p>
             </article>
             <article class="card">
-              <p class="mono-label">Local hardening</p>
-              <h3>Spool ACLs</h3>
-              <p>On-disk spool and config under ProgramData are locked to SYSTEM and Administrators while waiting for a successful upload.</p>
+              <p class="mono-label">Access</p>
+              <h3>Assigned people only</h3>
+              <p>A dashboard loads only the businesses a person is assigned to.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Separation</p>
+              <h3>One business, one boundary</h3>
+              <p>A device can only report into the business it was installed for.</p>
+            </article>
+            <article class="card">
+              <p class="mono-label">Removal</p>
+              <h3>Delete means gone</h3>
+              <p>Remove a device or a business and its data is removed.</p>
             </article>
           </div>
         </div>
       </section>
 
-      <section id="rest" style="background:var(--surface-2);border-top:2px solid var(--line);border-bottom:2px solid var(--line)">
+      <section id="ask" style="background:var(--surface-2);border-top:2px solid var(--line);border-bottom:2px solid var(--line)">
         <div class="wrap">
-          <p class="sec-index"><span class="n">02</span> At rest</p>
-          <h2>Stored encrypted for <span class="hl">the business partition</span></h2>
-          <p class="sec-lede">Production stores inventory in a tenant-scoped database and encrypted object storage — not a shared pile of files.</p>
-          <div class="grid">
-            <article class="card">
-              <p class="mono-label">Database</p>
-              <h3>Encrypted disks + CMK path</h3>
-              <p>Primary store on encrypted volumes. Customer-managed keys (KMS / Key Vault) when the contract requires it. Backups follow the same policy.</p>
-            </article>
-            <article class="card">
-              <p class="mono-label">Objects</p>
-              <h3>Raw JSON and reports</h3>
-              <p>Raw payloads and white-label PDFs live in encrypted buckets with public access blocked.</p>
-            </article>
-            <article class="card">
-              <p class="mono-label">Secrets</p>
-              <h3>Enrollment keys hashed</h3>
-              <p>Mint once, show once. At rest we store a hash or a KMS-wrapped secret — not a plaintext kit in git.</p>
-            </article>
-            <article class="card">
-              <p class="mono-label">Retention</p>
-              <h3>Delete means purge</h3>
-              <p>Offboarding a business includes deleting that partition’s rows and objects — not just hiding them in the UI.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section id="tenancy">
-        <div class="wrap">
-          <p class="sec-index"><span class="n">03</span> Tenancy</p>
-          <h2>ConnectWise-style <span class="hl">business IDs</span></h2>
-          <p class="sec-lede">Same agent binary for every customer. Different business ID and enrollment key. Ingest trusts the key — not a forged claim in the JSON.</p>
-          <div class="flow" aria-label="Tenancy flow">
-Device  --Bearer enrollment key-->  Ingest<br />
-Ingest  --resolves-->  businessId / dashboard / DB partition<br />
-Mismatch between claimed business and key  -->  403
-          </div>
-          <div class="grid" style="margin-top:1.2rem">
-            <article class="card">
-              <p class="mono-label">businessId</p>
-              <h3>Company</h3>
-              <p>Like a ConnectWise Company ID. Every device and report row belongs to one business.</p>
-            </article>
-            <article class="card">
-              <p class="mono-label">siteId</p>
-              <h3>Optional site</h3>
-              <p>HQ, warehouse, clinic — optional location under that business.</p>
-            </article>
-            <article class="card">
-              <p class="mono-label">enrollmentKey</p>
-              <h3>Install secret</h3>
-              <p>Routes the device into that business’s database. Acme’s kit never goes on Beta’s PCs.</p>
-            </article>
-            <article class="card">
-              <p class="mono-label">deviceKey</p>
-              <h3>Stable device id</h3>
-              <p>Hash of manufacturer + serial (or machine GUID fallback). Upserts cleanly inside the business.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section id="rbac" style="background:var(--surface-2);border-top:2px solid var(--line);border-bottom:2px solid var(--line)">
-        <div class="wrap">
-          <p class="sec-index"><span class="n">04</span> Who can see what</p>
-          <h2>The database is only visible to <span class="hl">who is assigned</span></h2>
-          <p class="sec-lede">Humans log in with an identity provider. The API loads their business assignments before any query runs.</p>
-          <ul class="roles">
-            <li><b>MSP admin</b><span>Every business they are a member of. Membership is the boundary, not the whole book by default.</span></li>
-            <li><b>MSP technician</b><span>Only the businesses they are assigned to — not the whole book of business by default.</span></li>
-            <li><b>Customer admin / viewer</b><span>Their business only. Viewer is read-only.</span></li>
-            <li><b>Device / enrollment</b><span>Write inventory to ingest. Cannot open the dashboard.</span></li>
-            <li><b>Platform break-glass</b><span>GlowOps staff only, audited, time-bound.</span></li>
-          </ul>
-          <div class="callout">
-            <p><strong>Enforced now.</strong> Fleet reads and dashboard pastes check membership on that <strong>business_id</strong> before any device query. A guessed id from someone who is not a member returns 403. Device join keys are bound to one business; a mismatched claim is rejected. Anonymous callers cannot list another company’s inventory. The lab demo tenant is served only when demo seed is explicitly turned on.</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="deploy">
-        <div class="wrap">
-          <p class="sec-index"><span class="n">05</span> Deploy without mixing tenants</p>
-          <h2>Intune, RMM, or <span class="hl">Nerdio</span> — per company</h2>
-          <p class="sec-lede">White-glove mints one client kit per business. Push that kit through the management plane that company already uses.</p>
-          <div class="grid">
-            <article class="card">
-              <p class="mono-label">Intune</p>
-              <h3>Win32 in their tenant</h3>
-              <p>Package the kit, assign to that customer’s device groups only. Detection checks the business ID on disk.</p>
-            </article>
-            <article class="card">
-              <p class="mono-label">RMM</p>
-              <h3>Client script library</h3>
-              <p>Paste the self-contained installer into <strong>that client’s</strong> script — never a global script shared across companies.</p>
-            </article>
-            <article class="card">
-              <p class="mono-label">Nerdio</p>
-              <h3>Scripted Action</h3>
-              <p>Scope the action to that Nerdio customer or host pool. AVD hosts get the same enrollment binding.</p>
-            </article>
-            <article class="card">
-              <p class="mono-label">Intune-first fleets</p>
-              <h3>Graph connector</h3>
-              <p>When Intune already has the inventory, prefer the cloud connector — no resident agent required.</p>
-            </article>
-          </div>
-          <div class="cta-row">
-            <a class="btn btn-lime" href="/app/">Open live dashboard</a>
-            <a class="btn btn-ghost" href="/#security">Back to homepage summary</a>
-          </div>
+          <p class="sec-index"><span class="n">02</span> Security review</p>
+          <h2>Need the <span class="hl">details?</span></h2>
+          <p class="sec-lede">We walk your security team through it on a call.</p>
+          <p style="margin-top:1.25rem"><a class="btn btn-lime" href="/early.html?topic=demo">Ask for a review</a></p>
         </div>
       </section>
     </main>

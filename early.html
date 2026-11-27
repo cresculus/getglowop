@@ -11,56 +11,108 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/site.css" />
+    <link rel="stylesheet" href="/site.css?v=20261127d" />
+    <style>
+      .ea { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(2rem, 5vw, 4rem); align-items: start; }
+      .ea-copy .sec-lede { margin-bottom: 1.75rem; }
+      .ea-steps { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--line); }
+      .ea-steps li { display: grid; grid-template-columns: 2.25rem 1fr; gap: .75rem; padding: 1rem 0; border-bottom: 1px solid var(--line-soft); }
+      .ea-steps b { font-family: "IBM Plex Mono", monospace; font-size: .8rem; color: var(--lime-deep); padding-top: .15rem; }
+      .ea-steps strong { display: block; font-size: 1rem; letter-spacing: -.01em; }
+      .ea-steps span { color: var(--ink-2); font-size: .95rem; }
+
+      .ea-card { background: var(--surface); border: 2px solid var(--line); box-shadow: 8px 8px 0 var(--ink); padding: clamp(1.4rem, 3vw, 2rem); }
+      .ea-card h3 { margin: 0 0 .35rem; font-size: 1.25rem; font-weight: 900; letter-spacing: -.02em; text-transform: uppercase; }
+      .ea-card .hint { margin: 0 0 1.5rem; color: var(--muted); font-size: .92rem; }
+      .ea-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .ea-grid .full { grid-column: 1 / -1; }
+      .ea-field { display: grid; gap: .4rem; }
+      .ea-field > span { font-family: "IBM Plex Mono", monospace; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+      .ea-field input, .ea-field select, .ea-field textarea {
+        width: 100%; min-height: 50px; padding: .7rem .85rem; border: 2px solid var(--line-soft); background: var(--receipt);
+        font: 500 1rem/1.3 "Archivo", system-ui, sans-serif; color: var(--ink); border-radius: 0; -webkit-appearance: none; appearance: none;
+        transition: border-color .15s ease, background-color .15s ease;
+      }
+      .ea-field select {
+        background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+        background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+        background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 2.5rem; cursor: pointer;
+      }
+      .ea-field textarea { min-height: 7.5rem; resize: vertical; }
+      .ea-field input::placeholder, .ea-field textarea::placeholder { color: #9aa290; }
+      .ea-field input:focus, .ea-field select:focus, .ea-field textarea:focus { outline: none; border-color: var(--ink); background-color: #fff; }
+      .ea-submit { margin-top: 1.4rem; width: 100%; min-height: 56px; border: 2px solid var(--ink); background: var(--lime); color: var(--ink); font: 900 1rem "Archivo", sans-serif; text-transform: uppercase; letter-spacing: .02em; cursor: pointer; box-shadow: 4px 4px 0 var(--ink); transition: transform .12s ease, box-shadow .12s ease; }
+      .ea-submit:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+      .ea-submit:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+      .ea-fine { margin: .9rem 0 0; color: var(--muted); font-size: .82rem; text-align: center; }
+      .ea-hp { position: absolute !important; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+      .ea-thanks h3 { font-size: 1.6rem; }
+      @media (max-width: 900px) { .ea { grid-template-columns: 1fr; } }
+      @media (max-width: 560px) { .ea-grid { grid-template-columns: 1fr; } .ea-card { box-shadow: 5px 5px 0 var(--ink); } }
+    </style>
   </head>
   <body>
     <div id="site-nav"></div>
     <main id="main">
       <section class="page-pad">
-        <div class="wrap">
-          <div class="sec-head">
-            <p class="sec-index"><span class="n">Talk</span> Early access</p>
-            <h2>Ask for a <span class="hl">walkthrough.</span></h2>
-            <p class="sec-lede">Tell us the fleet and how you want to start.</p>
+        <div class="wrap ea">
+          <div class="ea-copy">
+            <div class="sec-head">
+              <p class="sec-index"><span class="n">Talk</span> Early access</p>
+              <h2>Ask for a <span class="hl">walkthrough.</span></h2>
+              <p class="sec-lede">Your devices, about thirty minutes.</p>
+            </div>
+            <ol class="ea-steps">
+              <li><b>01</b><div><strong>You send this</strong><span>Fleet size and where the devices live.</span></div></li>
+              <li><b>02</b><div><strong>We reply</strong><span>Usually within one business day.</span></div></li>
+              <li><b>03</b><div><strong>Walkthrough</strong><span>Your devices, with the call on each one.</span></div></li>
+            </ol>
           </div>
 
-          <div id="thanks" hidden>
-            <p class="sec-lede">Received. We’ll reply by email.</p>
-            <div class="hero-ctas" style="margin-top:1.25rem">
+          <div class="ea-card">
+            <div id="thanks" class="ea-thanks" hidden>
+              <h3>Received.</h3>
+              <p class="hint">We’ll reply by email.</p>
               <a class="btn btn-ghost" href="/">Back to the site</a>
             </div>
+
+            <form id="earlyForm" action="https://formsubmit.co/purchasing@augmaticholdings.com" method="POST">
+              <h3>Request access</h3>
+              <p class="hint">Everything but the note is required.</p>
+              <input type="hidden" name="_subject" value="GLOW Ops — early access" />
+              <input type="hidden" name="_template" value="table" />
+              <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="_next" value="https://getglowop.com/early.html?sent=1" />
+              <div class="ea-hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off" /></div>
+
+              <div class="ea-grid">
+                <label class="ea-field"><span>Name</span><input name="name" required maxlength="80" autocomplete="name" /></label>
+                <label class="ea-field"><span>Work email</span><input name="email" type="email" required maxlength="120" autocomplete="email" /></label>
+                <label class="ea-field"><span>Company</span><input name="company" required maxlength="120" autocomplete="organization" /></label>
+                <label class="ea-field"><span>Fleet size</span><input name="fleet_size" required maxlength="40" placeholder="150 laptops" /></label>
+                <label class="ea-field"><span>About</span>
+                  <select name="about" id="about">
+                    <option value="Early access">Early access</option>
+                    <option value="Demo">Demo</option>
+                    <option value="30-day trial">30-day trial</option>
+                  </select>
+                </label>
+                <label class="ea-field"><span>Devices live in</span>
+                  <select name="source">
+                    <option>Intune</option>
+                    <option>RMM</option>
+                    <option>No MDM yet</option>
+                    <option>SCCM</option>
+                    <option>Not sure</option>
+                  </select>
+                </label>
+                <label class="ea-field full"><span>Note</span><textarea name="note" maxlength="2000" placeholder="Sites, and who should be on the walkthrough."></textarea></label>
+              </div>
+
+              <button class="ea-submit" type="submit">Send request</button>
+              <p class="ea-fine">Used only to reply to you.</p>
+            </form>
           </div>
-
-          <form id="earlyForm" class="intake" action="https://formsubmit.co/purchasing@augmaticholdings.com" method="POST">
-            <input type="hidden" name="_subject" value="GLOW Ops — early access" />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_captcha" value="false" />
-            <input type="hidden" name="_next" value="https://getglowop.com/early.html?sent=1" />
-            <p class="hp" aria-hidden="true"><label>Leave blank<input type="text" name="_honey" tabindex="-1" autocomplete="off" /></label></p>
-
-            <label>Name<input name="name" required maxlength="80" autocomplete="name" /></label>
-            <label>Work email<input name="email" type="email" required maxlength="120" autocomplete="email" /></label>
-            <label>Company<input name="company" required maxlength="120" autocomplete="organization" /></label>
-            <label>About
-              <select name="about" id="about">
-                <option value="Early access">Early access</option>
-                <option value="Demo">Demo</option>
-                <option value="30-day trial">30-day trial</option>
-              </select>
-            </label>
-            <label>Fleet size<input name="fleet_size" required maxlength="40" placeholder="e.g. 150 laptops" /></label>
-            <label>Devices live in
-              <select name="source">
-                <option>Intune</option>
-                <option>RMM</option>
-                <option>No MDM yet</option>
-                <option>SCCM</option>
-                <option>Not sure</option>
-              </select>
-            </label>
-            <label>Note<textarea name="note" maxlength="2000" placeholder="Sites, and who should be on the walkthrough."></textarea></label>
-            <button class="btn btn-lime" type="submit" style="justify-self:start">Send</button>
-          </form>
         </div>
       </section>
     </main>
