@@ -427,12 +427,15 @@ body.shell.partner-shell {
   max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .view-lede {
-  margin: 1.15rem 0.85rem 1.35rem;
+  margin: 0.85rem 0.85rem 1.1rem;
   color: var(--muted);
-  font-size: 0.88rem;
-  max-width: 38rem;
+  font-size: 0.9rem;
+  max-width: 40rem;
   text-align: left;
   line-height: 1.5;
+}
+.partner-dash .pview {
+  padding-top: 0.15rem;
 }
 .pview-left { align-items: stretch; }
 .ledger-head-left {
@@ -693,6 +696,16 @@ body.shell.partner-shell {
   letter-spacing: 0;
   text-transform: none;
   color: var(--muted);
+}
+.home-kpis .glow-mark {
+  display: inline-flex;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--muted);
+}
+.home-kpis .glow-mark .tm {
+  font-size: 0.85em;
+  top: -0.2em;
 }
 .home-kpis strong { font-size: 1.15rem; font-weight: var(--w-strong); }
 .home-split {

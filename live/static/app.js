@@ -91,6 +91,16 @@
     return "high";
   }
 
+  function callLabel(raw) {
+    const call = String(raw || "keep").toLowerCase();
+    return call.charAt(0).toUpperCase() + call.slice(1);
+  }
+
+  function callPill(raw) {
+    const call = String(raw || "keep").toLowerCase();
+    return `<span class="pill ${call}">${callLabel(call)}</span>`;
+  }
+
   /** GLOW™ = Green Lifecycle score (common-law TM claim until ® registration). */
   function glowMarkHtml({ info = false, avg = false } = {}) {
     const label = avg ? "Avg GLOW" : "GLOW";
@@ -245,8 +255,7 @@
     )}" title="Open properties">${esc(d.device_name || "—")}</button>`;
     $("d-serial").textContent = d.serial_number || "no serial";
     $("d-model").textContent = [d.manufacturer, d.model].filter(Boolean).join(" ") || "—";
-    const call = String(d.call_label || d.call || "keep").toLowerCase();
-    $("d-call").innerHTML = `<span class="pill ${call}">${call}</span>`;
+    $("d-call").innerHTML = callPill(d.call_label || d.call);
     $("d-glow").textContent = d.glow_score ?? "—";
     $("d-glow").className = glowClass(d.glow_score);
     const cls = String(d.device_class || "").toLowerCase();
@@ -344,6 +353,7 @@
     }
     title.textContent = d.device_name || d.id || "Device";
     const call = String(d.call_label || "keep").toLowerCase();
+    const callHtml = callPill(call);
     const inv = inventoryBits(full || d, d);
     const waitingInventory = loading && !(inv.storage || []).length && !(inv.resources || {}).cpuName;
     const batt =
@@ -393,7 +403,7 @@
           <p class="why">${esc(notes)}</p>
         </div>
         <div class="props-kpis">
-          <div><span>Call</span><strong><span class="pill ${call}">${call}</span></strong></div>
+          <div><span>Call</span><strong>${callHtml}</strong></div>
           <div><span>${glowMarkHtml({ info: true })}</span><strong class="${glowClass(d.glow_score)}">${esc(d.glow_score ?? "—")}</strong></div>
           <div><span>Battery</span><strong>${esc(batt)}</strong></div>
           <div><span>RAM used</span><strong>${res.ramUsedPercent != null ? res.ramUsedPercent + "%" : "—"}</strong></div>
@@ -467,7 +477,8 @@
       .map((c) => {
         const n = by[c] || 0;
         const pct = Math.round((100 * n) / total);
-        return `<div class="dash-bar"><span>${c}</span><div class="track"><i style="width:${pct}%"></i></div><b>${n}</b></div>`;
+        const label = c.charAt(0).toUpperCase() + c.slice(1);
+        return `<div class="dash-bar"><span>${label}</span><div class="track"><i style="width:${pct}%"></i></div><b>${n}</b></div>`;
       })
       .join("");
 
@@ -478,7 +489,7 @@
         return `<li>
           <button type="button" class="dash-device" data-open-props="${esc(d.id)}" title="Open properties">
             <strong>${esc(d.device_name || d.id)}</strong>
-            <span class="pill ${call}">${call}</span>
+            ${callPill(call)}
             <em class="${glowClass(d.glow_score)}">${esc(d.glow_score ?? "—")}</em>
           </button>
         </li>`;
@@ -494,16 +505,16 @@
           <div><span>Ghosts</span><strong>${summary?.ghostCount ?? 0}</strong></div>
           <div><span>Repair</span><strong>${summary?.repairBeforeReplaceCount ?? 0}</strong></div>
           <div><span>Mfg kg</span><strong>${summary?.manufacturingKgOnBooks ?? 0}</strong></div>
-          <div><span>Avoid buy</span><strong>${summary?.avoidablePurchasesIfExtended ?? 0}</strong></div>
+          <div><span>Avoid</span><strong>${summary?.avoidablePurchasesIfExtended ?? 0}</strong></div>
         </div>
       </section>
       <section class="props-card">
-        <h3>Calls mix</h3>
+        <h3>Call mix</h3>
         <div class="dash-bars">${callBars}</div>
       </section>
       <section class="props-card">
-        <h3>Devices — click a name for properties</h3>
-        <ul class="dash-list">${deviceButtons || "<li>No devices</li>"}</ul>
+        <h3>Devices</h3>
+        <ul class="dash-list">${deviceButtons || "<li>No devices yet</li>"}</ul>
       </section>
     `;
   }
@@ -619,7 +630,7 @@
               <span class="serial">${esc(d.serial_number || "")}</span>
             </span>
           </td>
-          <td><span class="pill ${call}">${call}</span></td>
+          <td>${callPill(call)}</td>
           <td class="glow ${glowClass(glow)}">${glow ?? "—"}</td>
           <td>${d.age_years != null ? d.age_years + "y" : "—"}</td>
           <td>${d.check_in_days != null ? d.check_in_days + "d" : "—"}</td>

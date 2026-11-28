@@ -4,14 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light only" />
-  <title>GlowOps Partner</title>
+  <title>GLOW Ops · Partner</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-21" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-35" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-35" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-40" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-40" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-40" />
 </head>
 <body class="shell partner-shell">
   <div class="glow-welcome" id="glowWelcome">
@@ -67,7 +67,7 @@
           <div class="home-kpis" id="homeKpis">
             <div><span>Businesses</span><strong>—</strong></div>
             <div><span>Devices</span><strong>—</strong></div>
-            <div><span>Avg GLOW</span><strong>—</strong></div>
+            <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span><strong>—</strong></div>
             <div><span>Ghosts</span><strong>—</strong></div>
             <div><span>Repair</span><strong>—</strong></div>
             <div><span>Mfg kg</span><strong>—</strong></div>
@@ -91,7 +91,7 @@
         </div>
 
         <div class="pview pview-left" id="pviewEnroll" data-active="false" hidden>
-          <p class="view-lede">Pick a business, mint a join key, then paste URL + key + password into the GlowOps Agent.</p>
+          <p class="view-lede">Pick a business, mint a join key, then paste the URL, key, and password into the agent.</p>
 
           <section class="enroll-flow" aria-label="Mint join key">
             <p class="enroll-step">1 · Business &amp; window</p>
@@ -106,12 +106,12 @@
                   <option value="1">1 hour</option>
                   <option value="24" selected>24 hours</option>
                   <option value="168">7 days</option>
-                  <option value="720">30 days max</option>
+                  <option value="720">30 days</option>
                 </select>
               </label>
               <label class="enroll-field enroll-field-grow">
                 <span>Label</span>
-                <input id="enrollLabel" placeholder="e.g. Brandon laptop" maxlength="64" />
+                <input id="enrollLabel" placeholder="e.g. Front desk PC" maxlength="64" />
               </label>
               <div class="enroll-mint-actions">
                 <button class="btn lime" type="submit">Mint join key</button>
@@ -120,7 +120,7 @@
 
             <div id="freshEnroll" class="enroll-result" hidden>
               <p class="enroll-step">2 · Copy into the agent</p>
-              <p class="hint enroll-result-lede">Password once · agent defaults to getglowop.com</p>
+              <p class="hint enroll-result-lede">Password shown once. Agent defaults to getglowop.com.</p>
               <div class="enroll-secret-body enroll-secret-compact">
                 <div class="secret-row">
                   <span class="secret-label">URL</span>
@@ -157,14 +157,14 @@
         </div>
 
         <div class="pview pview-left" id="pviewBiz" data-active="false" hidden>
-          <p class="view-lede">Every business you manage. Deploy puts the agent on that business's devices through Intune, an RMM, or a one-click installer.</p>
+          <p class="view-lede">Deploy through Intune, an RMM, or a one-click installer.</p>
           <p class="hint biz-add-status" id="addBizStatus"></p>
           <div class="biz-toolbar">
             <form id="addBizForm" class="biz-add-top">
-              <input id="newBizName" placeholder="New business name" maxlength="80" required />
+              <input id="newBizName" placeholder="Business name" maxlength="80" required />
               <button class="btn lime" type="submit">Add business</button>
             </form>
-            <input id="bizSearch" type="search" placeholder="Search businesses" aria-label="Search businesses" />
+            <input id="bizSearch" type="search" placeholder="Search" aria-label="Search businesses" />
             <select id="bizFilter" aria-label="Filter by status">
               <option value="">All statuses</option>
               <option value="none">Not deployed</option>
@@ -174,14 +174,14 @@
             </select>
             <select id="bizSort" aria-label="Sort">
               <option value="name">Name</option>
-              <option value="ghosts">Most ghosts</option>
-              <option value="glow">Lowest GLOW</option>
-              <option value="devices">Most devices</option>
+              <option value="ghosts">Ghosts</option>
+              <option value="glow">Lowest GLOW™</option>
+              <option value="devices">Devices</option>
               <option value="recent">Last check-in</option>
             </select>
             <select id="bizGroup" aria-label="Group">
               <option value="">No grouping</option>
-              <option value="status">Group by status</option>
+              <option value="status">By status</option>
             </select>
             <div class="biz-viewtoggle" role="group" aria-label="Layout">
               <button type="button" class="btn ghost" data-bizlayout="cards" aria-pressed="false">Cards</button>
@@ -193,7 +193,7 @@
         </div>
 
         <div class="pview pview-left people-view" id="pviewPeople" data-active="false" hidden>
-          <p class="view-lede">Invite people and set roles on a business.</p>
+          <p class="view-lede">Invite people and set roles.</p>
           <div class="people-body">
             <div class="people-toolbar">
               <label class="field">
@@ -250,41 +250,41 @@
         </div>
 
         <div class="pview pview-left" id="pviewResources" data-active="false" hidden>
-          <p class="view-lede">Agent downloads for a single PC or bulk Intune / RMM / SCCM push. After join, devices refresh on a fixed schedule.</p>
+          <p class="view-lede">Single-PC install or bulk push. Devices refresh on a schedule after they join.</p>
           <div class="res-cards">
             <a class="res-card" href="/download/GlowOpsAgent.exe">
               <span class="res-kicker">Windows</span>
               <strong>GlowOps Agent</strong>
-              <span class="res-desc">Join menu — paste key + password from Enroll. Defaults Dashboard URL to getglowop.com.</span>
+              <span class="res-desc">Paste the URL, key, and password from Enroll. Defaults to getglowop.com.</span>
               <span class="res-action">Download EXE</span>
             </a>
             <a class="res-card" href="/download/Open-GlowOpsAgent.cmd">
               <span class="res-kicker">Launcher</span>
               <strong>Open-GlowOpsAgent</strong>
-              <span class="res-desc">Clears the download block when Windows won’t open the EXE.</span>
+              <span class="res-desc">Use when Windows blocks the EXE download.</span>
               <span class="res-action">Download CMD</span>
             </a>
             <a class="res-card" href="/download/GlowOpsAgent-Win32.zip">
               <span class="res-kicker">Fleet</span>
               <strong>Win32 / Intune pack</strong>
-              <span class="res-desc">Generic pack with no key inside. For a package already tied to one business, use Businesses → Deploy.</span>
+              <span class="res-desc">Generic pack with no key inside. For a keyed package, use Businesses → Deploy.</span>
               <span class="res-action">Download ZIP</span>
             </a>
             <div class="res-card res-card-static">
               <span class="res-kicker">Intervals</span>
-              <strong>Agent reporting cadence</strong>
-              <span class="res-desc"><strong>Heartbeat every 15 minutes</strong> · <strong>Full inventory every 6 hours</strong>. Tasks: GlowOpsHeartbeat, GlowOpsInventory.</span>
-              <span class="res-action">Built into agent 0.2.5+</span>
+              <strong>Reporting cadence</strong>
+              <span class="res-desc"><strong>Heartbeat every 15 minutes</strong> · <strong>Full inventory every 6 hours</strong>.</span>
+              <span class="res-action">Built into the agent</span>
             </div>
           </div>
         </div>
 
         <div class="pview pview-left" id="pviewSettings" data-active="false" hidden>
-          <p class="view-lede">Optional MCP access for partner AI agents.</p>
+          <p class="view-lede">Optional access for a partner AI agent.</p>
 
           <section class="settings-section props-card">
-            <h3>MCP · AI agent access</h3>
-            <p class="hint">Optional. Mint a key if a partner AI agent needs read access to fleet data.</p>
+            <h3>MCP</h3>
+            <p class="hint">Mint a key when a partner AI agent needs read access to fleet data.</p>
             <div id="freshKey" class="fresh-key" hidden>
               <code id="freshKeyValue"></code>
               <button type="button" class="btn ghost" id="copyKey">Copy</button>
@@ -316,7 +316,7 @@
       </div>
       <button class="btn ghost" value="close" aria-label="Close">Close</button>
     </form>
-    <p class="hint deploy-lede">Each download carries a new join key for this business only. Devices that run it land here. GlowOps keeps only a hash of the password.</p>
+    <p class="hint deploy-lede">Each download carries a new join key for this business. Devices that run it land here. Only a hash of the password is stored.</p>
     <div class="deploy-row deploy-ttl">
       <label for="deployTtl" class="res-kicker">Key works for</label>
       <select id="deployTtl">
@@ -377,8 +377,8 @@
       <p class="hint">Keys stop new joins when they expire, and devices that already joined keep reporting. Revoke also stops devices that joined with that key.</p>
     </div>
   </dialog>
-  <script src="/app/report.js?v=lux-21"></script>
-  <script src="/app/clerk-partner.js?v=lux-21"></script>
-  <script src="/app/partner.js?v=lux-33"></script>
+  <script src="/app/report.js?v=lux-40"></script>
+  <script src="/app/clerk-partner.js?v=lux-40"></script>
+  <script src="/app/partner.js?v=lux-40"></script>
 </body>
 </html>

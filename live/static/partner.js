@@ -314,7 +314,8 @@
         .map((c) => {
           const n = by[c] || 0;
           const pct = Math.round((100 * n) / total);
-          return `<div class="dash-bar"><span>${c}</span><div class="track"><i style="width:${pct}%"></i></div><b>${n}</b></div>`;
+          const label = c.charAt(0).toUpperCase() + c.slice(1);
+          return `<div class="dash-bar"><span>${label}</span><div class="track"><i style="width:${pct}%"></i></div><b>${n}</b></div>`;
         })
         .join("");
       const rows = p.businesses || [];
@@ -327,7 +328,7 @@
             return `<li>
               <a class="home-biz-row" href="${href}">
                 <strong>${esc(b.businessName || "Business")}</strong>
-                <span>${esc(b.deviceCount)} devices · GLOW™ ${esc(b.avgGlowScore ?? "—")} · ghosts ${esc(b.ghostCount)}</span>
+                <span>${esc(b.deviceCount)} devices · GLOW<sup class="tm">™</sup> ${esc(b.avgGlowScore ?? "—")} · ghosts ${esc(b.ghostCount)}</span>
               </a>
             </li>`;
           })
@@ -712,7 +713,7 @@
         <colgroup>
           <col class="c-name" /><col class="c-status" /><col class="c-num" /><col class="c-num" /><col class="c-num" /><col class="c-when" /><col class="c-actions" />
         </colgroup>
-        <thead><tr><th>Business</th><th>Status</th><th>Devices</th><th>GLOW™</th><th>Ghosts</th><th>Last check-in</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Business</th><th>Status</th><th>Devices</th><th><span class="glow-mark">GLOW<sup class="tm" aria-label="trademark">™</sup></span></th><th>Ghosts</th><th>Last check-in</th><th>Actions</th></tr></thead>
         <tbody>${body || `<tr><td colspan="7">No businesses match.</td></tr>`}</tbody></table>`;
       return;
     }
@@ -731,7 +732,7 @@
           <span class="biz-status s-${r.status.key}">${r.loading ? "Loading…" : esc(r.status.label)}</span>
           <dl class="biz-card-kpis">
             <div><dt>Devices</dt><dd>${num(r, r.deviceCount ?? 0)}</dd></div>
-            <div><dt>Avg GLOW™</dt><dd>${num(r, r.avgGlowScore ?? "—")}</dd></div>
+            <div><dt><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span></dt><dd>${num(r, r.avgGlowScore ?? "—")}</dd></div>
             <div><dt>Ghosts</dt><dd>${num(r, r.ghostCount ?? 0)}</dd></div>
             <div><dt>Last check-in</dt><dd>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</dd></div>
           </dl>
