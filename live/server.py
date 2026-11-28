@@ -824,50 +824,51 @@ class Handler(BaseHTTPRequestHandler):
                 )
             )
 
-        # React SPA assets (Vite base=/web/)
-        if path == "/web" or path.startswith("/web/"):
-            rel = path[len("/web/") :] if path.startswith("/web/") else ""
-            if not rel or rel.endswith("/"):
-                # App routes live at /partner and /app — /web is asset root only.
-                if self._serve_static_html("partner.html"):
-                    return
-                rel = "index.html"
-            f = _safe_file(STATIC_DIR, f"web/{rel}")
-            if f:
-                cache = (
-                    {"Cache-Control": "public, max-age=31536000, immutable"}
-                    if "/assets/" in path
-                    else {"Cache-Control": "no-store, max-age=0"}
-                )
-                return self._send(200, f.read_bytes(), _content_type(f), cache)
-            if self._wants_html() and self._serve_static_html("partner.html"):
-                return
-            return self._send(404, b'{"error":"not found"}', "application/json")
-
-        # Partner console + Clerk auth pages → React SPA (partner.html).
+        # Partner console + Clerk auth pages.
         # Clerk path routing hits /partner/sign-in/continue, /factor-one, /sso-callback, etc.
-        if path.rstrip("/") in ("/partner", "/partner/") or path.startswith("/partner/"):
-            if path.rstrip("/") == "/partner/accept-invite" or path.startswith(
-                "/partner/accept-invite/"
-            ):
-                if self._serve_static_html("partner-accept-invite.html"):
-                    return
-            if path.rstrip("/") == "/partner/sso-callback" or path.startswith(
-                "/partner/sso-callback/"
-            ):
-                if self._serve_static_html("partner-sso-callback.html"):
-                    return
+        # Those must serve the same HTML shells (SPA fallback) or the browser gets JSON 404.
+        if path.rstrip("/") in ("/partner", "/partner/"):
             if self._serve_static_html("partner.html"):
+                return
+        if path == "/partner/sign-in" or path.startswith("/partner/sign-in/"):
+            if self._serve_static_html("partner-sign-in.html"):
+                return
+        if path == "/partner/sign-up" or path.startswith("/partner/sign-up/"):
+            if self._serve_static_html("partner-sign-up.html"):
+                return
+        if path.rstrip("/") == "/partner/accept-invite" or path.startswith("/partner/accept-invite/"):
+            if self._serve_static_html("partner-accept-invite.html"):
+                return
+        if path.rstrip("/") == "/partner/sso-callback" or path.startswith("/partner/sso-callback/"):
+            if self._serve_static_html("partner-sso-callback.html"):
                 return
         # Clerk sometimes lands on /sso-callback at the site root.
         if path.rstrip("/") == "/sso-callback":
             if self._serve_static_html("partner-sso-callback.html"):
                 return
 
-        # Live app → same React SPA (index.html is the built shell).
-        if path == "/app" or path == "/app/" or path.startswith("/app/"):
-            if self._serve_static_html("index.html"):
-                return
+        # Live app static under /app/
+        if path == "/app" or path == "/app/":
+            f = STATIC_DIR / "index.html"
+            return self._send(
+                200,
+                f.read_bytes(),
+                _content_type(f),
+                {"Cache-Control": "no-store, max-age=0"},
+            )
+        if path.startswith("/app/"):
+            rel = path[len("/app/") :]
+            if not rel or rel.endswith("/"):
+                rel = "index.html"
+            f = _safe_file(STATIC_DIR, rel)
+            if f:
+                # HTML/JS/CSS change often during partner UX work — never serve stale shells.
+                return self._send(
+                    200,
+                    f.read_bytes(),
+                    _content_type(f),
+                    {"Cache-Control": "no-store, max-age=0"},
+                )
             return self._send(404, b'{"error":"not found"}', "application/json")
 
         if path.rstrip("/") in ("/live", "/dashboard-live"):
