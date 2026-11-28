@@ -212,18 +212,6 @@
     }
     meRoles = roles || [];
     document.body.classList.add("is-authed");
-    const sideName = $("sideUserName");
-    if (sideName) {
-      const clerkUser = window.__glowClerk?.user;
-      const who =
-        clerkUser?.primaryEmailAddress?.emailAddress ||
-        me.email ||
-        me.name ||
-        "Signed in";
-      sideName.textContent = who;
-      const avatar = document.querySelector(".side-avatar");
-      if (avatar) avatar.textContent = (String(who).trim()[0] || "G").toUpperCase();
-    }
     loginView.hidden = true;
     dashView.hidden = false;
     const primary = meRoles[0];
@@ -260,7 +248,6 @@
 
   function showLogin() {
     document.body.classList.remove("is-authed");
-    if ($("sideUserName")) $("sideUserName").textContent = "Signed out";
     loginView.hidden = false;
     dashView.hidden = true;
     $("logoutBtn").hidden = true;

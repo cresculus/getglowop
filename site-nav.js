@@ -8,7 +8,7 @@
   var html =
     '<header class="site-nav" id="siteNav">' +
       '<div class="site-nav-inner">' +
-        '<a class="wordmark" href="/"><svg class="mark" width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M25.7 13.4A10 10 0 1 1 18.6 6.3" stroke="#bff747" stroke-width="2.7"/><path d="M13.2 13.4H25.4" stroke="#bff747" stroke-width="2.7"/><rect x="19.2" y="5.5" width="7.1" height="7.1" fill="#bff747"/></svg>GLOW&nbsp;Ops<sup style="font-size:.55em">™</sup></a>' +
+        '<a class="wordmark" href="/"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops<sup style="font-size:.55em">™</sup></a>' +
         '<button type="button" class="nav-burger" id="navBurger" aria-expanded="false" aria-controls="siteLinks">Menu</button>' +
         '<nav class="site-links" id="siteLinks" aria-label="Primary">' +
           '<div class="nav-item">' +

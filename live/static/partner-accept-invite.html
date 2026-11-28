@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Accept invite · GlowOps</title>
   <meta name="robots" content="noindex" />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/tokens.css?v=lux-28" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-28" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-28" />
-  <link rel="stylesheet" href="/app/shell.css?v=lux-28" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-2" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-2" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-2" />
 </head>
 <body class="shell partner-shell partner-auth">
   <header class="topbar">
-    <a class="wordmark" href="/partner/"><svg class="mark" width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M25.7 13.4A10 10 0 1 1 18.6 6.3" stroke="currentColor" stroke-width="2.7"/><path d="M13.2 13.4H25.4" stroke="currentColor" stroke-width="2.7"/><rect x="19.2" y="5.5" width="7.1" height="7.1" fill="currentColor"/></svg>GLOW&nbsp;Ops</a>
+    <a class="wordmark" href="/partner/"><span class="dot"></span>GLOW&nbsp;Ops</a>
   </header>
   <main class="workspace login-fit">
     <div class="login-card">
@@ -25,7 +24,7 @@
       <p class="hint"><a href="/partner/">Partner home</a></p>
     </div>
   </main>
-  <script src="/app/clerk-partner.js?v=lux-28"></script>
+  <script src="/app/clerk-partner.js?v=lux-2"></script>
   <script>
     (async () => {
       const params = new URLSearchParams(location.search);
