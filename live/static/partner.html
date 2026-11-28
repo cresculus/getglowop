@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/app/tokens.css?v=lux-21" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-21" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-32" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-33" />
 </head>
 <body class="shell partner-shell">
   <div class="glow-welcome" id="glowWelcome">
@@ -24,26 +24,9 @@
     <div class="topbar-left">
       <a class="wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
       <nav class="crumb" aria-label="Context">
-        <span>Console</span>
+        <span>Partner level</span>
       </nav>
     </div>
-    <div class="views top-nav desktop-nav" id="partnerTopNav" role="tablist" aria-label="Partner primary">
-      <button type="button" class="view-tab" data-pview="home" aria-selected="true">Home</button>
-      <button type="button" class="view-tab" data-pview="enroll" aria-selected="false">Enroll</button>
-      <button type="button" class="view-tab" data-pview="biz" aria-selected="false">Businesses</button>
-      <button type="button" class="view-tab" data-pview="people" aria-selected="false">People</button>
-      <button type="button" class="view-tab" data-pview="analyze" aria-selected="false">Analyze</button>
-      <button type="button" class="view-tab" data-pview="resources" aria-selected="false">Resources</button>
-      <button type="button" class="view-tab" data-pview="settings" aria-selected="false">Settings</button>
-    </div>
-    <nav class="rail">
-      <div class="ctx-chip" id="partnerRoleChip" hidden>
-        <span class="ctx-biz" id="partnerRoleBiz"></span>
-        <span class="ctx-role" id="partnerRoleLabel"></span>
-      </div>
-      <div id="partnerUserButton" class="user-button-mount" hidden></div>
-      <button type="button" class="btn ghost" id="logoutBtn" hidden>Sign out</button>
-    </nav>
   </header>
 
   <main class="workspace">
@@ -63,8 +46,8 @@
     </section>
 
     <section id="dashView" class="partner-dash" hidden>
-      <aside class="side-nav" id="partnerNav" aria-label="Console">
-        <p class="nav-kicker">Console</p>
+      <aside class="side-nav" id="partnerNav" aria-label="Partner level">
+        <p class="nav-kicker">Partner level</p>
         <button type="button" class="side-link" data-pview="home">Home</button>
         <button type="button" class="side-link" data-pview="enroll">Enroll</button>
         <button type="button" class="side-link" data-pview="biz">Businesses</button>
@@ -76,6 +59,14 @@
           <div><span>Businesses</span><strong id="bizCount">—</strong></div>
           <div><span>API keys</span><strong id="keyCount">—</strong></div>
         </div>
+        <div class="side-account">
+          <div id="partnerUserButton" class="user-button-mount" hidden></div>
+          <div class="side-account-copy">
+            <b id="sideUserName">Signed in</b>
+            <span id="partnerRoleLabel">Partner</span>
+          </div>
+        </div>
+        <button type="button" class="btn ghost side-signout" id="logoutBtn" hidden>Sign out</button>
       </aside>
 
       <section class="pane main-pane">
@@ -411,6 +402,6 @@
   </dialog>
   <script src="/app/report.js?v=lux-21"></script>
   <script src="/app/clerk-partner.js?v=lux-21"></script>
-  <script src="/app/partner.js?v=lux-31"></script>
+  <script src="/app/partner.js?v=lux-33"></script>
 </body>
 </html>

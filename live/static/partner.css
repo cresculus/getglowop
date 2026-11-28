@@ -394,6 +394,8 @@
   font-size: 0.95rem;
   font-weight: var(--w-strong);
 }
+.side-account .user-button-mount { inline-size: 32px; block-size: 32px; }
+.side-signout { width: 100%; margin-top: 0.35rem; }
 
 .who {
   font-family: var(--mono); font-size: 0.65rem; color: var(--muted);

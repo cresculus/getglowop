@@ -141,6 +141,63 @@ em { font-style: italic; font-weight: var(--w-medium); }
 }
 .view-tab.more-tab { color: var(--ink-2); }
 
+.app-frame {
+  display: grid;
+  grid-template-columns: 11.5rem minmax(0, 1fr);
+  min-height: 0;
+  height: 100%;
+}
+.app-shell .workspace { height: 100%; min-height: 0; }
+.app-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-height: 0;
+  padding: 0.55rem;
+  background: #f3f6ea;
+  border-right: var(--border-w) solid var(--line);
+}
+.app-side .nav-kicker {
+  margin: 0 0 0.15rem;
+  padding: 0 0.2rem;
+  font-size: 0.68rem;
+  font-weight: var(--w-medium);
+  color: var(--muted);
+}
+.app-side .view-tab {
+  height: auto;
+  width: 100%;
+  text-align: left;
+  padding: 0.42rem 0.55rem;
+  border: var(--border-w) solid var(--line);
+  background: var(--surface);
+  box-shadow: none;
+  font-weight: 800;
+  font-size: 0.68rem;
+}
+.app-side .view-tab[aria-selected="true"] {
+  background: var(--surface-sel);
+  box-shadow: none;
+  color: var(--ink);
+}
+.app-side .side-account,
+.side-account {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding-top: 0.55rem;
+}
+.side-account-copy { min-width: 0; display: grid; }
+.side-account-copy b,
+.side-account-copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.side-account-copy b { font-size: 0.78rem; font-weight: 650; }
+.side-account-copy span { font-size: 0.68rem; color: var(--muted); text-transform: capitalize; }
+
 .rail {
   display: flex;
   align-items: center;
@@ -1205,6 +1262,8 @@ tbody tr.flash-update {
     gap: var(--space-2);
   }
   .views.desktop-nav { display: none; }
+  .app-frame { grid-template-columns: 1fr; }
+  .app-side { display: none; }
   .meta-ago { display: none; }
   .crumb a:first-child,
   .crumb-sep { display: none; }

@@ -22,7 +22,7 @@
   const callsEl = $("calls");
   const emptyEl = $("empty");
   const searchEl = $("search");
-  let bizNameSaved = "My business";
+  let bizNameSaved = "";
   let authToken = null;
   let signedIn = false;
 
@@ -37,7 +37,7 @@
   }
 
   function setBizNameDisplay(name) {
-    const label = (name || tenant() || "Business").trim();
+    const label = (name || "").trim();
     bizNameSaved = label;
     if (bizNameLabel) bizNameLabel.textContent = label;
     if (bizNameInput && document.activeElement !== bizNameInput) {
@@ -689,8 +689,8 @@
       renderFilters();
       renderDevices();
       statusEl.textContent = signedIn
-        ? "No business yet — creating…"
-        : "Sign in to open your empty fleet dashboard";
+        ? "Open a business from Partner level"
+        : "Sign in to open a customer";
       return;
     }
     $("exportCsv").href = `/api/export.csv?tenant=${encodeURIComponent(t)}`;
@@ -1020,25 +1020,28 @@
 
       const roles = Array.isArray(data.roles) ? data.roles : [];
       const allowed = new Set(roles.map((r) => r.businessId).filter(Boolean));
-      let bizId = data.primaryBusinessId || roles[0]?.businessId || "";
-      let bizName = data.primaryBusinessName || roles[0]?.businessName || "My business";
-      if (tenantParam && allowed.has(tenantParam)) {
-        bizId = tenantParam;
+      const roleEl = $("appRoleLabel");
+      let bizId = "";
+      let bizName = "";
+      let role = "";
+      if (tenantParam && tenantParam !== "demo" && allowed.has(tenantParam)) {
         const hit = roles.find((r) => r.businessId === tenantParam);
-        if (hit) bizName = hit.businessName || bizId;
+        bizId = tenantParam;
+        bizName = (hit && hit.businessName) || "";
+        role = (hit && hit.role) || "";
       }
-      if (bizId === "demo") {
-        bizId = data.primaryBusinessId || "";
-        bizName = data.primaryBusinessName || "My business";
-      }
+      if (roleEl) roleEl.textContent = role;
       if (bizId) {
         tenantEl.value = bizId;
-        setBizNameDisplay(bizName);
+        if (bizName) setBizNameDisplay(bizName);
         const url = new URL(window.location.href);
         url.searchParams.set("from", "partner");
         url.searchParams.set("tenant", bizId);
         if (!url.searchParams.get("view")) url.searchParams.set("view", "fleet");
         history.replaceState(history.state, "", url.pathname + "?" + url.searchParams.toString());
+      } else {
+        tenantEl.value = "";
+        setBizNameDisplay("");
       }
       return true;
     } catch (err) {

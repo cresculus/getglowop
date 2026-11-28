@@ -20,21 +20,11 @@
     });
   }
 
-  function setContextChip(role, businessName) {
-    const chip = $("partnerRoleChip");
-    const bizEl = $("partnerRoleBiz");
+  function setSideIdentity(name, role) {
+    const nameEl = $("sideUserName");
     const roleEl = $("partnerRoleLabel");
-    if (!chip || !bizEl || !roleEl) return;
-    const biz = (businessName || "").trim() || "Business";
-    const r = (role || "").trim();
-    if (!r) {
-      chip.hidden = true;
-      return;
-    }
-    bizEl.textContent = biz;
-    roleEl.textContent = r;
-    chip.hidden = false;
-    chip.title = `${biz} · ${r}`;
+    if (nameEl && name) nameEl.textContent = name;
+    if (roleEl) roleEl.textContent = role || "Partner";
   }
 
   function renderConfig(apiKeyPlaceholder) {
@@ -227,9 +217,13 @@
     document.body.classList.add("is-authed");
     loginView.hidden = true;
     dashView.hidden = false;
-    const primary = meRoles[0];
-    if (primary) setContextChip(primary.role, primary.businessName);
-    else setContextChip("", "");
+    const clerkUser = window.__glowClerk && window.__glowClerk.user;
+    const who =
+      (clerkUser && clerkUser.primaryEmailAddress && clerkUser.primaryEmailAddress.emailAddress) ||
+      me.email ||
+      me.name ||
+      "Signed in";
+    setSideIdentity(who, "Partner");
     const ub = $("partnerUserButton");
     if (window.__glowClerk && window.GlowClerkPartner && ub) {
       GlowClerkPartner.mountUserButton(window.__glowClerk, ub);
@@ -383,10 +377,6 @@
       peopleCanManage = !!data.canManage;
       const roleEl = $("peopleMyRole");
       if (roleEl) roleEl.textContent = `Your role: ${data.myRole || "—"}`;
-      if (data.myRole) {
-        const biz = businessesCache.find((b) => b.business_id === businessId);
-        setContextChip(data.myRole, biz?.business_name || "Business");
-      }
       membersBody.innerHTML = (data.members || [])
         .map((m) => {
           const roleSelect = peopleCanManage

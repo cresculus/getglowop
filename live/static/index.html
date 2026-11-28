@@ -10,36 +10,42 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/app/tokens.css?v=lux-21" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-21" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-33" />
 </head>
-<body class="shell">
+<body class="shell app-shell">
   <header class="topbar">
     <div class="topbar-left">
       <a class="wordmark" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span>GLOW&nbsp;Ops</a>
       <nav class="crumb" aria-label="Context">
-        <a id="partnerBack" href="/partner/">Console</a>
+        <a id="partnerBack" href="/partner/">Partner level</a>
         <span class="crumb-sep" aria-hidden="true">/</span>
-        <button type="button" class="crumb-biz" id="bizBadge" title="Open Settings to rename">
-          <span id="bizNameLabel">My business</span>
-        </button>
+        <span>Customer level</span>
         <input type="hidden" id="tenant" value="" />
       </nav>
-    </div>
-    <div class="views desktop-nav" role="tablist" aria-label="Views">
-      <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
-      <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
-      <button type="button" class="view-tab" data-view="resources" aria-selected="false">Resources</button>
-      <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
-      <button type="button" class="view-tab" data-view="settings" aria-selected="false">Settings</button>
     </div>
     <div class="rail">
       <span class="meta-ago" id="updatedAgo">Updated just now</span>
       <button type="button" class="btn ghost" id="refresh" title="Reload" aria-label="Refresh">↻</button>
       <a class="btn ghost" id="fleetSignIn" href="/partner/sign-in">Sign in</a>
-      <div id="userButton" class="user-button-mount" hidden aria-label="Account"></div>
     </div>
   </header>
 
+  <div class="app-frame">
+  <aside class="app-side" aria-label="Customer level">
+    <p class="nav-kicker">Customer level</p>
+    <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
+    <button type="button" class="view-tab" data-view="dashboard" aria-selected="false">Dashboard</button>
+    <button type="button" class="view-tab" data-view="resources" aria-selected="false">Resources</button>
+    <button type="button" class="view-tab" data-view="properties" aria-selected="false" id="tabProperties">Properties</button>
+    <button type="button" class="view-tab" data-view="settings" aria-selected="false">Settings</button>
+    <div class="side-account">
+      <div id="userButton" class="user-button-mount" hidden aria-label="Account"></div>
+      <div class="side-account-copy">
+        <b id="bizNameLabel"></b>
+        <span id="appRoleLabel"></span>
+      </div>
+    </div>
+  </aside>
   <main class="workspace">
     <!-- FLEET -->
     <section class="view view-fleet" id="viewFleet" data-active="true">
@@ -303,7 +309,7 @@
             <p class="hint" id="settingsWho">Not signed in.</p>
             <div class="settings-actions">
               <a class="btn lime" id="settingsSignIn" href="/partner/sign-in">Sign in</a>
-              <a class="btn ghost" href="/partner/">Partner console</a>
+              <a class="btn ghost" href="/partner/">Partner level</a>
             </div>
           </section>
         </div>
@@ -331,6 +337,7 @@
       </div>
     </section>
   </main>
+  </div>
 
   <nav class="bottom-nav" id="bottomNav" aria-label="Primary">
     <button type="button" data-view="fleet" aria-selected="true">Fleet</button>
@@ -369,6 +376,6 @@
 
   <script src="/app/report.js?v=lux-21"></script>
   <script src="/app/clerk-partner.js?v=lux-21"></script>
-  <script src="/app/app.js?v=lux-21"></script>
+  <script src="/app/app.js?v=lux-33"></script>
 </body>
 </html>
