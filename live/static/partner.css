@@ -31,16 +31,38 @@ body.shell.partner-shell {
   color: var(--ink, #14180f);
 }
 .glow-welcome-inner { text-align: center; padding: 1.5rem; }
+.glow-stage {
+  position: relative;
+  width: 7rem;
+  height: 5.4rem;
+  margin: 0 auto 0.35rem;
+}
 .glow-orb {
-  width: 1.35rem;
-  height: 1.35rem;
-  margin: 0 auto 0.85rem;
+  position: absolute;
+  left: 50%;
+  bottom: 0.55rem;
+  width: 1.55rem;
+  height: 1.55rem;
+  margin-left: -0.775rem;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #f4ffd4 0%, var(--accent, #bff747) 42%, #8fbf22 100%);
+  background: radial-gradient(circle at 38% 32%, #f7ffd8 0%, #d6ff6a 28%, var(--accent, #bff747) 52%, #7eb516 100%);
   box-shadow:
-    0 0 0 4px rgba(191, 247, 71, 0.22),
-    0 0 14px 3px rgba(191, 247, 71, 0.65);
-  animation: glow-pulse 1.8s ease-in-out infinite;
+    0 0 0 5px rgba(191, 247, 71, 0.18),
+    0 0 18px 6px rgba(191, 247, 71, 0.72),
+    inset 0 -3px 6px rgba(80, 110, 10, 0.28);
+  animation: glow-bounce 0.95s cubic-bezier(0.28, 0.7, 0.32, 1) infinite;
+}
+.glow-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 0.15rem;
+  width: 1.7rem;
+  height: 0.38rem;
+  margin-left: -0.85rem;
+  border-radius: 50%;
+  background: rgba(18, 22, 15, 0.18);
+  filter: blur(1px);
+  animation: glow-shadow 0.95s cubic-bezier(0.28, 0.7, 0.32, 1) infinite;
 }
 .glow-welcome p {
   margin: 0;
@@ -50,16 +72,32 @@ body.shell.partner-shell {
   letter-spacing: -0.03em;
   line-height: 1.05;
 }
-@keyframes glow-pulse {
-  50% {
-    transform: scale(1.05);
+@keyframes glow-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1.12, 0.82);
     box-shadow:
-      0 0 0 7px rgba(191, 247, 71, 0.1),
-      0 0 20px 5px rgba(191, 247, 71, 0.75);
+      0 0 0 3px rgba(191, 247, 71, 0.16),
+      0 0 10px 3px rgba(191, 247, 71, 0.55),
+      inset 0 -3px 6px rgba(80, 110, 10, 0.28);
+  }
+  42% {
+    transform: translateY(-3.15rem) scale(0.96, 1.06);
+    box-shadow:
+      0 0 0 8px rgba(191, 247, 71, 0.08),
+      0 0 28px 10px rgba(191, 247, 71, 0.85),
+      inset 0 -3px 6px rgba(80, 110, 10, 0.22);
+  }
+  58% {
+    transform: translateY(-3.35rem) scale(1);
   }
 }
+@keyframes glow-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.55; }
+  50% { transform: scaleX(0.45); opacity: 0.18; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .glow-orb { animation: none; }
+  .glow-orb, .glow-shadow { animation: none; }
+  .glow-orb { bottom: 1.6rem; }
 }
 
 /* Top primary nav stays mounted; only dim while logged out */
