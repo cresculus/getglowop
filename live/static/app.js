@@ -1072,4 +1072,61 @@
       else if (viewParam === "ingest") setView("ingest", { sync: true });
       else setView("fleet", { sync: true });
     });
+
+  // ---- Quiet Command: scope pill + switcher (visual layer) ----
+  function qcSyncScope() {
+    if (!window.GlowQC) return;
+    const name = (bizNameLabel?.textContent || "").trim();
+    GlowQC.setScope(
+      name
+        ? { scope: "account", name, kicker: "Customer level" }
+        : { scope: "none", name: "No business open", kicker: "Customer level" }
+    );
+  }
+
+  if (window.GlowQC) {
+    if (bizNameLabel) {
+      new MutationObserver(qcSyncScope).observe(bizNameLabel, { childList: true, characterData: true, subtree: true });
+    }
+    qcSyncScope();
+    GlowQC.init({
+      load: async () => {
+        const items = [
+          { scope: "global", id: "", name: "Global Tenant", meta: "Partner level · all accounts" },
+        ];
+        if (!signedIn) return items;
+        let token = authToken;
+        try {
+          if (window.__glowClerk?.session) token = (await window.__glowClerk.session.getToken()) || token;
+        } catch (_) {}
+        const headers = { Accept: "application/json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const res = await fetch("/api/partner/me", { credentials: "same-origin", headers });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const seen = new Set();
+        (Array.isArray(data.roles) ? data.roles : []).forEach((r) => {
+          if (!r.businessId || seen.has(r.businessId)) return;
+          seen.add(r.businessId);
+          items.push({
+            scope: "account",
+            id: r.businessId,
+            name: r.businessName || "Business",
+            meta: r.role ? `Customer level · ${r.role}` : "Customer level",
+            current: r.businessId === tenant(),
+          });
+        });
+        return items;
+      },
+      onSelect: (it) => {
+        if (it.scope === "global") {
+          window.location.href = "/partner/";
+          return;
+        }
+        if (it.id === tenant()) return;
+        GlowQC.setScope({ scope: "account", name: it.name, kicker: "Opening customer level" });
+        window.location.href = `/app/?from=partner&tenant=${encodeURIComponent(it.id)}&view=fleet`;
+      },
+    });
+  }
 })();

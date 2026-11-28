@@ -285,26 +285,84 @@
     }
   }
 
+  const qcSelected = new Set();
+
+  function qcHealth(b) {
+    const status = bizStatus(b);
+    if (status.key === "stale") return { key: "critical", status };
+    if ((b.ghostCount || 0) > 0) return { key: "warn", status };
+    if (status.key === "none") return { key: "idle", status };
+    return { key: "ok", status };
+  }
+
+  function qcRing(score, health) {
+    const c = 100.53;
+    const n = Number(score);
+    const has = score != null && score !== "" && !Number.isNaN(n);
+    const len = has ? Math.max(0, Math.min(100, n)) * (c / 100) : 0;
+    return `<svg class="qc-ring" data-health="${health}" viewBox="0 0 40 40" width="40" height="40" role="img" aria-label="GLOW score ${has ? esc(n) : "not available"}">
+      <circle class="qc-ring-track" cx="20" cy="20" r="16" />
+      ${len > 0 ? `<circle class="qc-ring-value" cx="20" cy="20" r="16" stroke-dasharray="${len.toFixed(2)} ${c}" transform="rotate(-90 20 20)" />` : ""}
+      <text x="20" y="24" text-anchor="middle">${has ? esc(Math.round(n)) : "—"}</text>
+    </svg>`;
+  }
+
+  function qcAccountCard(b) {
+    const id = b.businessId;
+    const name = b.businessName || "Business";
+    const href = `/app/?from=partner&tenant=${encodeURIComponent(id)}&view=fleet`;
+    const h = qcHealth(b);
+    const sel = qcSelected.has(id);
+    const badge =
+      h.key === "warn" || h.key === "critical"
+        ? `<span class="qc-badge" data-tone="${h.key}">Needs attention</span>`
+        : h.key === "idle"
+          ? `<span class="qc-badge" data-tone="idle">Not deployed</span>`
+          : `<span class="qc-badge" data-tone="ok">Healthy</span>`;
+    return `<article class="qc-account" data-health="${h.key}" data-qc-account="${esc(id)}" data-selected="${sel}">
+      <div class="qc-account-head">
+        <button type="button" class="qc-account-toggle" data-qc-toggle="${esc(id)}" aria-pressed="${sel}">
+          <h3>${esc(name)}</h3>
+          <span class="qc-status">${esc(h.status.label)}</span>
+        </button>
+        ${qcRing(b.avgGlowScore, h.key)}
+      </div>
+      <dl class="qc-account-stats">
+        <div><dt>Devices</dt><dd>${esc(b.deviceCount ?? 0)}</dd></div>
+        <div><dt>Ghosts</dt><dd>${esc(b.ghostCount ?? 0)}</dd></div>
+        <div><dt>Last check-in</dt><dd>${esc(sinceText(b.lastCheckIn))}</dd></div>
+      </dl>
+      <div class="qc-account-foot">
+        ${badge}
+        <a class="btn ghost qc-open" href="${href}">Open</a>
+      </div>
+      <span class="qc-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></span>
+    </article>`;
+  }
+
   async function renderHome() {
     const kpis = $("homeKpis");
     const bars = $("homeCallBars");
     const list = $("homeBizList");
     if (!kpis || !bars || !list) return;
     kpis.innerHTML = `
-      <div><span>Businesses</span><strong>…</strong></div>
-      <div><span>Devices</span><strong>…</strong></div>
-      <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span><strong>…</strong></div>
-      <div><span>Ghosts</span><strong>…</strong></div>
-      <div><span>Repair</span><strong>…</strong></div>
-      <div><span>Mfg kg</span><strong>…</strong></div>`;
+      <div><span>Accounts</span><strong><span class="qc-skel"></span></strong></div>
+      <div><span>Devices</span><strong><span class="qc-skel"></span></strong></div>
+      <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span><strong><span class="qc-skel"></span></strong></div>
+      <div><span>Ghosts</span><strong><span class="qc-skel"></span></strong></div>
+      <div><span>Repair</span><strong><span class="qc-skel"></span></strong></div>
+      <div><span>Mfg kg</span><strong><span class="qc-skel"></span></strong></div>`;
     bars.innerHTML = "";
-    list.innerHTML = "<li>Loading portfolio…</li>";
+    list.setAttribute("aria-busy", "true");
+    list.innerHTML = [0, 1, 2]
+      .map(() => `<div class="qc-account qc-account-skel" aria-hidden="true"><span class="qc-skel" style="width:55%"></span><span class="qc-skel" style="width:80%"></span><span class="qc-skel" style="width:40%"></span></div>`)
+      .join("");
     try {
       const p = await api("/api/partner/portfolio");
       const by = p.byCall || {};
       const total = Math.max(1, p.deviceCount || 1);
       kpis.innerHTML = `
-        <div><span>Businesses</span><strong>${esc(p.businessCount ?? 0)}</strong></div>
+        <div><span>Accounts</span><strong>${esc(p.businessCount ?? 0)}</strong></div>
         <div><span>Devices</span><strong>${esc(p.deviceCount ?? 0)}</strong></div>
         <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span><strong>${esc(p.avgGlowScore ?? "—")}</strong></div>
         <div><span>Ghosts</span><strong>${esc(p.ghostCount ?? 0)}</strong></div>
@@ -320,23 +378,23 @@
         .join("");
       const rows = p.businesses || [];
       if (!rows.length) {
-        list.innerHTML = `<li class="hint">No businesses yet — add one under Businesses.</li>`;
+        list.innerHTML = `<div class="qc-state" data-kind="empty">
+          <span>No accounts yet.</span>
+          <button type="button" class="qc-link" data-qc-goto="biz">Add one under Accounts</button>
+        </div>`;
       } else {
-        list.innerHTML = rows
-          .map((b) => {
-            const href = `/app/?from=partner&tenant=${encodeURIComponent(b.businessId)}&view=fleet`;
-            return `<li>
-              <a class="home-biz-row" href="${href}">
-                <strong>${esc(b.businessName || "Business")}</strong>
-                <span>${esc(b.deviceCount)} devices · GLOW<sup class="tm">™</sup> ${esc(b.avgGlowScore ?? "—")} · ghosts ${esc(b.ghostCount)}</span>
-              </a>
-            </li>`;
-          })
-          .join("");
+        const live = new Set(rows.map((b) => b.businessId));
+        [...qcSelected].forEach((id) => { if (!live.has(id)) qcSelected.delete(id); });
+        list.innerHTML = rows.map(qcAccountCard).join("");
       }
     } catch (err) {
-      list.innerHTML = `<li class="hint">${esc(err.message || err)}</li>`;
+      list.innerHTML = `<div class="qc-state" data-kind="error" role="alert">
+        <span>Could not load accounts. ${esc(err.message || err)}</span>
+        <button type="button" class="btn ghost" data-qc-retry-home>Retry</button>
+      </div>`;
     }
+    list.removeAttribute("aria-busy");
+    if (typeof qcSyncActionBar === "function") qcSyncActionBar();
   }
 
   async function renderPeople() {
@@ -1431,4 +1489,157 @@
       }
     }
   });
+
+  // ---- Quiet Command: account selection, action bar, scope switcher (visual layer) ----
+  function qcSelectedRows() {
+    const byId = new Map(businessesCache.map((b) => [b.business_id, b]));
+    return [...qcSelected].filter((id) => byId.has(id)).map((id) => ({ id, name: byId.get(id).business_name || "Business" }));
+  }
+
+  function qcSyncActionBar() {
+    const bar = $("qcActionBar");
+    if (!bar) return;
+    const n = qcSelected.size;
+    const onHome = $("pviewHome")?.dataset.active === "true";
+    bar.hidden = !(n > 0 && onHome);
+    if ($("qcSelCount")) $("qcSelCount").textContent = n;
+    if ($("qcSelNoun")) $("qcSelNoun").textContent = n === 1 ? "account selected" : "accounts selected";
+    const one = n === 1 ? [...qcSelected][0] : null;
+    const deployable = one && (bizRows.find((r) => r.businessId === one)?.canDeploy !== false);
+    bar.querySelectorAll("[data-qc-act]").forEach((btn) => {
+      const act = btn.getAttribute("data-qc-act");
+      if (act === "clear") btn.disabled = n === 0;
+      else if (act === "open") btn.disabled = n !== 1;
+      else if (act === "deploy") btn.disabled = !deployable;
+      else btn.disabled = n === 0;
+    });
+  }
+
+  function qcSetSelected(id, on) {
+    if (on) qcSelected.add(id);
+    else qcSelected.delete(id);
+    const card = document.querySelector(`[data-qc-account="${CSS.escape(id)}"]`);
+    if (card) {
+      card.dataset.selected = on ? "true" : "false";
+      card.querySelector("[data-qc-toggle]")?.setAttribute("aria-pressed", on ? "true" : "false");
+    }
+    qcSyncActionBar();
+  }
+
+  function qcClearSelection() {
+    [...qcSelected].forEach((id) => qcSetSelected(id, false));
+  }
+
+  async function qcSelectionDoc() {
+    const rows = qcSelectedRows();
+    const sections = await Promise.all(
+      rows.map(async (r) => {
+        const [summary, devices] = await Promise.all([
+          api(`/api/summary?tenant=${encodeURIComponent(r.id)}`),
+          api(`/api/devices?tenant=${encodeURIComponent(r.id)}`),
+        ]);
+        return { name: r.name || summary.businessName || "Business", summary, devices: devices.devices || [] };
+      })
+    );
+    return { title: sections.length === 1 ? sections[0].name : `${sections.length} businesses`, sections };
+  }
+
+  const qcList = $("homeBizList");
+  if (qcList) {
+    qcList.addEventListener("click", (e) => {
+      if (e.target.closest("[data-qc-retry-home]")) {
+        renderHome();
+        return;
+      }
+      const go = e.target.closest("[data-qc-goto]");
+      if (go) {
+        setPView(go.getAttribute("data-qc-goto"));
+        return;
+      }
+      if (e.target.closest("a[href]")) return;
+      const toggle = e.target.closest("[data-qc-toggle]");
+      if (toggle) {
+        const id = toggle.getAttribute("data-qc-toggle");
+        qcSetSelected(id, !qcSelected.has(id));
+      }
+    });
+  }
+
+  const qcBar = $("qcActionBar");
+  if (qcBar) {
+    qcBar.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-qc-act]");
+      if (!btn || btn.disabled) return;
+      const act = btn.getAttribute("data-qc-act");
+      if (act === "clear") {
+        qcClearSelection();
+        return;
+      }
+      const rows = qcSelectedRows();
+      if (!rows.length) return;
+      if (act === "open" && rows.length === 1) {
+        location.href = `/app/?from=partner&tenant=${encodeURIComponent(rows[0].id)}&view=fleet`;
+        return;
+      }
+      if (act === "deploy" && rows.length === 1) {
+        openDeploy(rows[0].id);
+        return;
+      }
+      if (act === "print" || act === "send") {
+        const label = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Preparing…";
+        try {
+          const doc = await qcSelectionDoc();
+          if (act === "print") GlowReport.openPrint(doc);
+          else await GlowReport.send(doc);
+        } catch (err) {
+          alert(String(err.message || err));
+        } finally {
+          btn.textContent = label;
+          qcSyncActionBar();
+        }
+      }
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("[data-pview]")) qcSyncActionBar();
+  });
+
+  if (window.GlowQC) {
+    GlowQC.init({
+      enabled: () => document.body.classList.contains("is-authed"),
+      load: async () => {
+        const rows = new Map(bizRows.map((r) => [r.businessId, r]));
+        return [
+          {
+            scope: "global",
+            id: "",
+            name: "Global Tenant",
+            meta: `Partner level · ${businessesCache.length} ${businessesCache.length === 1 ? "account" : "accounts"}`,
+            current: true,
+          },
+          ...businessesCache.map((b) => {
+            const r = rows.get(b.business_id) || {};
+            const meta =
+              r.loading || r.deviceCount == null
+                ? "Customer level"
+                : `${r.deviceCount} devices · last check-in ${sinceText(r.lastCheckIn)}`;
+            return { scope: "account", id: b.business_id, name: b.business_name || "Business", meta };
+          }),
+        ];
+      },
+      onSelect: (it) => {
+        if (it.scope === "global") {
+          setPView("home");
+          qcSyncActionBar();
+          return;
+        }
+        qcClearSelection();
+        GlowQC.setScope({ scope: "account", name: it.name, kicker: "Opening customer level" });
+        location.href = `/app/?from=partner&tenant=${encodeURIComponent(it.id)}&view=fleet`;
+      },
+    });
+  }
 })();
