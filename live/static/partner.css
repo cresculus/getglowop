@@ -1,4 +1,29 @@
-.partner-shell .workspace { min-height: 0; }
+body.shell.partner-shell {
+  grid-template-rows: 1fr;
+}
+.partner-shell .workspace {
+  min-height: 0;
+  height: 100%;
+}
+.side-wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+.section-tools {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.65rem 0.85rem 0;
+}
+.section-tools .view-lede { margin: 0; }
+.partner-dash .view-lede { margin-top: 0.65rem; }
 
 .glow-welcome {
   position: fixed;
@@ -743,7 +768,7 @@
   gap: 0.4rem;
   align-items: center;
   flex-wrap: wrap;
-  margin-left: auto;
+  margin-left: 0;
 }
 .biz-add-top input {
   min-height: 34px;
@@ -1139,6 +1164,12 @@
 .partner-dash tbody tr { height: 1.9rem; cursor: default; }
 .partner-dash .pane-label { padding-left: 0.85rem; }
 
+@media (max-width: 720px) {
+  body.shell.partner-shell {
+    grid-template-rows: 1fr;
+    padding-bottom: 0;
+  }
+}
 @media (max-width: 860px) {
   .partner-dash:not([hidden]) {
     grid-template-columns: 1fr;

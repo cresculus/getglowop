@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/app/tokens.css?v=lux-21" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-21" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-33" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-34" />
 </head>
 <body class="shell partner-shell">
   <div class="glow-welcome" id="glowWelcome">
@@ -20,19 +20,11 @@
       <p>Welcome to GLOW Ops.</p>
     </div>
   </div>
-  <header class="topbar">
-    <div class="topbar-left">
-      <a class="wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
-      <nav class="crumb" aria-label="Context">
-        <span>Partner level</span>
-      </nav>
-    </div>
-  </header>
-
   <main class="workspace">
     <section id="loginView" class="login-fit">
       <div class="login-card login-card-auth">
-        <p class="pane-label"><span class="live"></span> Partner console</p>
+        <a class="wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
+        <p class="pane-label"><span class="live"></span> Partner level</p>
         <p class="hint" id="dashGateLede" hidden>Checking sign-in…</p>
         <div id="clerkMount" class="clerk-mount" hidden></div>
         <p class="hint" id="loginErr"></p>
@@ -47,6 +39,7 @@
 
     <section id="dashView" class="partner-dash" hidden>
       <aside class="side-nav" id="partnerNav" aria-label="Partner level">
+        <a class="wordmark side-wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
         <p class="nav-kicker">Partner level</p>
         <button type="button" class="side-link" data-pview="home">Home</button>
         <button type="button" class="side-link" data-pview="enroll">Enroll</button>
@@ -71,14 +64,13 @@
 
       <section class="pane main-pane">
         <div class="pview pview-left" id="pviewHome" data-active="true">
-          <div class="ledger-head ledger-head-left">
-            <h1>Partner <em>Home</em></h1>
+          <div class="section-tools">
+            <p class="view-lede">Every business. Print or send the device list for all of them, or for one business from its card.</p>
             <div class="pager">
               <button type="button" class="btn ghost" id="printPortfolio">Print PDF</button>
               <button type="button" class="btn ghost" id="sendPortfolio">Send</button>
             </div>
           </div>
-          <p class="view-lede">Every business. Print or send the device list for all of them, or for one business from its card.</p>
           <div class="home-kpis" id="homeKpis">
             <div><span>Businesses</span><strong>—</strong></div>
             <div><span>Devices</span><strong>—</strong></div>
@@ -100,9 +92,6 @@
         </div>
 
         <div class="pview pview-left" id="pviewEnroll" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left">
-            <h1>Enroll devices</h1>
-          </div>
           <p class="view-lede">Pick a business, mint a join key, then paste URL + key + password into the GlowOps Agent.</p>
 
           <section class="enroll-flow" aria-label="Mint join key">
@@ -169,18 +158,13 @@
         </div>
 
         <div class="pview pview-left" id="pviewBiz" data-active="false" hidden>
-          <div class="ledger-head ledger-head-biz">
-            <div class="ledger-head-copy">
-              <h1>Businesses</h1>
-            </div>
+          <p class="view-lede">Every business you manage. Deploy puts the agent on that business's devices through Intune, an RMM, or a one-click installer.</p>
+          <p class="hint biz-add-status" id="addBizStatus"></p>
+          <div class="biz-toolbar">
             <form id="addBizForm" class="biz-add-top">
               <input id="newBizName" placeholder="New business name" maxlength="80" required />
               <button class="btn lime" type="submit">Add business</button>
             </form>
-          </div>
-          <p class="view-lede">Every business you manage. Deploy puts the agent on that business's devices through Intune, an RMM, or a one-click installer.</p>
-          <p class="hint biz-add-status" id="addBizStatus"></p>
-          <div class="biz-toolbar">
             <input id="bizSearch" type="search" placeholder="Search businesses" aria-label="Search businesses" />
             <select id="bizFilter" aria-label="Filter by status">
               <option value="">All statuses</option>
@@ -210,7 +194,6 @@
         </div>
 
         <div class="pview pview-left people-view" id="pviewPeople" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left"><h1>People</h1></div>
           <p class="view-lede">Invite people and set roles on a business.</p>
           <div class="people-body">
             <div class="people-toolbar">
@@ -263,13 +246,11 @@
         </div>
 
         <div class="pview pview-left" id="pviewAnalyze" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left"><h1>Analyze</h1></div>
           <p class="view-lede">Pick a business, then open its report or a call filter.</p>
           <div class="analyze-grid" id="analyzeGrid"></div>
         </div>
 
         <div class="pview pview-left" id="pviewResources" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left"><h1>Resources</h1></div>
           <p class="view-lede">Agent downloads for a single PC or bulk Intune / RMM / SCCM push. After join, devices refresh on a fixed schedule.</p>
           <div class="res-cards">
             <a class="res-card" href="/download/GlowOpsAgent.exe">
@@ -300,9 +281,6 @@
         </div>
 
         <div class="pview pview-left" id="pviewSettings" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left">
-            <h1>Settings</h1>
-          </div>
           <p class="view-lede">Optional MCP access for partner AI agents.</p>
 
           <section class="settings-section props-card">
