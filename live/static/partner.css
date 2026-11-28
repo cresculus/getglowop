@@ -50,7 +50,7 @@ body.shell.partner-shell {
     0 0 0 5px rgba(191, 247, 71, 0.18),
     0 0 18px 6px rgba(191, 247, 71, 0.72),
     inset 0 -3px 6px rgba(80, 110, 10, 0.28);
-  animation: glow-bounce 0.95s cubic-bezier(0.28, 0.7, 0.32, 1) infinite;
+  animation: glow-bounce 0.9s cubic-bezier(0.28, 0.7, 0.32, 1) infinite !important;
 }
 .glow-shadow {
   position: absolute;
@@ -62,7 +62,7 @@ body.shell.partner-shell {
   border-radius: 50%;
   background: rgba(18, 22, 15, 0.18);
   filter: blur(1px);
-  animation: glow-shadow 0.95s cubic-bezier(0.28, 0.7, 0.32, 1) infinite;
+  animation: glow-shadow 0.9s cubic-bezier(0.28, 0.7, 0.32, 1) infinite !important;
 }
 .glow-welcome p {
   margin: 0;
@@ -94,10 +94,6 @@ body.shell.partner-shell {
 @keyframes glow-shadow {
   0%, 100% { transform: scaleX(1); opacity: 0.55; }
   50% { transform: scaleX(0.45); opacity: 0.18; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .glow-orb, .glow-shadow { animation: none; }
-  .glow-orb { bottom: 1.6rem; }
 }
 
 /* Top primary nav stays mounted; only dim while logged out */
