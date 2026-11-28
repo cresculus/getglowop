@@ -136,9 +136,17 @@
     return data;
   }
 
+  function hideWelcome() {
+    const w = document.getElementById("glowWelcome");
+    if (w) w.remove();
+  }
+
   function mountClerkSignIn() {
-    // OAuth (Google/Microsoft) is more reliable on the dedicated path page
-    location.replace((window.GlowClerkPartner && GlowClerkPartner.SIGN_IN) || "/partner/sign-in");
+    const signIn = (window.GlowClerkPartner && GlowClerkPartner.SIGN_IN) || "/partner/sign-in";
+    const bounced = sessionStorage.getItem("glowConsoleBounce") === "1";
+    if (bounced) sessionStorage.removeItem("glowConsoleBounce");
+    else sessionStorage.setItem("glowConsoleBounce", "1");
+    location.replace(bounced ? signIn : signIn + "?next=" + encodeURIComponent("/partner/"));
   }
 
   async function afterClerkSession(session) {
@@ -153,6 +161,7 @@
       const me = await api("/api/partner/me");
       showDash(me.partner, me.roles || []);
     } catch (err) {
+      hideWelcome();
       if ($("loginErr")) {
         $("loginErr").textContent =
           String(err.message || err) +
@@ -171,6 +180,7 @@
       const mount = $("clerkMount");
       const lede = $("dashGateLede");
       if (!clerkEnabled) {
+        hideWelcome();
         if (lede) {
           lede.hidden = false;
           lede.textContent = c.secretSet
@@ -200,6 +210,7 @@
       return true;
     } catch (err) {
       console.warn("Clerk init skipped", err);
+      hideWelcome();
       if ($("loginErr")) $("loginErr").textContent = "Clerk failed to load: " + String(err.message || err);
       return false;
     }
@@ -211,6 +222,8 @@
       return;
     }
     meRoles = roles || [];
+    try { sessionStorage.removeItem("glowConsoleBounce"); } catch (e) {}
+    hideWelcome();
     document.body.classList.add("is-authed");
     loginView.hidden = true;
     dashView.hidden = false;

@@ -8,44 +8,81 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/app/tokens.css?v=lux-2" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-2" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-2" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-30" />
 </head>
 <body class="shell partner-shell partner-auth">
-  <header class="topbar">
+  <div class="glow-welcome" id="glowWelcome">
+    <div class="glow-welcome-inner">
+      <div class="glow-orb" aria-hidden="true"></div>
+      <p>Welcome to GLOW Ops.</p>
+    </div>
+  </div>
+  <header class="topbar" id="authBar" hidden>
     <a class="wordmark" href="/partner/"><span class="dot"></span>GLOW&nbsp;Ops</a>
     <nav class="rail">
       <a class="btn ghost" href="/partner/sign-up">Sign up</a>
     </nav>
   </header>
-  <main class="workspace login-fit">
+  <main class="workspace login-fit" id="authMain" hidden>
     <div class="login-card login-card-auth">
-      <p class="pane-label"><span class="live"></span> Partner console</p>
+      <p class="pane-label"><span class="live"></span> Sign in</p>
       <div id="clerkMount" class="clerk-mount"></div>
       <p class="hint" id="authErr"></p>
-      <p class="hint">Email, Google, and Microsoft use Clerk. Google/Microsoft need SSO enabled in Clerk → Configure → SSO. Allow redirects (not just popups).</p>
     </div>
   </main>
   <script src="/app/clerk-partner.js?v=lux-2"></script>
   <script>
+    function destination() {
+      const next = new URLSearchParams(location.search).get("next") || "";
+      if (next.startsWith("/partner") || next.startsWith("/app")) return next;
+      return GlowClerkPartner.AFTER;
+    }
+    function revealForm() {
+      document.getElementById("glowWelcome")?.remove();
+      document.getElementById("authBar")?.removeAttribute("hidden");
+      document.getElementById("authMain")?.removeAttribute("hidden");
+    }
+    function waitForClerk(mount) {
+      return new Promise((resolve) => {
+        if (mount.querySelector(".cl-rootBox, .cl-card, .cl-signIn-root")) {
+          resolve(true);
+          return;
+        }
+        const obs = new MutationObserver(() => {
+          if (mount.querySelector(".cl-rootBox, .cl-card, .cl-signIn-root")) {
+            obs.disconnect();
+            resolve(true);
+          }
+        });
+        obs.observe(mount, { childList: true, subtree: true });
+        setTimeout(() => { obs.disconnect(); resolve(false); }, 8000);
+      });
+    }
     (async () => {
       const err = document.getElementById("authErr");
       const mount = document.getElementById("clerkMount");
+      const go = destination();
       try {
         const cfg = await GlowClerkPartner.fetchPublicConfig();
         if (!cfg.clerk?.enabled || !cfg.clerk.publishableKey) {
-          err.textContent = "Clerk is not configured on this host yet.";
+          revealForm();
+          err.textContent = "Sign-in is not available on this host yet.";
           return;
         }
         const clerk = await GlowClerkPartner.createClerk(cfg.clerk.publishableKey);
         if (clerk.session) {
-          location.replace(GlowClerkPartner.AFTER);
+          location.replace(go);
           return;
         }
         GlowClerkPartner.mountSignIn(clerk, mount);
+        const painted = await waitForClerk(mount);
+        revealForm();
+        if (!painted) err.textContent = "Sign-in did not open. Refresh the page.";
         clerk.addListener(({ session }) => {
-          if (session) location.replace(GlowClerkPartner.AFTER);
+          if (session) location.replace(go);
         });
       } catch (e) {
+        revealForm();
         err.textContent = String(e.message || e);
       }
     })();

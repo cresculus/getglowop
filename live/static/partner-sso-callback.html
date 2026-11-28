@@ -7,14 +7,17 @@
   <meta name="robots" content="noindex" />
   <link rel="stylesheet" href="/app/tokens.css?v=lux-2" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-2" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-2" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-30" />
 </head>
 <body class="shell partner-shell partner-auth">
-  <main class="workspace login-fit">
+  <div class="glow-welcome" id="glowWelcome">
+    <div class="glow-welcome-inner">
+      <div class="glow-orb" aria-hidden="true"></div>
+      <p>Welcome to GLOW Ops.</p>
+    </div>
+  </div>
+  <main class="workspace login-fit" id="authMain" hidden>
     <div class="login-card">
-      <p class="pane-label"><span class="live"></span> Partner console</p>
-      <h1>Signing in…</h1>
-      <p class="lede" id="lede">Finishing Google / Microsoft sign-in.</p>
       <p class="hint" id="err"></p>
     </div>
   </main>
