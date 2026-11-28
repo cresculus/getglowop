@@ -348,7 +348,7 @@
     kpis.innerHTML = `
       <div><span>Accounts</span><strong><span class="qc-skel"></span></strong></div>
       <div><span>Devices</span><strong><span class="qc-skel"></span></strong></div>
-      <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span><strong><span class="qc-skel"></span></strong></div>
+      <div><span class="glow-mark">Avg GLOW</span><strong><span class="qc-skel"></span></strong></div>
       <div><span>Ghosts</span><strong><span class="qc-skel"></span></strong></div>
       <div><span>Repair</span><strong><span class="qc-skel"></span></strong></div>
       <div><span>Mfg kg</span><strong><span class="qc-skel"></span></strong></div>`;
@@ -364,7 +364,7 @@
       kpis.innerHTML = `
         <div><span>Accounts</span><strong>${esc(p.businessCount ?? 0)}</strong></div>
         <div><span>Devices</span><strong>${esc(p.deviceCount ?? 0)}</strong></div>
-        <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span><strong>${esc(p.avgGlowScore ?? "—")}</strong></div>
+        <div><span class="glow-mark">Avg GLOW</span><strong>${esc(p.avgGlowScore ?? "—")}</strong></div>
         <div><span>Ghosts</span><strong>${esc(p.ghostCount ?? 0)}</strong></div>
         <div><span>Repair</span><strong>${esc(p.repairCount ?? 0)}</strong></div>
         <div><span>Mfg kg</span><strong>${esc(p.manufacturingKgOnBooks ?? 0)}</strong></div>`;
@@ -557,7 +557,7 @@
           const s = await api(`/api/summary?tenant=${encodeURIComponent(b.business_id)}`);
           slot.innerHTML = `
             <div><span>Devices</span> <strong>${s.deviceCount ?? 0}</strong></div>
-            <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span> <strong>${s.avgGlowScore ?? "—"}</strong></div>
+            <div><span class="glow-mark">Avg GLOW</span> <strong>${s.avgGlowScore ?? "—"}</strong></div>
             <div><span>Ghosts</span> <strong>${s.ghostCount ?? 0}</strong></div>
             <div><span>Repair</span> <strong>${s.repairBeforeReplaceCount ?? 0}</strong></div>`;
         } catch {
@@ -771,7 +771,7 @@
         <colgroup>
           <col class="c-name" /><col class="c-status" /><col class="c-num" /><col class="c-num" /><col class="c-num" /><col class="c-when" /><col class="c-actions" />
         </colgroup>
-        <thead><tr><th>Business</th><th>Status</th><th>Devices</th><th><span class="glow-mark">GLOW<sup class="tm" aria-label="trademark">™</sup></span></th><th>Ghosts</th><th>Last check-in</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Business</th><th>Status</th><th>Devices</th><th>GLOW</th><th>Ghosts</th><th>Last check-in</th><th>Actions</th></tr></thead>
         <tbody>${body || `<tr><td colspan="7">No businesses match.</td></tr>`}</tbody></table>`;
       return;
     }
@@ -790,7 +790,7 @@
           <span class="biz-status s-${r.status.key}">${r.loading ? "Loading…" : esc(r.status.label)}</span>
           <dl class="biz-card-kpis">
             <div><dt>Devices</dt><dd>${num(r, r.deviceCount ?? 0)}</dd></div>
-            <div><dt><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span></dt><dd>${num(r, r.avgGlowScore ?? "—")}</dd></div>
+            <div><dt><span class="glow-mark">Avg GLOW</span></dt><dd>${num(r, r.avgGlowScore ?? "—")}</dd></div>
             <div><dt>Ghosts</dt><dd>${num(r, r.ghostCount ?? 0)}</dd></div>
             <div><dt>Last check-in</dt><dd>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</dd></div>
           </dl>

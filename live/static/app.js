@@ -101,13 +101,13 @@
     return `<span class="pill ${call}">${callLabel(call)}</span>`;
   }
 
-  /** GLOW™ = Green Lifecycle score (common-law TM claim until ® registration). */
+  /** Score label. The ™ sits on GLOW Ops and on GLOW Score in the explainer, not on every number. */
   function glowMarkHtml({ info = false, avg = false } = {}) {
     const label = avg ? "Avg GLOW" : "GLOW";
     const tip = info
-      ? `<button type="button" class="glow-info" aria-label="What is GLOW score?" aria-haspopup="dialog">i</button>`
+      ? `<button type="button" class="glow-info" aria-label="What is the GLOW Score?" aria-haspopup="dialog">i</button>`
       : "";
-    return `<span class="glow-mark">${label}<sup class="tm" aria-label="trademark">™</sup>${tip}</span>`;
+    return `<span class="glow-mark">${label}${tip}</span>`;
   }
 
   function openGlowInfo() {

@@ -16,7 +16,7 @@
 <body class="shell app-shell qc-shell qc-app">
   <div class="app-frame">
   <aside class="app-side qc-rail" id="appRail" aria-label="Customer level">
-    <a class="wordmark qc-logo" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span><span>GLOW<sup class="tm" aria-label="trademark">™</sup>&nbsp;Ops</span></a>
+    <a class="wordmark qc-logo" id="homeWordmark" href="/app/?view=fleet" title="Fleet report"><span class="dot" aria-hidden="true"></span><span>GLOW&nbsp;Ops<sup class="tm" aria-label="trademark">™</sup></span></a>
     <p class="nav-kicker">Customer level</p>
     <nav class="qc-rail-nav" aria-label="Sections">
       <button type="button" class="view-tab" data-view="fleet" aria-selected="true">Fleet</button>
@@ -84,7 +84,7 @@
         </button>
         <div class="kpi-grid">
           <div><strong id="kpi-count">—</strong><span>Devices</span></div>
-          <div><strong id="kpi-glow">—</strong><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup><button type="button" class="glow-info" aria-label="What is GLOW score?" aria-haspopup="dialog">i</button></span></div>
+          <div><strong id="kpi-glow">—</strong><span class="glow-mark">Avg GLOW<button type="button" class="glow-info" aria-label="What is the GLOW Score?" aria-haspopup="dialog">i</button></span></div>
           <div><strong id="kpi-ghost">—</strong><span>Ghosts</span></div>
           <div><strong id="kpi-repair">—</strong><span>Repair</span></div>
           <div><strong id="kpi-kg">—</strong><span>Mfg kg</span></div>
@@ -113,7 +113,7 @@
               <tr>
                 <th>Device</th>
                 <th>Call</th>
-                <th><span class="glow-mark">GLOW<sup class="tm" aria-label="trademark">™</sup><button type="button" class="glow-info" aria-label="What is GLOW score?" aria-haspopup="dialog">i</button></span></th>
+                <th><span class="glow-mark">GLOW<button type="button" class="glow-info" aria-label="What is the GLOW Score?" aria-haspopup="dialog">i</button></span></th>
                 <th>Age</th>
                 <th>Sync</th>
               </tr>
@@ -166,7 +166,7 @@
           <p class="mono" id="d-serial">—</p>
           <p id="d-model">—</p>
           <div class="detail-row"><span>Call</span><strong id="d-call">—</strong></div>
-          <div class="detail-row"><span class="glow-mark">GLOW<sup class="tm" aria-label="trademark">™</sup><button type="button" class="glow-info" aria-label="What is GLOW score?" aria-haspopup="dialog">i</button></span><strong id="d-glow">—</strong></div>
+          <div class="detail-row"><span class="glow-mark">GLOW<button type="button" class="glow-info" aria-label="What is the GLOW Score?" aria-haspopup="dialog">i</button></span><strong id="d-glow">—</strong></div>
           <div class="detail-row"><span>Battery</span><strong id="d-batt">—</strong></div>
           <div class="detail-row"><span>Compliance</span><strong id="d-comp">—</strong></div>
           <div class="detail-row"><span>User</span><strong id="d-user">—</strong></div>
@@ -228,7 +228,7 @@
                   <tr><td>Hostname / OS / version</td><td>Graph</td><td>Persona, OS fit</td></tr>
                   <tr><td>Last sync / check-in</td><td>Graph</td><td>Ghost flag</td></tr>
                   <tr><td>Compliance / ownership</td><td>Graph</td><td>Security veto on keep</td></tr>
-                  <tr><td>Enroll date</td><td>Graph</td><td>GLOW™ age</td></tr>
+                  <tr><td>Enroll date</td><td>Graph</td><td>GLOW age</td></tr>
                   <tr><td>Battery health</td><td>Endpoint Analytics or probe</td><td>Repair before replace</td></tr>
                   <tr><td>Disk health</td><td>Limited in Graph</td><td>Notes unless probe or agent</td></tr>
                 </tbody>
@@ -367,11 +367,11 @@
     <button type="button" class="glow-modal-backdrop" id="glowInfoBackdrop" aria-label="Close"></button>
     <div class="glow-modal-card" role="dialog" aria-modal="true" aria-labelledby="glowInfoTitle">
       <div class="glow-modal-head">
-        <h2 id="glowInfoTitle">GLOW<sup class="tm">™</sup> score</h2>
+        <h2 id="glowInfoTitle">GLOW Score<sup class="tm" aria-label="trademark">™</sup></h2>
         <button type="button" class="btn ghost" id="glowInfoClose">Close</button>
       </div>
       <p>
-        <strong>GLOW™</strong> is GlowOps’ Green Lifecycle score (0–100). It rates how long a device can stay in
+        <strong>GLOW Score</strong> is the Green Lifecycle score (0–100) inside GLOW Ops. It rates how long a device can stay in
         productive service before refresh — using age, check-in, health, and persona.
       </p>
       <p>
@@ -409,6 +409,6 @@
   <script src="/app/report.js?v=lux-50"></script>
   <script src="/app/clerk-partner.js?v=lux-50"></script>
   <script src="/app/quiet-command.js?v=lux-54"></script>
-  <script src="/app/app.js?v=lux-54"></script>
+  <script src="/app/app.js?v=lux-56"></script>
 </body>
 </html>
