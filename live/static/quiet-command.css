@@ -378,6 +378,11 @@ body.shell.qc-app {
   max-width: var(--canvas-max);
   margin: 0 auto;
 }
+.qc-app .workspace > .view-fleet {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
 
 /* Remove legacy inner gutters; the canvas owns spacing. */
 .qc-shell .pview > .view-lede {
