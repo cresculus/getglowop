@@ -843,14 +843,15 @@ tbody tr.is-selected {
   white-space: nowrap;
   flex-wrap: nowrap;
 }
-.glow-mark .tm {
-  font-size: 0.62em;
-  font-weight: 600;
+.glow-mark .tm,
+sup.tm {
+  font-size: 0.78rem;
+  font-weight: 700;
   line-height: 1;
   position: relative;
-  top: -0.35em;
-  margin-left: 0.02em;
-  color: var(--muted);
+  top: -0.15em;
+  margin-left: 0.08em;
+  color: var(--ink);
 }
 .glow-info {
   display: inline-flex;

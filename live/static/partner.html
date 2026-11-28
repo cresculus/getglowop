@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/app/tokens.css?v=lux-21" />
-  <link rel="stylesheet" href="/app/styles.css?v=lux-21" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-34" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-35" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-35" />
 </head>
 <body class="shell partner-shell">
   <div class="glow-welcome" id="glowWelcome">
@@ -64,13 +64,6 @@
 
       <section class="pane main-pane">
         <div class="pview pview-left" id="pviewHome" data-active="true">
-          <div class="section-tools">
-            <p class="view-lede">Every business. Print or send the device list for all of them, or for one business from its card.</p>
-            <div class="pager">
-              <button type="button" class="btn ghost" id="printPortfolio">Print PDF</button>
-              <button type="button" class="btn ghost" id="sendPortfolio">Send</button>
-            </div>
-          </div>
           <div class="home-kpis" id="homeKpis">
             <div><span>Businesses</span><strong>—</strong></div>
             <div><span>Devices</span><strong>—</strong></div>
@@ -85,7 +78,13 @@
               <div class="dash-bars" id="homeCallBars"></div>
             </section>
             <section class="props-card home-biz-roll">
-              <h3>Businesses</h3>
+              <div class="home-biz-head">
+                <h3>Businesses</h3>
+                <div class="pager">
+                  <button type="button" class="btn ghost" id="printPortfolio">Print PDF</button>
+                  <button type="button" class="btn ghost" id="sendPortfolio">Send</button>
+                </div>
+              </div>
               <ul class="home-biz-list" id="homeBizList"></ul>
             </section>
           </div>
