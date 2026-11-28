@@ -586,7 +586,7 @@
   // ---- Businesses grid ----
   let bizRows = [];
   let enrollKeysCache = [];
-  let bizLayout = localStorage.getItem("glowops.bizLayout") || "cards";
+  let bizLayout = localStorage.getItem("glowops.bizLayout") || "table";
   const pins = new Set(JSON.parse(localStorage.getItem("glowops.bizPins") || "[]"));
   const DAY = 86400000;
 
@@ -648,6 +648,20 @@
     return rows.sort((a, b) => (pins.has(b.businessId) - pins.has(a.businessId)) || cmp(a, b));
   }
 
+  function groupedBizRows(rows) {
+    const mode = $("bizGroup")?.value || "";
+    if (mode !== "status") return [{ label: "", rows }];
+    const order = [
+      ["none", "Not deployed"],
+      ["collecting", "Collecting"],
+      ["ready", "Report ready"],
+      ["stale", "Stale"],
+    ];
+    return order
+      .map(([key, label]) => ({ label, rows: rows.filter((r) => r.status.key === key) }))
+      .filter((g) => g.rows.length);
+  }
+
   function manageMenu(id, name, href) {
     return `<details class="biz-manage">
       <summary class="biz-cog" aria-label="Business settings" title="Business settings">
@@ -676,36 +690,47 @@
       return;
     }
     const rows = visibleBizRows();
+    const groups = groupedBizRows(rows);
     if ($("bizShown")) $("bizShown").textContent = `${rows.length} of ${bizRows.length}`;
     const num = (r, v) => (r.loading ? "…" : esc(v));
+    const actions = (r, href) => `
+      <a class="btn ghost" href="${href}">Open</a>
+      <button type="button" class="btn ghost" data-print="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Print PDF</button>
+      <button type="button" class="btn ghost" data-send="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Send</button>
+      ${r.canDeploy === false ? "" : `<button type="button" class="btn lime" data-deploy="${esc(r.businessId)}">Deploy</button>`}`;
     if (bizLayout === "table") {
       grid.className = "biz-grid biz-grid-table table-fit";
-      grid.innerHTML = `<table>
-        <thead><tr><th>Business</th><th>Status</th><th>Devices</th><th>GLOW™</th><th>Ghosts</th><th>Last check-in</th><th></th></tr></thead>
-        <tbody>${rows
-          .map((r) => {
+      const body = groups
+        .map((g) => {
+          const head = g.label ? `<tr class="biz-group"><td colspan="7">${esc(g.label)} · ${g.rows.length}</td></tr>` : "";
+          const lines = g.rows.map((r) => {
             const href = `/app/?from=partner&tenant=${encodeURIComponent(r.businessId)}&view=fleet`;
             return `<tr>
-              <td><b>${pins.has(r.businessId) ? "★ " : ""}${esc(r.businessName)}</b></td>
+              <td class="biz-name"><b>${pins.has(r.businessId) ? "★ " : ""}${esc(r.businessName)}</b></td>
               <td><span class="biz-status s-${r.status.key}">${esc(r.status.label)}</span></td>
-              <td>${num(r, r.deviceCount ?? 0)}</td>
-              <td>${num(r, r.avgGlowScore ?? "—")}</td>
-              <td>${num(r, r.ghostCount ?? 0)}</td>
+              <td class="num">${num(r, r.deviceCount ?? 0)}</td>
+              <td class="num">${num(r, r.avgGlowScore ?? "—")}</td>
+              <td class="num">${num(r, r.ghostCount ?? 0)}</td>
               <td>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</td>
-              <td class="biz-row-actions">
-                <a class="btn ghost" href="${href}">Open</a>
-                <button type="button" class="btn ghost" data-print="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Print PDF</button>
-                <button type="button" class="btn ghost" data-send="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Send</button>
-                ${r.canDeploy === false ? "" : `<button type="button" class="btn lime" data-deploy="${esc(r.businessId)}">Deploy</button>`}
-                ${manageMenu(r.businessId, r.businessName, href)}
-              </td>
+              <td class="biz-row-actions">${actions(r, href)}${manageMenu(r.businessId, r.businessName, href)}</td>
             </tr>`;
-          })
-          .join("")}</tbody></table>`;
+          }).join("");
+          return head + lines;
+        })
+        .join("");
+      grid.innerHTML = `<table>
+        <colgroup>
+          <col class="c-name" /><col class="c-status" /><col class="c-num" /><col class="c-num" /><col class="c-num" /><col class="c-when" /><col class="c-actions" />
+        </colgroup>
+        <thead><tr><th>Business</th><th>Status</th><th>Devices</th><th>GLOW™</th><th>Ghosts</th><th>Last check-in</th><th>Actions</th></tr></thead>
+        <tbody>${body || `<tr><td colspan="7">No businesses match.</td></tr>`}</tbody></table>`;
       return;
     }
     grid.className = "biz-grid";
-    grid.innerHTML = rows
+    grid.innerHTML = groups
+      .map((g) => {
+        const head = g.label ? `<h3 class="biz-group-label">${esc(g.label)} · ${g.rows.length}</h3>` : "";
+        return head + g.rows
       .map((r) => {
         const href = `/app/?from=partner&tenant=${encodeURIComponent(r.businessId)}&view=fleet`;
         return `<article class="biz-card${pins.has(r.businessId) ? " pinned" : ""}">
@@ -720,18 +745,16 @@
             <div><dt>Ghosts</dt><dd>${num(r, r.ghostCount ?? 0)}</dd></div>
             <div><dt>Last check-in</dt><dd>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</dd></div>
           </dl>
-          <div class="biz-card-actions">
-            <a class="btn ghost" href="${href}">Open</a>
-            <button type="button" class="btn ghost" data-print="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Print PDF</button>
-            <button type="button" class="btn ghost" data-send="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Send</button>
-            ${r.canDeploy === false ? "" : `<button type="button" class="btn lime" data-deploy="${esc(r.businessId)}">Deploy</button>`}
-          </div>
+          <div class="biz-card-actions">${actions(r, href)}</div>
         </article>`;
+      }).join("");
       })
       .join("") || `<p class="people-empty">No businesses match.</p>`;
   }
 
-  ["bizSearch", "bizFilter", "bizSort"].forEach((id) => {
+  const savedGroup = localStorage.getItem("glowops.bizGroup");
+  if ($("bizGroup") && savedGroup) $("bizGroup").value = savedGroup;
+  ["bizSearch", "bizFilter", "bizSort", "bizGroup"].forEach((id) => {
     const el = $(id);
     if (el) el.addEventListener(id === "bizSearch" ? "input" : "change", renderBizGrid);
   });
@@ -742,6 +765,12 @@
       renderBizGrid();
     })
   );
+  if ($("bizGroup")) {
+    $("bizGroup").addEventListener("change", () => {
+      localStorage.setItem("glowops.bizGroup", $("bizGroup").value);
+      renderBizGrid();
+    });
+  }
 
   // ---- Deploy dialog ----
   let deployBizId = "";

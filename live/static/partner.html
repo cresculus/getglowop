@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/app/tokens.css?v=lux-21" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-21" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-30" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-31" />
 </head>
 <body class="shell partner-shell">
   <div class="glow-welcome" id="glowWelcome">
@@ -205,9 +205,13 @@
               <option value="devices">Most devices</option>
               <option value="recent">Last check-in</option>
             </select>
+            <select id="bizGroup" aria-label="Group">
+              <option value="">No grouping</option>
+              <option value="status">Group by status</option>
+            </select>
             <div class="biz-viewtoggle" role="group" aria-label="Layout">
-              <button type="button" class="btn ghost" data-bizlayout="cards" aria-pressed="true">Cards</button>
-              <button type="button" class="btn ghost" data-bizlayout="table" aria-pressed="false">Table</button>
+              <button type="button" class="btn ghost" data-bizlayout="cards" aria-pressed="false">Cards</button>
+              <button type="button" class="btn ghost" data-bizlayout="table" aria-pressed="true">Table</button>
             </div>
             <span class="hint" id="bizShown"></span>
           </div>
@@ -407,6 +411,6 @@
   </dialog>
   <script src="/app/report.js?v=lux-21"></script>
   <script src="/app/clerk-partner.js?v=lux-21"></script>
-  <script src="/app/partner.js?v=lux-30"></script>
+  <script src="/app/partner.js?v=lux-31"></script>
 </body>
 </html>
