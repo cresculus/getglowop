@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/app/tokens.css?v=lux-51" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-51" />
-  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-54" />
+  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-58" />
 </head>
 <body class="shell app-shell qc-shell qc-app">
   <div class="app-frame">
@@ -154,6 +154,13 @@
             </div>
           </div>
         </div>
+        <section class="fleet-trend" aria-label="Reporting over time">
+          <div class="fleet-trend-head">
+            <h2>Reporting</h2>
+            <p>Devices reported and check-ins, last 30 days.</p>
+          </div>
+          <div id="fleetTrendChart" class="trend-chart"></div>
+        </section>
       </section>
 
       <button type="button" class="drawer-backdrop" id="detailBackdrop" hidden aria-label="Close detail"></button>
@@ -408,7 +415,7 @@
 
   <script src="/app/report.js?v=lux-50"></script>
   <script src="/app/clerk-partner.js?v=lux-50"></script>
-  <script src="/app/quiet-command.js?v=lux-54"></script>
-  <script src="/app/app.js?v=lux-56"></script>
+  <script src="/app/quiet-command.js?v=lux-58"></script>
+  <script src="/app/app.js?v=lux-58"></script>
 </body>
 </html>

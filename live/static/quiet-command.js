@@ -220,7 +220,44 @@
     });
   }
 
+  function trendChart(host, points) {
+    if (!host) return;
+    const rows = Array.isArray(points) ? points : [];
+    const reported = rows.map((p) => Number(p.reported) || 0);
+    const checkins = rows.map((p) => Number(p.checkins) || 0);
+    const peak = Math.max(1, ...reported, ...checkins);
+    if (!rows.length || (peak === 1 && reported.every((n) => n === 0) && checkins.every((n) => n === 0))) {
+      host.innerHTML = `<p class="trend-empty">No check-ins in the last 30 days. This fills in as devices report.</p>`;
+      return;
+    }
+    const w = Math.max(320, host.clientWidth || 640);
+    const h = Math.max(160, host.clientHeight || 200);
+    const pad = { l: 36, r: 12, t: 16, b: 28 };
+    const iw = w - pad.l - pad.r;
+    const ih = h - pad.t - pad.b;
+    const x = (i) => pad.l + (rows.length === 1 ? iw / 2 : (iw * i) / (rows.length - 1));
+    const y = (n) => pad.t + ih - (ih * n) / peak;
+    const line = (vals) => vals.map((n, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(n).toFixed(1)}`).join(" ");
+    const area = `${line(reported)} L${x(rows.length - 1).toFixed(1)},${(pad.t + ih).toFixed(1)} L${x(0).toFixed(1)},${(pad.t + ih).toFixed(1)} Z`;
+    const ticks = [0, Math.round((rows.length - 1) / 2), rows.length - 1].filter((v, i, a) => a.indexOf(v) === i);
+    const labels = ticks
+      .map((i) => {
+        const day = String(rows[i].date || "").slice(5);
+        return `<text x="${x(i).toFixed(1)}" y="${h - 8}" text-anchor="middle">${day}</text>`;
+      })
+      .join("");
+    host.innerHTML = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Devices reported and check-ins over 30 days">
+      <line x1="${pad.l}" y1="${pad.t + ih}" x2="${w - pad.r}" y2="${pad.t + ih}" class="trend-axis" />
+      <path d="${area}" class="trend-area" />
+      <path d="${line(reported)}" class="trend-line" />
+      <path d="${line(checkins)}" class="trend-line trend-line-check" />
+      ${labels}
+    </svg>
+    <div class="trend-legend"><span><i class="trend-swatch"></i>Devices reported</span><span><i class="trend-swatch trend-swatch-check"></i>Check-ins</span></div>`;
+  }
+
   global.GlowQC = {
+    trendChart,
     init(opts) {
       initKbdHints();
       initRail();

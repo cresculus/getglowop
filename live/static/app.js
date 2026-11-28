@@ -468,6 +468,32 @@
     `;
   }
 
+  let trendDays = [];
+
+  function paintTrends() {
+    if (!window.GlowQC) return;
+    GlowQC.trendChart($("fleetTrendChart"), trendDays);
+    GlowQC.trendChart($("dashTrendChart"), trendDays);
+  }
+
+  async function loadTrend() {
+    const t = tenant();
+    trendDays = [];
+    if (t) {
+      try {
+        const res = await fetch(`/api/trend?tenant=${encodeURIComponent(t)}`, {
+          credentials: "same-origin",
+          headers: apiHeaders(),
+        });
+        const data = await res.json();
+        if (res.ok) trendDays = data.days || [];
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    paintTrends();
+  }
+
   function renderDashboard() {
     const grid = $("dashGrid");
     if (!grid) return;
@@ -512,11 +538,17 @@
         <h3>Call mix</h3>
         <div class="dash-bars">${callBars}</div>
       </section>
+      <section class="props-card dash-trend">
+        <h3>Fleet over time</h3>
+        <p class="hint">Devices reported and check-ins, last 30 days.</p>
+        <div id="dashTrendChart" class="trend-chart"></div>
+      </section>
       <section class="props-card">
         <h3>Devices</h3>
         <ul class="dash-list">${deviceButtons || "<li>No devices yet</li>"}</ul>
       </section>
     `;
+    paintTrends();
   }
 
   function fromPartner() {
@@ -733,6 +765,7 @@
           ? `Empty fleet · ${summary.businessName || t}`
           : `${n} scored · ${summary.businessName || t}`;
       setUpdatedAgo("Updated just now");
+      loadTrend();
     } catch (err) {
       statusEl.textContent = "Load failed";
       devices = [];

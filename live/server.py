@@ -32,6 +32,7 @@ from db import (  # noqa: E402
     business_activity,
     fleet_summary,
     get_tenant,
+    reporting_trend,
     list_devices,
     record_heartbeat,
     record_ingest,
@@ -469,11 +470,20 @@ class Handler(BaseHTTPRequestHandler):
             )
             return self._send(status, body, ctype)
 
+        if path.rstrip("/") == "/api/partner/trend":
+            partner = self._partner_principal()
+            if not partner:
+                return self._send(401, b'{"error":"unauthorized"}', "application/json")
+            ids = [b["business_id"] for b in list_partner_businesses(CONN, partner["id"])]
+            status, body, ctype = _json_bytes({"days": reporting_trend(CONN, ids)})
+            return self._send(status, body, ctype)
+
         fleet_read = path.rstrip("/") in (
             "/api/summary",
             "/api/business",
             "/api/devices",
             "/api/export.csv",
+            "/api/trend",
         ) or path.startswith("/api/devices/")
         if fleet_read:
             allowed = self._fleet_tenant_for_read(tenant)
@@ -483,6 +493,10 @@ class Handler(BaseHTTPRequestHandler):
 
         if path.rstrip("/") == "/api/summary":
             status, body, ctype = _json_bytes(fleet_summary(CONN, tenant))
+            return self._send(status, body, ctype)
+
+        if path.rstrip("/") == "/api/trend":
+            status, body, ctype = _json_bytes({"days": reporting_trend(CONN, [tenant])})
             return self._send(status, body, ctype)
 
         if path.rstrip("/") == "/api/logs":

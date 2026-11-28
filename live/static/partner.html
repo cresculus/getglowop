@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/app/tokens.css?v=lux-51" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-51" />
   <link rel="stylesheet" href="/app/partner.css?v=lux-55" />
-  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-54" />
+  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-58" />
 </head>
 <body class="shell partner-shell">
   <div class="glow-welcome" id="glowWelcome">
@@ -109,6 +109,11 @@
           <section class="props-card home-calls">
             <h3>Calls across portfolio</h3>
             <div class="dash-bars" id="homeCallBars"></div>
+          </section>
+          <section class="props-card home-trend" aria-label="Portfolio reporting">
+            <h3>All devices over time</h3>
+            <p class="hint">Devices reported and check-ins across every business, last 30 days.</p>
+            <div id="homeTrendChart" class="trend-chart"></div>
           </section>
         </div>
 
@@ -431,7 +436,7 @@
   </dialog>
   <script src="/app/report.js?v=lux-50"></script>
   <script src="/app/clerk-partner.js?v=lux-50"></script>
-  <script src="/app/quiet-command.js?v=lux-54"></script>
-  <script src="/app/partner.js?v=lux-56"></script>
+  <script src="/app/quiet-command.js?v=lux-58"></script>
+  <script src="/app/partner.js?v=lux-58"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -319,6 +319,41 @@ def business_activity(conn: sqlite3.Connection, tenant_id: str) -> dict[str, Any
     iso = lambda v: v.isoformat() if hasattr(v, "isoformat") else (str(v) if v else None)  # noqa: E731
     lasts = [x for x in (iso(row.get("last_at")), iso(hb.get("last_at"))) if x]
     return {"firstCheckIn": iso(row.get("first_at")), "lastCheckIn": max(lasts) if lasts else None}
+
+
+def _trend_day(value) -> str:
+    if hasattr(value, "isoformat"):
+        return value.isoformat()[:10]
+    return str(value or "")[:10]
+
+
+def reporting_trend(conn: sqlite3.Connection, tenant_ids: list[str], days: int = 30) -> list[dict[str, Any]]:
+    """Devices reported and agent check-ins per day. One pass, not one query per business."""
+    days = max(1, min(int(days or 30), 90))
+    start = datetime.now(timezone.utc).date() - timedelta(days=days - 1)
+    keys = [(start + timedelta(days=i)).isoformat() for i in range(days)]
+    buckets = {d: {"date": d, "reported": 0, "checkins": 0} for d in keys}
+    ids = [t for t in tenant_ids if t]
+    if not ids:
+        return list(buckets.values())
+    marks = ",".join("?" * len(ids))
+    since = start.isoformat()
+    for raw in conn.execute(
+        f"SELECT created_at, payload_count FROM ingest_events WHERE tenant_id IN ({marks}) AND created_at >= ?",
+        (*ids, since),
+    ).fetchall():
+        row = dict(raw)
+        day = _trend_day(row.get("created_at"))
+        if day in buckets:
+            buckets[day]["reported"] += int(row.get("payload_count") or 0)
+    for raw in conn.execute(
+        f"SELECT created_at FROM agent_heartbeats WHERE tenant_id IN ({marks}) AND created_at >= ?",
+        (*ids, since),
+    ).fetchall():
+        day = _trend_day(dict(raw).get("created_at"))
+        if day in buckets:
+            buckets[day]["checkins"] += 1
+    return list(buckets.values())
 
 
 def record_ingest(conn: sqlite3.Connection, tenant_id: str, source: str, count: int) -> None:

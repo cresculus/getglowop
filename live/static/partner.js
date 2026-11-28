@@ -395,6 +395,18 @@
     }
     list.removeAttribute("aria-busy");
     if (typeof qcSyncActionBar === "function") qcSyncActionBar();
+    try {
+      const trend = await api("/api/partner/trend");
+      if (window.GlowQC) GlowQC.trendChart($("homeTrendChart"), trend.days || []);
+    } catch (err) {
+      if (window.GlowQC) GlowQC.trendChart($("homeTrendChart"), []);
+    }
+  }
+
+  function roleLabel(role) {
+    const r = String(role || "").trim();
+    if (!r) return "—";
+    return r.charAt(0).toUpperCase() + r.slice(1);
   }
 
   async function renderPeople() {
@@ -435,7 +447,7 @@
       const data = await api(`/api/partner/members?businessId=${encodeURIComponent(businessId)}`);
       peopleCanManage = !!data.canManage;
       const roleEl = $("peopleMyRole");
-      if (roleEl) roleEl.textContent = `Your role: ${data.myRole || "—"}`;
+      if (roleEl) roleEl.textContent = `Your role: ${roleLabel(data.myRole)}`;
       membersBody.innerHTML = (data.members || [])
         .map((m) => {
           const roleSelect = peopleCanManage
@@ -443,11 +455,11 @@
                 ${["owner", "admin", "operator", "viewer"]
                   .map(
                     (r) =>
-                      `<option value="${r}" ${r === m.role ? "selected" : ""}>${r}</option>`
+                      `<option value="${r}" ${r === m.role ? "selected" : ""}>${roleLabel(r)}</option>`
                   )
                   .join("")}
               </select>`
-            : `<span class="p-meta">${esc(m.role)}</span>`;
+            : `<span class="p-meta">${esc(roleLabel(m.role))}</span>`;
           const revokeBtn = peopleCanManage
             ? `<button type="button" class="btn ghost danger" data-revoke-member="${esc(
                 m.partnerId
@@ -473,7 +485,7 @@
                 : "<span></span>";
             return `<div class="people-row invite">
               <span class="p-email">${esc(inv.email)}</span>
-              <span class="p-meta">${esc(inv.role)}</span>
+              <span class="p-meta">${esc(roleLabel(inv.role))}</span>
               <span class="p-meta">${esc(inv.status)}</span>
               <span class="p-meta">${esc((inv.expiresAt || "").slice(0, 10))}</span>
               ${revoke}
