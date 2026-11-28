@@ -55,6 +55,7 @@
       biz: "pviewBiz",
       people: "pviewPeople",
       analyze: "pviewAnalyze",
+      reports: "pviewReports",
       resources: "pviewResources",
       settings: "pviewSettings",
     };
@@ -71,6 +72,7 @@
     });
     if (name === "home") renderHome();
     if (name === "analyze") renderAnalyze();
+    if (name === "reports") renderReports();
     if (name === "people") renderPeople();
   }
 
@@ -235,7 +237,7 @@
     renderConfig();
     const params = new URLSearchParams(location.search);
     const want = params.get("view");
-    const allowed = new Set(["home", "enroll", "biz", "people", "analyze", "resources", "settings"]);
+    const allowed = new Set(["home", "enroll", "biz", "people", "analyze", "reports", "resources", "settings"]);
     setPView(allowed.has(want) ? want : "home");
     refresh()
       .then(() => {
@@ -518,6 +520,40 @@
     }
   }
 
+  function renderReports() {
+    const calls = ["keep", "repair", "redeploy", "refresh", "recycle", "ghost"];
+    const box = $("reportCalls");
+    if (box) {
+      box.innerHTML = calls
+        .map((c) => {
+          const label = c.charAt(0).toUpperCase() + c.slice(1);
+          return `<div class="report-call-row"><b>${label}</b><span>
+            <button type="button" class="btn ghost" data-report-call="${c}" data-report-act="print">Print PDF</button>
+            <button type="button" class="btn ghost" data-report-call="${c}" data-report-act="send">Send</button>
+          </span></div>`;
+        })
+        .join("");
+    }
+    const list = $("reportBizList");
+    if (!list) return;
+    if (!businessesCache.length) {
+      list.innerHTML = `<p class="people-empty">No businesses yet. Add one under Accounts.</p>`;
+      return;
+    }
+    list.innerHTML = businessesCache
+      .map((b) => {
+        const name = b.business_name || "Business";
+        return `<div class="report-biz-row">
+          <b>${esc(name)}</b>
+          <span>
+            <button type="button" class="btn ghost" data-print="${esc(b.business_id)}" data-biz-name="${esc(name)}">Print PDF</button>
+            <button type="button" class="btn ghost" data-send="${esc(b.business_id)}" data-biz-name="${esc(name)}">Send</button>
+          </span>
+        </div>`;
+      })
+      .join("");
+  }
+
   async function renderAnalyze() {
     const grid = $("analyzeGrid");
     if (!grid) return;
@@ -641,6 +677,7 @@
 
     if ($("pviewHome")?.dataset.active === "true") renderHome();
     if ($("pviewAnalyze")?.dataset.active === "true") renderAnalyze();
+    if ($("pviewReports")?.dataset.active === "true") renderReports();
     if ($("pviewPeople")?.dataset.active === "true") renderPeople();
   }
 
@@ -1181,6 +1218,46 @@
         try { await GlowReport.send(await portfolioDoc()); } catch (err) { alert(String(err.message || err)); }
       });
     }
+
+    async function callReport(call) {
+      const base = await portfolioDoc();
+      const label = call.charAt(0).toUpperCase() + call.slice(1);
+      const sections = (base.sections || [])
+        .map((s) => ({
+          ...s,
+          devices: (s.devices || []).filter(
+            (d) => String(d.call_label || d.call || "").toLowerCase() === call
+          ),
+        }))
+        .filter((s) => s.devices.length);
+      return { title: `${label} across businesses`, sections };
+    }
+
+    $("pviewReports")?.addEventListener("click", async (e) => {
+      const callBtn = e.target.closest("[data-report-call]");
+      if (callBtn) {
+        const call = callBtn.getAttribute("data-report-call");
+        try {
+          const doc = await callReport(call);
+          if (callBtn.getAttribute("data-report-act") === "print") GlowReport.openPrint(doc);
+          else await GlowReport.send(doc);
+        } catch (err) {
+          alert(String(err.message || err));
+        }
+        return;
+      }
+      const reportBtn = e.target.closest("[data-print], [data-send]");
+      if (!reportBtn) return;
+      const id = reportBtn.getAttribute("data-print") || reportBtn.getAttribute("data-send");
+      const name = reportBtn.getAttribute("data-biz-name");
+      try {
+        const doc = await businessDoc(id, name);
+        if (reportBtn.hasAttribute("data-print")) GlowReport.openPrint(doc);
+        else await GlowReport.send(doc);
+      } catch (err) {
+        alert(String(err.message || err));
+      }
+    });
 
     bizList.addEventListener("click", async (e) => {
       const reportBtn = e.target.closest("[data-print], [data-send]");

@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/app/tokens.css?v=lux-51" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-51" />
   <link rel="stylesheet" href="/app/partner.css?v=lux-55" />
-  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-59" />
+  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-60" />
 </head>
 <body class="shell partner-shell">
   <div class="glow-welcome" id="glowWelcome">
@@ -48,6 +48,7 @@
           <button type="button" class="side-link" data-pview="enroll">Enroll</button>
           <button type="button" class="side-link" data-pview="people">People &amp; Roles</button>
           <button type="button" class="side-link" data-pview="analyze">Analyze</button>
+          <button type="button" class="side-link" data-pview="reports">Reports</button>
           <button type="button" class="side-link" data-pview="resources">Resources</button>
           <button type="button" class="side-link" data-pview="settings">Settings</button>
         </nav>
@@ -100,10 +101,6 @@
             <section class="w-widget home-biz-roll" aria-labelledby="qcAccountsTitle">
               <div class="w-widget-head home-biz-head">
                 <h2 id="qcAccountsTitle">Accounts</h2>
-                <div class="pager">
-                  <button type="button" class="btn ghost" id="printPortfolio">Print PDF</button>
-                  <button type="button" class="btn ghost" id="sendPortfolio">Send</button>
-                </div>
               </div>
               <div class="w-widget-body home-biz-list qc-account-grid" id="homeBizList" role="group" aria-labelledby="qcAccountsTitle"></div>
             </section>
@@ -280,6 +277,30 @@
           <div class="analyze-grid" id="analyzeGrid"></div>
         </div>
 
+        <div class="pview pview-left" id="pviewReports" data-active="false" hidden>
+          <p class="view-lede">Print or send a portfolio report, one business, or a single call.</p>
+          <div class="report-grid">
+            <section class="w-widget">
+              <div class="w-widget-head"><h2>Portfolio</h2></div>
+              <div class="w-widget-body report-card-body">
+                <p>Every business, every device.</p>
+                <div class="report-actions">
+                  <button type="button" class="btn lime" id="printPortfolio">Print PDF</button>
+                  <button type="button" class="btn ghost" id="sendPortfolio">Send</button>
+                </div>
+              </div>
+            </section>
+            <section class="w-widget">
+              <div class="w-widget-head"><h2>By call</h2></div>
+              <div class="w-widget-body report-card-body" id="reportCalls"></div>
+            </section>
+          </div>
+          <section class="w-widget report-biz">
+            <div class="w-widget-head"><h2>One business</h2></div>
+            <div class="w-widget-body" id="reportBizList"></div>
+          </section>
+        </div>
+
         <div class="pview pview-left" id="pviewResources" data-active="false" hidden>
           <p class="view-lede">Single-PC install or bulk push. Devices refresh on a schedule after they join.</p>
           <div class="res-cards">
@@ -441,6 +462,6 @@
   <script src="/app/report.js?v=lux-50"></script>
   <script src="/app/clerk-partner.js?v=lux-50"></script>
   <script src="/app/quiet-command.js?v=lux-58"></script>
-  <script src="/app/partner.js?v=lux-59"></script>
+  <script src="/app/partner.js?v=lux-60"></script>
 </body>
 </html>

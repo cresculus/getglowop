@@ -1237,6 +1237,26 @@ body.shell.qc-app {
 }
 .qc-shell .enroll-flow,
 .qc-shell .settings-section { max-width: none; }
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.report-card-body p { margin: 0 0 12px; color: var(--muted); }
+.report-actions, .report-call-row span, .report-biz-row span { display: flex; flex-wrap: wrap; gap: 8px; }
+.report-call-row, .report-biz-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.report-call-row:last-child, .report-biz-row:last-child { border-bottom: 0; }
+.report-biz { min-height: 0; }
+@media (max-width: 800px) {
+  .report-grid { grid-template-columns: 1fr; }
+}
 .widget-board .home-kpis { gap: 12px; }
 .widget-board .qc-account-grid {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
