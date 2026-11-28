@@ -387,8 +387,45 @@ body.shell.qc-app {
   min-height: 0;
   padding: 12px;
   background: var(--canvas);
-  overflow: auto;
+  overflow: hidden;
 }
+.qc-app .view-dashboard,
+.qc-app .view-dashboard .dash-fit {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.qc-app .dash-grid {
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+.qc-app .dash-grid > .props-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.qc-app .dash-grid .dash-bars,
+.qc-app .dash-grid .dash-list,
+.qc-app .dash-grid .trend-chart,
+.qc-app .dash-grid .props-kpis {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.qc-app .dash-grid .dash-bars {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+.qc-app .dash-grid .props-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: stretch;
+}
+.qc-app .dash-grid .dash-list { overflow: auto; }
 .qc-app .workspace > .view {
   max-width: none;
   width: 100%;

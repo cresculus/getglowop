@@ -11,8 +11,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/app/tokens.css?v=lux-51" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-51" />
-  <link rel="stylesheet" href="/app/partner.css?v=lux-55" />
-  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-60" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-61" />
+  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-61" />
 </head>
 <body class="shell partner-shell">
   <div class="glow-welcome" id="glowWelcome">
@@ -25,7 +25,7 @@
     <section id="loginView" class="login-fit">
       <div class="login-card login-card-auth">
         <a class="wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
-        <p class="pane-label"><span class="live"></span> Partner level</p>
+        <p class="pane-label"><span class="live"></span> Global Level</p>
         <p class="hint" id="dashGateLede" hidden>Checking sign-in…</p>
         <div id="clerkMount" class="clerk-mount" hidden></div>
         <p class="hint" id="loginErr"></p>
@@ -39,9 +39,9 @@
     </section>
 
     <section id="dashView" class="partner-dash qc-shell" hidden>
-      <aside class="side-nav qc-rail" id="partnerNav" aria-label="Partner level">
+      <aside class="side-nav qc-rail" id="partnerNav" aria-label="Global Level">
         <a class="wordmark side-wordmark qc-logo" href="/partner/" title="Partner home"><span class="dot" aria-hidden="true"></span><span>GLOW&nbsp;Ops<sup class="tm" aria-label="trademark">™</sup></span></a>
-        <p class="nav-kicker">Partner level</p>
+        <p class="nav-kicker">Global Level</p>
         <nav class="qc-rail-nav" aria-label="Sections">
           <button type="button" class="side-link" data-pview="home">Overview</button>
           <button type="button" class="side-link" data-pview="biz">Accounts</button>
@@ -72,11 +72,11 @@
         <button type="button" class="qc-menu" id="qcMenu" aria-label="Open navigation" aria-controls="partnerNav" aria-expanded="false">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
-        <button type="button" class="qc-scope" id="qcScope" data-scope="global" aria-haspopup="dialog" aria-controls="qcScopeDialog" aria-label="Scope: Global Tenant. Switch scope">
+        <button type="button" class="qc-scope" id="qcScope" data-scope="global" aria-haspopup="dialog" aria-controls="qcScopeDialog" aria-label="Scope: Global Level. Switch scope">
           <span class="qc-scope-dot" aria-hidden="true"></span>
           <span class="qc-scope-copy">
-            <span class="qc-scope-kicker" id="qcScopeKicker">Partner level</span>
-            <b id="qcScopeName">Global Tenant</b>
+            <span class="qc-scope-kicker" id="qcScopeKicker">Global Level</span>
+            <b id="qcScopeName">Global Level</b>
           </span>
           <svg class="qc-chevron" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
@@ -461,7 +461,7 @@
   </dialog>
   <script src="/app/report.js?v=lux-50"></script>
   <script src="/app/clerk-partner.js?v=lux-50"></script>
-  <script src="/app/quiet-command.js?v=lux-58"></script>
-  <script src="/app/partner.js?v=lux-60"></script>
+  <script src="/app/quiet-command.js?v=lux-61"></script>
+  <script src="/app/partner.js?v=lux-61"></script>
 </body>
 </html>

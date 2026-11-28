@@ -760,12 +760,16 @@
       .filter((g) => g.rows.length);
   }
 
-  function manageMenu(id, name, href) {
+  function manageMenu(id, name, href, canDeploy) {
+    const deploy = canDeploy === false
+      ? ""
+      : `<button type="button" role="menuitem" data-deploy="${esc(id)}">Deploy</button>`;
     return `<details class="biz-manage">
-      <summary class="biz-cog" aria-label="Business settings" title="Business settings">
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <summary class="biz-cog" aria-label="Account actions" title="Account actions">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="5" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="19" r="1.7" fill="currentColor"/></svg>
       </summary>
       <div class="biz-manage-menu" role="menu">
+        ${deploy}
         <button type="button" role="menuitem" data-biz-pin="${esc(id)}">${pins.has(id) ? "Unpin" : "Pin to top"}</button>
         <button type="button" role="menuitem" data-biz-rename="${esc(id)}" data-biz-name="${esc(name)}">Rename</button>
         <a role="menuitem" href="/partner/?view=people&tenant=${encodeURIComponent(id)}">People</a>
@@ -791,11 +795,8 @@
     const groups = groupedBizRows(rows);
     if ($("bizShown")) $("bizShown").textContent = `${rows.length} of ${bizRows.length}`;
     const num = (r, v) => (r.loading ? "…" : esc(v));
-    const actions = (r, href) => `
-      <a class="btn ghost" href="${href}">Open</a>
-      <button type="button" class="btn ghost" data-print="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Print PDF</button>
-      <button type="button" class="btn ghost" data-send="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Send</button>
-      ${r.canDeploy === false ? "" : `<button type="button" class="btn lime" data-deploy="${esc(r.businessId)}">Deploy</button>`}`;
+    const actions = (r) => `
+      <button type="button" class="btn ghost" data-print="${esc(r.businessId)}" data-biz-name="${esc(r.businessName)}">Print PDF</button>`;
     if (bizLayout === "table") {
       grid.className = "biz-grid biz-grid-table table-fit";
       const body = groups
@@ -804,13 +805,13 @@
           const lines = g.rows.map((r) => {
             const href = `/app/?from=partner&tenant=${encodeURIComponent(r.businessId)}&view=fleet`;
             return `<tr>
-              <td class="biz-name"><b>${pins.has(r.businessId) ? "★ " : ""}${esc(r.businessName)}</b></td>
+              <td class="biz-name"><a class="biz-open" href="${href}">${pins.has(r.businessId) ? "★ " : ""}${esc(r.businessName)}</a></td>
               <td><span class="biz-status s-${r.status.key}">${esc(r.status.label)}</span></td>
               <td class="num">${num(r, r.deviceCount ?? 0)}</td>
               <td class="num">${num(r, r.avgGlowScore ?? "—")}</td>
               <td class="num">${num(r, r.ghostCount ?? 0)}</td>
               <td>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</td>
-              <td class="biz-row-actions">${actions(r, href)}${manageMenu(r.businessId, r.businessName, href)}</td>
+              <td class="biz-row-actions">${actions(r)}${manageMenu(r.businessId, r.businessName, href, r.canDeploy !== false)}</td>
             </tr>`;
           }).join("");
           return head + lines;
@@ -833,8 +834,8 @@
         const href = `/app/?from=partner&tenant=${encodeURIComponent(r.businessId)}&view=fleet`;
         return `<article class="biz-card${pins.has(r.businessId) ? " pinned" : ""}">
           <header class="biz-card-head">
-            <h3 title="${esc(r.businessName)}">${esc(r.businessName)}</h3>
-            ${manageMenu(r.businessId, r.businessName, href)}
+            <h3 title="${esc(r.businessName)}"><a class="biz-open" href="${href}">${esc(r.businessName)}</a></h3>
+            ${manageMenu(r.businessId, r.businessName, href, r.canDeploy !== false)}
           </header>
           <span class="biz-status s-${r.status.key}">${r.loading ? "Loading…" : esc(r.status.label)}</span>
           <dl class="biz-card-kpis">
@@ -843,7 +844,7 @@
             <div><dt>Ghosts</dt><dd>${num(r, r.ghostCount ?? 0)}</dd></div>
             <div><dt>Last check-in</dt><dd>${r.loading ? "…" : esc(sinceText(r.lastCheckIn))}</dd></div>
           </dl>
-          <div class="biz-card-actions">${actions(r, href)}</div>
+          <div class="biz-card-actions">${actions(r)}</div>
         </article>`;
       }).join("");
       })
@@ -1705,8 +1706,8 @@
           {
             scope: "global",
             id: "",
-            name: "Global Tenant",
-            meta: `Partner level · ${businessesCache.length} ${businessesCache.length === 1 ? "account" : "accounts"}`,
+            name: "Global Level",
+            meta: `${businessesCache.length} ${businessesCache.length === 1 ? "account" : "accounts"}`,
             current: true,
           },
           ...businessesCache.map((b) => {

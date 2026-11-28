@@ -222,14 +222,19 @@
 
   function trendChart(host, points) {
     if (!host) return;
-    const rows = Array.isArray(points) ? points : [];
+    let rows = Array.isArray(points) ? points.slice() : [];
+    if (!rows.length) {
+      const today = new Date();
+      rows = Array.from({ length: 30 }, (_, i) => {
+        const d = new Date(today);
+        d.setDate(d.getDate() - (29 - i));
+        return { date: d.toISOString().slice(0, 10), reported: 0, checkins: 0 };
+      });
+    }
     const reported = rows.map((p) => Number(p.reported) || 0);
     const checkins = rows.map((p) => Number(p.checkins) || 0);
     const peak = Math.max(1, ...reported, ...checkins);
-    if (!rows.length || (peak === 1 && reported.every((n) => n === 0) && checkins.every((n) => n === 0))) {
-      host.innerHTML = `<p class="trend-empty">No check-ins in the last 30 days. This fills in as devices report.</p>`;
-      return;
-    }
+    const quiet = reported.every((n) => n === 0) && checkins.every((n) => n === 0);
     const w = Math.max(320, host.clientWidth || 640);
     const h = Math.max(160, host.clientHeight || 200);
     const pad = { l: 36, r: 12, t: 16, b: 28 };
@@ -253,7 +258,7 @@
       <path d="${line(checkins)}" class="trend-line trend-line-check" />
       ${labels}
     </svg>
-    <div class="trend-legend"><span><i class="trend-swatch"></i>Devices reported</span><span><i class="trend-swatch trend-swatch-check"></i>Check-ins</span></div>`;
+    <div class="trend-legend"><span><i class="trend-swatch"></i>Devices reported</span><span><i class="trend-swatch trend-swatch-check"></i>Check-ins</span>${quiet ? `<span class="trend-empty">No check-ins in this window yet.</span>` : ""}</div>`;
   }
 
   global.GlowQC = {

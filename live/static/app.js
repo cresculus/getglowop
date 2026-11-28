@@ -732,7 +732,7 @@
       renderFilters();
       renderDevices();
       statusEl.textContent = signedIn
-        ? "Open a business from Partner level"
+        ? "Open a business from Global Level"
         : "Sign in to open a customer";
       return;
     }
@@ -1130,8 +1130,8 @@
           {
             scope: "global",
             id: "",
-            name: "Global Tenant",
-            meta: "Partner level · all accounts",
+            name: "Global Level",
+            meta: "All accounts",
             current: !openId,
           },
         ];

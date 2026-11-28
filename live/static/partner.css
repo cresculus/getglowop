@@ -1011,6 +1011,12 @@ body.shell.partner-shell {
 }
 .biz-card.pinned { border-color: var(--line-strong); box-shadow: inset 3px 0 0 var(--accent); }
 .biz-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.biz-open {
+  color: inherit;
+  font-weight: 650;
+  text-decoration: none;
+}
+.biz-open:hover { text-decoration: underline; }
 .biz-card-head h3 {
   margin: 0;
   font-size: 1.1rem;
