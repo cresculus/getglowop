@@ -839,6 +839,9 @@ body.partner-auth .top {
   padding: 0 1.25rem;
 }
 body.partner-auth .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   font-family: var(--serif);
   font-weight: 500;
   font-size: 1.35rem;
@@ -858,14 +861,14 @@ body.partner-auth .wordmark {
   font-size: 1.45rem;
   letter-spacing: -0.02em;
 }
-.has-side .wordmark .dot,
-body.partner-auth .wordmark .dot {
-  width: 0.42rem;
-  height: 0.42rem;
-  border-radius: 1px;
-  background: var(--accent);
-  box-shadow: none;
+.has-side .mark,
+body.partner-auth .mark {
+  display: block;
+  flex: none;
+  width: 2.15rem;
+  height: 2.15rem;
 }
+.side-collapsed .side-brand .wordmark .mark { width: 1.85rem; height: 1.85rem; }
 .has-side .side-label {
   letter-spacing: 0.18em;
   font-weight: 500;
