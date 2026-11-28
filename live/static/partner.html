@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/app/tokens.css?v=lux-51" />
   <link rel="stylesheet" href="/app/styles.css?v=lux-51" />
   <link rel="stylesheet" href="/app/partner.css?v=lux-55" />
-  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-58" />
+  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-59" />
 </head>
 <body class="shell partner-shell">
   <div class="glow-welcome" id="glowWelcome">
@@ -87,33 +87,37 @@
       </header>
 
       <section class="pane main-pane">
-        <div class="pview pview-left" id="pviewHome" data-active="true">
+        <div class="pview pview-left widget-board" id="pviewHome" data-active="true">
           <div class="home-kpis qc-kpis" id="homeKpis">
-            <div><span>Accounts</span><strong><span class="qc-skel"></span></strong></div>
-            <div><span>Devices</span><strong><span class="qc-skel"></span></strong></div>
-            <div><span class="glow-mark">Avg GLOW</span><strong><span class="qc-skel"></span></strong></div>
-            <div><span>Ghosts</span><strong><span class="qc-skel"></span></strong></div>
-            <div><span>Repair</span><strong><span class="qc-skel"></span></strong></div>
-            <div><span>Mfg kg</span><strong><span class="qc-skel"></span></strong></div>
+            <div class="w-widget w-kpi"><span>Accounts</span><strong><span class="qc-skel"></span></strong></div>
+            <div class="w-widget w-kpi"><span>Devices</span><strong><span class="qc-skel"></span></strong></div>
+            <div class="w-widget w-kpi"><span class="glow-mark">Avg GLOW</span><strong><span class="qc-skel"></span></strong></div>
+            <div class="w-widget w-kpi"><span>Ghosts</span><strong><span class="qc-skel"></span></strong></div>
+            <div class="w-widget w-kpi"><span>Repair</span><strong><span class="qc-skel"></span></strong></div>
+            <div class="w-widget w-kpi"><span>Mfg kg</span><strong><span class="qc-skel"></span></strong></div>
           </div>
-          <section class="home-biz-roll qc-section" aria-labelledby="qcAccountsTitle">
-            <div class="home-biz-head qc-section-head">
-              <h2 id="qcAccountsTitle">Accounts</h2>
-              <div class="pager">
-                <button type="button" class="btn ghost" id="printPortfolio">Print PDF</button>
-                <button type="button" class="btn ghost" id="sendPortfolio">Send</button>
+          <div class="widget-row">
+            <section class="w-widget home-biz-roll" aria-labelledby="qcAccountsTitle">
+              <div class="w-widget-head home-biz-head">
+                <h2 id="qcAccountsTitle">Accounts</h2>
+                <div class="pager">
+                  <button type="button" class="btn ghost" id="printPortfolio">Print PDF</button>
+                  <button type="button" class="btn ghost" id="sendPortfolio">Send</button>
+                </div>
               </div>
+              <div class="w-widget-body home-biz-list qc-account-grid" id="homeBizList" role="group" aria-labelledby="qcAccountsTitle"></div>
+            </section>
+            <section class="w-widget home-calls" aria-labelledby="qcCallsTitle">
+              <div class="w-widget-head"><h2 id="qcCallsTitle">Calls across portfolio</h2></div>
+              <div class="w-widget-body dash-bars" id="homeCallBars"></div>
+            </section>
+          </div>
+          <section class="w-widget home-trend" aria-label="Portfolio reporting">
+            <div class="w-widget-head">
+              <h2>All devices over time</h2>
+              <p>Devices reported and check-ins, last 30 days.</p>
             </div>
-            <div class="home-biz-list qc-account-grid" id="homeBizList" role="group" aria-labelledby="qcAccountsTitle"></div>
-          </section>
-          <section class="props-card home-calls">
-            <h3>Calls across portfolio</h3>
-            <div class="dash-bars" id="homeCallBars"></div>
-          </section>
-          <section class="props-card home-trend" aria-label="Portfolio reporting">
-            <h3>All devices over time</h3>
-            <p class="hint">Devices reported and check-ins across every business, last 30 days.</p>
-            <div id="homeTrendChart" class="trend-chart"></div>
+            <div id="homeTrendChart" class="trend-chart w-widget-body"></div>
           </section>
         </div>
 
@@ -437,6 +441,6 @@
   <script src="/app/report.js?v=lux-50"></script>
   <script src="/app/clerk-partner.js?v=lux-50"></script>
   <script src="/app/quiet-command.js?v=lux-58"></script>
-  <script src="/app/partner.js?v=lux-58"></script>
+  <script src="/app/partner.js?v=lux-59"></script>
 </body>
 </html>

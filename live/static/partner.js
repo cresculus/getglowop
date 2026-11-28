@@ -346,12 +346,12 @@
     const list = $("homeBizList");
     if (!kpis || !bars || !list) return;
     kpis.innerHTML = `
-      <div><span>Accounts</span><strong><span class="qc-skel"></span></strong></div>
-      <div><span>Devices</span><strong><span class="qc-skel"></span></strong></div>
-      <div><span class="glow-mark">Avg GLOW</span><strong><span class="qc-skel"></span></strong></div>
-      <div><span>Ghosts</span><strong><span class="qc-skel"></span></strong></div>
-      <div><span>Repair</span><strong><span class="qc-skel"></span></strong></div>
-      <div><span>Mfg kg</span><strong><span class="qc-skel"></span></strong></div>`;
+      <div class="w-widget w-kpi"><span>Accounts</span><strong><span class="qc-skel"></span></strong></div>
+      <div class="w-widget w-kpi"><span>Devices</span><strong><span class="qc-skel"></span></strong></div>
+      <div class="w-widget w-kpi"><span class="glow-mark">Avg GLOW</span><strong><span class="qc-skel"></span></strong></div>
+      <div class="w-widget w-kpi"><span>Ghosts</span><strong><span class="qc-skel"></span></strong></div>
+      <div class="w-widget w-kpi"><span>Repair</span><strong><span class="qc-skel"></span></strong></div>
+      <div class="w-widget w-kpi"><span>Mfg kg</span><strong><span class="qc-skel"></span></strong></div>`;
     bars.innerHTML = "";
     list.setAttribute("aria-busy", "true");
     list.innerHTML = [0, 1, 2]
@@ -362,12 +362,12 @@
       const by = p.byCall || {};
       const total = Math.max(1, p.deviceCount || 1);
       kpis.innerHTML = `
-        <div><span>Accounts</span><strong>${esc(p.businessCount ?? 0)}</strong></div>
-        <div><span>Devices</span><strong>${esc(p.deviceCount ?? 0)}</strong></div>
-        <div><span class="glow-mark">Avg GLOW</span><strong>${esc(p.avgGlowScore ?? "—")}</strong></div>
-        <div><span>Ghosts</span><strong>${esc(p.ghostCount ?? 0)}</strong></div>
-        <div><span>Repair</span><strong>${esc(p.repairCount ?? 0)}</strong></div>
-        <div><span>Mfg kg</span><strong>${esc(p.manufacturingKgOnBooks ?? 0)}</strong></div>`;
+        <div class="w-widget w-kpi"><span>Accounts</span><strong>${esc(p.businessCount ?? 0)}</strong></div>
+        <div class="w-widget w-kpi"><span>Devices</span><strong>${esc(p.deviceCount ?? 0)}</strong></div>
+        <div class="w-widget w-kpi"><span class="glow-mark">Avg GLOW</span><strong>${esc(p.avgGlowScore ?? "—")}</strong></div>
+        <div class="w-widget w-kpi"><span>Ghosts</span><strong>${esc(p.ghostCount ?? 0)}</strong></div>
+        <div class="w-widget w-kpi"><span>Repair</span><strong>${esc(p.repairCount ?? 0)}</strong></div>
+        <div class="w-widget w-kpi"><span>Mfg kg</span><strong>${esc(p.manufacturingKgOnBooks ?? 0)}</strong></div>`;
       bars.innerHTML = ["keep", "repair", "redeploy", "refresh", "recycle", "ghost"]
         .map((c) => {
           const n = by[c] || 0;

@@ -365,8 +365,8 @@ body.shell.qc-app {
 /* ============ Canvas ============ */
 .qc-shell.partner-dash .main-pane {
   min-height: 0;
-  overflow: auto;
-  padding: var(--qc-pad) var(--qc-pad) 112px;
+  overflow: hidden;
+  padding: 12px;
   border: 0;
   border-radius: 0;
   background: var(--canvas);
@@ -374,23 +374,25 @@ body.shell.qc-app {
 }
 .qc-shell.partner-dash .main-pane > .pview {
   width: 100%;
-  max-width: var(--canvas-max);
-  height: auto;
+  max-width: none;
+  height: 100%;
   min-height: 0;
-  margin: 0 auto;
-  padding: 0;
-  overflow: visible;
-  gap: 20px;
+  margin: 0;
+  padding: 0 0 8px;
+  overflow: auto;
+  gap: 12px;
 }
 .qc-app .workspace {
-  height: auto;
+  height: 100%;
   min-height: 0;
-  padding: var(--qc-pad);
+  padding: 12px;
   background: var(--canvas);
+  overflow: auto;
 }
 .qc-app .workspace > .view {
-  max-width: var(--canvas-max);
-  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+  margin: 0;
 }
 .qc-app .workspace > .view-fleet {
   max-width: none;
@@ -1182,8 +1184,72 @@ body.shell.qc-app {
 .home-trend .hint,
 .dash-trend .hint { margin: 0; color: var(--muted); font-size: 0.82rem; }
 .trend-chart { flex: 1; min-height: 180px; }
+.widget-board {
+  display: grid !important;
+  grid-template-rows: auto minmax(240px, 1fr) minmax(220px, 0.9fr);
+  gap: 12px !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+.widget-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.8fr);
+  gap: 12px;
+  min-height: 0;
+  min-width: 0;
+}
+.w-widget {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.w-widget-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: none;
+  min-height: 40px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--line);
+  background: #f7f8f4;
+}
+.w-widget-head h2,
+.w-widget-head h3 { margin: 0; font-size: 0.84rem; font-weight: 650; letter-spacing: -0.01em; }
+.w-widget-head p { margin: 0; color: var(--muted); font-size: 0.75rem; }
+.w-widget-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px;
+}
+.w-kpi {
+  justify-content: space-between;
+  height: auto;
+  min-height: 96px;
+  padding: 12px 14px;
+}
+.qc-shell .enroll-flow,
+.qc-shell .settings-section { max-width: none; }
+.widget-board .home-kpis { gap: 12px; }
+.widget-board .qc-account-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-content: start;
+}
+.widget-board .home-calls .dash-bars { display: flex; flex-direction: column; justify-content: space-evenly; }
+.widget-board .home-trend .trend-chart { height: auto; min-height: 0; padding: 8px 12px 12px; }
 .home-trend .trend-chart,
-.dash-trend .trend-chart { height: 240px; }
+.dash-trend .trend-chart { height: 100%; min-height: 180px; }
+@media (max-width: 960px) {
+  .widget-board { grid-template-rows: auto auto auto; overflow: auto !important; height: auto !important; }
+  .widget-row { grid-template-columns: 1fr; }
+}
 .trend-chart svg { width: 100%; height: 100%; display: block; }
 .trend-axis { stroke: rgba(18, 22, 15, 0.16); stroke-width: 1; }
 .trend-area { fill: rgba(191, 247, 71, 0.35); }
