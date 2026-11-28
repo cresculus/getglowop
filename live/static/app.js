@@ -1091,9 +1091,28 @@
     qcSyncScope();
     GlowQC.init({
       load: async () => {
+        const openId = tenant();
+        const openName = (bizNameLabel?.textContent || "").trim();
         const items = [
-          { scope: "global", id: "", name: "Global Tenant", meta: "Partner level · all accounts" },
+          {
+            scope: "global",
+            id: "",
+            name: "Global Tenant",
+            meta: "Partner level · all accounts",
+            current: !openId,
+          },
         ];
+        const seen = new Set();
+        if (openId && openName) {
+          seen.add(openId);
+          items.push({
+            scope: "account",
+            id: openId,
+            name: openName,
+            meta: "Customer level · open",
+            current: true,
+          });
+        }
         if (!signedIn) return items;
         let token = authToken;
         try {
@@ -1104,7 +1123,6 @@
         const res = await fetch("/api/partner/me", { credentials: "same-origin", headers });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        const seen = new Set();
         (Array.isArray(data.roles) ? data.roles : []).forEach((r) => {
           if (!r.businessId || seen.has(r.businessId)) return;
           seen.add(r.businessId);
@@ -1113,7 +1131,7 @@
             id: r.businessId,
             name: r.businessName || "Business",
             meta: r.role ? `Customer level · ${r.role}` : "Customer level",
-            current: r.businessId === tenant(),
+            current: r.businessId === openId,
           });
         });
         return items;

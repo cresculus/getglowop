@@ -4,37 +4,28 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light only" />
-  <title>GlowOps Partner</title>
+  <title>GLOW Ops · Partner</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/app/styles.css?v=clerk-9" />
-  <link rel="stylesheet" href="/app/partner.css?v=clerk-9" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;650&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app/tokens.css?v=lux-51" />
+  <link rel="stylesheet" href="/app/styles.css?v=lux-51" />
+  <link rel="stylesheet" href="/app/partner.css?v=lux-51" />
+  <link rel="stylesheet" href="/app/quiet-command.css?v=lux-54" />
 </head>
 <body class="shell partner-shell">
-  <header class="topbar">
-    <a class="wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
-    <div class="views top-nav" id="partnerTopNav" role="tablist" aria-label="Partner primary">
-      <button type="button" class="view-tab" data-pview="home" aria-selected="true">Home</button>
-      <button type="button" class="view-tab" data-pview="enroll" aria-selected="false">Enroll</button>
-      <button type="button" class="view-tab" data-pview="biz" aria-selected="false">Businesses</button>
-      <button type="button" class="view-tab" data-pview="people" aria-selected="false">People</button>
-      <button type="button" class="view-tab" data-pview="analyze" aria-selected="false">Analyze</button>
-      <button type="button" class="view-tab" data-pview="settings" aria-selected="false">Settings</button>
+  <div class="glow-welcome" id="glowWelcome">
+    <div class="glow-welcome-inner">
+      <div class="glow-orb" aria-hidden="true"></div>
+      <p>Welcome to GLOW Ops.</p>
     </div>
-    <nav class="rail">
-      <button type="button" class="btn ghost" id="homeBtn" data-pview="home" hidden>Home</button>
-      <span class="who" id="partnerHello" hidden></span>
-      <span class="who role-chip" id="partnerRoleChip" hidden></span>
-      <button type="button" class="btn ghost" id="logoutBtn" hidden>Sign out</button>
-    </nav>
-  </header>
-
+  </div>
   <main class="workspace">
     <section id="loginView" class="login-fit">
       <div class="login-card login-card-auth">
-        <p class="pane-label"><span class="live"></span> Partner console</p>
+        <a class="wordmark" href="/partner/" title="Partner home"><span class="dot"></span>GLOW&nbsp;Ops</a>
+        <p class="pane-label"><span class="live"></span> Partner level</p>
         <p class="hint" id="dashGateLede" hidden>Checking sign-in…</p>
         <div id="clerkMount" class="clerk-mount" hidden></div>
         <p class="hint" id="loginErr"></p>
@@ -47,81 +38,136 @@
       </div>
     </section>
 
-    <section id="dashView" class="partner-dash" hidden>
-      <aside class="side-nav" id="partnerNav" aria-label="Quick navigation">
-        <p class="nav-kicker">This console</p>
-        <button type="button" class="side-link" data-pview="home">Home</button>
-        <button type="button" class="side-link" data-pview="enroll">Enroll</button>
-        <button type="button" class="side-link" data-pview="biz">Businesses</button>
-        <button type="button" class="side-link" data-pview="people">People · RBAC</button>
-        <button type="button" class="side-link" data-pview="analyze">Analyze</button>
-        <button type="button" class="side-link" data-pview="settings">Settings</button>
-
-        <p class="nav-kicker">Open report</p>
-        <a class="side-link" id="navFleet" href="/app/?from=partner&view=fleet">Fleet report</a>
-        <a class="side-link" id="navDash" href="/app/?from=partner&view=dashboard">Dashboard</a>
-        <a class="side-link" id="navCsv" href="/api/export.csv?tenant=demo">Export CSV</a>
-        <a class="side-link" href="/download/GlowOpsAgent.exe">Agent EXE</a>
-        <p class="nav-kicker">Lab</p>
-        <a class="side-link" id="navIngest" href="/app/?from=partner&view=ingest">Paste Graph JSON</a>
-
-        <p class="nav-kicker">Calls</p>
-        <a class="side-link side-call" data-call="repair" href="/app/?from=partner&call=repair">Repair</a>
-        <a class="side-link side-call" data-call="ghost" href="/app/?from=partner&call=ghost">Ghosts</a>
-        <a class="side-link side-call" data-call="recycle" href="/app/?from=partner&call=recycle">Recycle</a>
-        <a class="side-link side-call" data-call="refresh" href="/app/?from=partner&call=refresh">Refresh</a>
-        <a class="side-link side-call" data-call="redeploy" href="/app/?from=partner&call=redeploy">Redeploy</a>
-        <a class="side-link side-call" data-call="keep" href="/app/?from=partner&call=keep">Keep</a>
-
-        <p class="nav-kicker">Site</p>
-        <a class="side-link" href="/">Marketing site</a>
-
+    <section id="dashView" class="partner-dash qc-shell" hidden>
+      <aside class="side-nav qc-rail" id="partnerNav" aria-label="Partner level">
+        <a class="wordmark side-wordmark qc-logo" href="/partner/" title="Partner home"><span class="dot" aria-hidden="true"></span><span>GLOW<sup class="tm" aria-label="trademark">™</sup>&nbsp;Ops</span></a>
+        <p class="nav-kicker">Partner level</p>
+        <nav class="qc-rail-nav" aria-label="Sections">
+          <button type="button" class="side-link" data-pview="home">Overview</button>
+          <button type="button" class="side-link" data-pview="biz">Accounts</button>
+          <button type="button" class="side-link" data-pview="enroll">Enroll</button>
+          <button type="button" class="side-link" data-pview="people">People &amp; Roles</button>
+          <button type="button" class="side-link" data-pview="analyze">Analyze</button>
+          <button type="button" class="side-link" data-pview="resources">Resources</button>
+          <button type="button" class="side-link" data-pview="settings">Settings</button>
+        </nav>
         <div class="nav-foot">
-          <div><span>Businesses</span><strong id="bizCount">—</strong></div>
+          <div><span>Accounts</span><strong id="bizCount">—</strong></div>
           <div><span>API keys</span><strong id="keyCount">—</strong></div>
+          <div class="qc-health" id="qcHealth" data-state="pending" role="status"><i aria-hidden="true"></i><span id="qcHealthText">Checking service…</span></div>
         </div>
+        <div class="side-account">
+          <div id="partnerUserButton" class="user-button-mount" hidden></div>
+          <div class="side-account-copy">
+            <b id="sideUserName">Signed in</b>
+            <span id="partnerRoleLabel">Partner</span>
+          </div>
+        </div>
+        <button type="button" class="btn ghost side-signout" id="logoutBtn" hidden>Sign out</button>
       </aside>
+
+      <div class="qc-main">
+      <header class="qc-context">
+        <button type="button" class="qc-menu" id="qcMenu" aria-label="Open navigation" aria-controls="partnerNav" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <button type="button" class="qc-scope" id="qcScope" data-scope="global" aria-haspopup="dialog" aria-controls="qcScopeDialog" aria-label="Scope: Global Tenant. Switch scope">
+          <span class="qc-scope-dot" aria-hidden="true"></span>
+          <span class="qc-scope-copy">
+            <span class="qc-scope-kicker" id="qcScopeKicker">Partner level</span>
+            <b id="qcScopeName">Global Tenant</b>
+          </span>
+          <svg class="qc-chevron" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <button type="button" class="qc-search" id="qcSearch" aria-haspopup="dialog" aria-controls="qcScopeDialog">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span>Find an account</span>
+          <kbd class="qc-kbd" data-qc-kbd>Ctrl K</kbd>
+        </button>
+      </header>
 
       <section class="pane main-pane">
         <div class="pview pview-left" id="pviewHome" data-active="true">
-          <div class="ledger-head ledger-head-left">
-            <h1>Partner <em>Home</em></h1>
+          <div class="home-kpis qc-kpis" id="homeKpis">
+            <div><span>Accounts</span><strong><span class="qc-skel"></span></strong></div>
+            <div><span>Devices</span><strong><span class="qc-skel"></span></strong></div>
+            <div><span class="glow-mark">Avg GLOW<sup class="tm" aria-label="trademark">™</sup></span><strong><span class="qc-skel"></span></strong></div>
+            <div><span>Ghosts</span><strong><span class="qc-skel"></span></strong></div>
+            <div><span>Repair</span><strong><span class="qc-skel"></span></strong></div>
+            <div><span>Mfg kg</span><strong><span class="qc-skel"></span></strong></div>
           </div>
-          <p class="view-lede">Portfolio view across every business you manage — devices, GLOW, ghosts, repair.</p>
-          <div class="home-kpis" id="homeKpis">
-            <div><span>Businesses</span><strong>—</strong></div>
-            <div><span>Devices</span><strong>—</strong></div>
-            <div><span>Avg GLOW</span><strong>—</strong></div>
-            <div><span>Ghosts</span><strong>—</strong></div>
-            <div><span>Repair</span><strong>—</strong></div>
-            <div><span>Mfg kg</span><strong>—</strong></div>
-          </div>
-          <div class="home-split">
-            <section class="props-card home-calls">
-              <h3>Calls across portfolio</h3>
-              <div class="dash-bars" id="homeCallBars"></div>
-            </section>
-            <section class="props-card home-biz-roll">
-              <h3>Businesses</h3>
-              <ul class="home-biz-list" id="homeBizList"></ul>
-            </section>
-          </div>
+          <section class="home-biz-roll qc-section" aria-labelledby="qcAccountsTitle">
+            <div class="home-biz-head qc-section-head">
+              <h2 id="qcAccountsTitle">Accounts</h2>
+              <div class="pager">
+                <button type="button" class="btn ghost" id="printPortfolio">Print PDF</button>
+                <button type="button" class="btn ghost" id="sendPortfolio">Send</button>
+              </div>
+            </div>
+            <div class="home-biz-list qc-account-grid" id="homeBizList" role="group" aria-labelledby="qcAccountsTitle"></div>
+          </section>
+          <section class="props-card home-calls">
+            <h3>Calls across portfolio</h3>
+            <div class="dash-bars" id="homeCallBars"></div>
+          </section>
         </div>
 
         <div class="pview pview-left" id="pviewEnroll" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left">
-            <h1>Enroll devices</h1>
-          </div>
-          <p class="view-lede">Mint a join key + password for an existing business, put them in the GlowOps Agent on the PC, and the device lands in that business. Add new businesses under Businesses first.</p>
-          <div id="freshEnroll" class="fresh-key enroll-secret" hidden>
-            <div>
-              <p><strong>Copy into the GlowOps Agent menu</strong> — password shown once. Expires automatically; join-only.</p>
-              <p class="mono">Key: <code id="freshJoinKey"></code></p>
-              <p class="mono">Password: <code id="freshJoinPass"></code></p>
-              <p class="hint" id="freshJoinExp"></p>
+          <p class="view-lede">Pick a business, mint a join key, then paste the URL, key, and password into the agent.</p>
+
+          <section class="enroll-flow" aria-label="Mint join key">
+            <p class="enroll-step">1 · Business &amp; window</p>
+            <form id="enrollForm" class="enroll-mint-form">
+              <label class="enroll-field">
+                <span>Business</span>
+                <select id="enrollBiz" title="Business" required></select>
+              </label>
+              <label class="enroll-field">
+                <span>Expires</span>
+                <select id="enrollTtl" title="Expiry">
+                  <option value="1">1 hour</option>
+                  <option value="24" selected>24 hours</option>
+                  <option value="168">7 days</option>
+                  <option value="720">30 days</option>
+                </select>
+              </label>
+              <label class="enroll-field enroll-field-grow">
+                <span>Label</span>
+                <input id="enrollLabel" placeholder="e.g. Front desk PC" maxlength="64" />
+              </label>
+              <div class="enroll-mint-actions">
+                <button class="btn lime" type="submit">Mint join key</button>
+              </div>
+            </form>
+
+            <div id="freshEnroll" class="enroll-result" hidden>
+              <p class="enroll-step">2 · Copy into the agent</p>
+              <p class="hint enroll-result-lede">Password shown once. Agent defaults to getglowop.com.</p>
+              <div class="enroll-secret-body enroll-secret-compact">
+                <div class="secret-row">
+                  <span class="secret-label">URL</span>
+                  <code id="freshDashUrl">https://getglowop.com</code>
+                  <button type="button" class="btn ghost secret-copy" id="copyFreshDashUrl" data-copy-target="freshDashUrl">Copy</button>
+                </div>
+                <div class="secret-row">
+                  <span class="secret-label">Key</span>
+                  <code id="freshJoinKey"></code>
+                  <button type="button" class="btn ghost secret-copy" id="copyJoinKey" data-copy-target="freshJoinKey">Copy</button>
+                </div>
+                <div class="secret-row">
+                  <span class="secret-label">Password</span>
+                  <code id="freshJoinPass"></code>
+                  <button type="button" class="btn ghost secret-copy" id="copyJoinPass" data-copy-target="freshJoinPass">Copy</button>
+                </div>
+              </div>
+              <div class="enroll-result-foot">
+                <p class="hint" id="freshJoinExp"></p>
+                <button type="button" class="btn ghost" id="copyEnroll">Copy all</button>
+              </div>
+              <code id="enrollDashUrl" hidden>https://getglowop.com</code>
             </div>
-            <button type="button" class="btn ghost" id="copyEnroll">Copy both</button>
-          </div>
+          </section>
+
           <div class="table-fit">
             <table>
               <thead>
@@ -130,98 +176,137 @@
               <tbody id="enrollBody"></tbody>
             </table>
           </div>
-          <form id="enrollForm" class="mint-dock">
-            <select id="enrollBiz" title="Business"></select>
-            <select id="enrollTtl" title="Expiry">
-              <option value="1">1 hour</option>
-              <option value="24" selected>24 hours</option>
-              <option value="168">7 days</option>
-              <option value="720">30 days max</option>
-            </select>
-            <input id="enrollLabel" placeholder="Label" maxlength="64" />
-            <button class="btn lime" type="submit">Mint join key</button>
-          </form>
         </div>
 
         <div class="pview pview-left" id="pviewBiz" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left"><h1>Businesses</h1></div>
-          <p class="view-lede">Customer fleets assigned to this partner. Isolation stays per business — not one shared tenant. Add a business here, then enroll devices into it.</p>
-          <ul class="biz-list" id="bizList"></ul>
-          <form id="addBizForm" class="mint-dock">
-            <input id="newBizName" placeholder="Business name (e.g. Acme Schools)" maxlength="80" required />
-            <input id="newBizId" placeholder="Optional id slug" maxlength="48" />
-            <button class="btn lime" type="submit">Add business</button>
-            <span class="hint" id="addBizStatus"></span>
-          </form>
+          <p class="view-lede">Deploy through Intune, an RMM, or a one-click installer.</p>
+          <p class="hint biz-add-status" id="addBizStatus"></p>
+          <div class="biz-toolbar">
+            <form id="addBizForm" class="biz-add-top">
+              <input id="newBizName" placeholder="Business name" maxlength="80" required />
+              <button class="btn lime" type="submit">Add business</button>
+            </form>
+            <input id="bizSearch" type="search" placeholder="Search" aria-label="Search businesses" />
+            <select id="bizFilter" aria-label="Filter by status">
+              <option value="">All statuses</option>
+              <option value="none">Not deployed</option>
+              <option value="collecting">Collecting</option>
+              <option value="ready">Report ready</option>
+              <option value="stale">Stale</option>
+            </select>
+            <select id="bizSort" aria-label="Sort">
+              <option value="name">Name</option>
+              <option value="ghosts">Ghosts</option>
+              <option value="glow">Lowest GLOW™</option>
+              <option value="devices">Devices</option>
+              <option value="recent">Last check-in</option>
+            </select>
+            <select id="bizGroup" aria-label="Group">
+              <option value="">No grouping</option>
+              <option value="status">By status</option>
+            </select>
+            <div class="biz-viewtoggle" role="group" aria-label="Layout">
+              <button type="button" class="btn ghost" data-bizlayout="cards" aria-pressed="false">Cards</button>
+              <button type="button" class="btn ghost" data-bizlayout="table" aria-pressed="true">Table</button>
+            </div>
+            <span class="hint" id="bizShown"></span>
+          </div>
+          <div class="biz-grid" id="bizList"></div>
         </div>
 
-        <div class="pview pview-left" id="pviewPeople" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left"><h1>People · <em>RBAC</em></h1></div>
-          <p class="view-lede">Invite users to a business (tenant) and set roles: owner, admin, operator, viewer. Permissions apply across Partner and Fleet for that business.</p>
-          <div class="people-toolbar mint-dock">
-            <select id="peopleBiz" title="Business"></select>
-            <span class="hint" id="peopleMyRole">Your role: —</span>
+        <div class="pview pview-left people-view" id="pviewPeople" data-active="false" hidden>
+          <p class="view-lede">Invite people and set roles.</p>
+          <div class="people-body">
+            <div class="people-toolbar">
+              <label class="field">
+                <span>Business</span>
+                <select id="peopleBiz" title="Business"></select>
+              </label>
+              <span class="people-role-hint" id="peopleMyRole">Your role: —</span>
+            </div>
+
+            <section class="people-card">
+              <h3>Invite</h3>
+              <form id="inviteForm" class="invite-row">
+                <label class="field grow">
+                  <span>Email</span>
+                  <input id="inviteEmail" type="email" placeholder="user@company.com" required maxlength="120" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>Role</span>
+                  <select id="inviteRole" title="Role">
+                    <option value="viewer">Viewer</option>
+                    <option value="operator">Operator</option>
+                    <option value="admin" selected>Admin</option>
+                  </select>
+                </label>
+                <button class="btn lime invite-submit" type="submit">Send invite</button>
+              </form>
+              <p class="hint" id="inviteStatus"></p>
+              <div id="freshInvite" class="fresh-key" hidden>
+                <code id="freshInviteLink"></code>
+                <button type="button" class="btn ghost" id="copyInvite">Copy link</button>
+              </div>
+            </section>
+
+            <section class="people-card">
+              <h3>Members</h3>
+              <div class="people-list" id="membersBody"></div>
+            </section>
+
+            <section class="people-card">
+              <h3>Pending invites</h3>
+              <div class="people-list" id="invitesBody"></div>
+            </section>
+
+            <section class="people-card">
+              <h3>Permission matrix</h3>
+              <div class="perm-grid" id="rbacCatalog"></div>
+            </section>
           </div>
-          <section class="settings-section props-card">
-            <h3>Invite</h3>
-            <form id="inviteForm" class="mint-inline settings-mint">
-              <input id="inviteEmail" type="email" placeholder="user@company.com" required maxlength="120" />
-              <select id="inviteRole" title="Role">
-                <option value="viewer">viewer</option>
-                <option value="operator">operator</option>
-                <option value="admin" selected>admin</option>
-              </select>
-              <button class="btn lime" type="submit">Send invite</button>
-            </form>
-            <p class="hint" id="inviteStatus"></p>
-            <div id="freshInvite" class="fresh-key" hidden>
-              <code id="freshInviteLink"></code>
-              <button type="button" class="btn ghost" id="copyInvite">Copy link</button>
-            </div>
-          </section>
-          <section class="settings-section props-card">
-            <h3>Members</h3>
-            <div class="table-fit settings-keys">
-              <table>
-                <thead>
-                  <tr><th>Email</th><th>Name</th><th>Role</th><th></th></tr>
-                </thead>
-                <tbody id="membersBody"></tbody>
-              </table>
-            </div>
-          </section>
-          <section class="settings-section props-card">
-            <h3>Pending invites</h3>
-            <div class="table-fit settings-keys">
-              <table>
-                <thead>
-                  <tr><th>Email</th><th>Role</th><th>Status</th><th>Expires</th><th></th></tr>
-                </thead>
-                <tbody id="invitesBody"></tbody>
-              </table>
-            </div>
-          </section>
-          <section class="settings-section props-card">
-            <h3>Permission matrix</h3>
-            <pre class="config-block" id="rbacCatalog"></pre>
-          </section>
         </div>
 
         <div class="pview pview-left" id="pviewAnalyze" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left"><h1>Analyze</h1></div>
-          <p class="view-lede">Open the live GLOW Op Report for a business — keep / repair / redeploy / refresh / recycle / ghost.</p>
+          <p class="view-lede">Pick a business, then open its report or a call filter.</p>
           <div class="analyze-grid" id="analyzeGrid"></div>
         </div>
 
-        <div class="pview pview-left" id="pviewSettings" data-active="false" hidden>
-          <div class="ledger-head ledger-head-left">
-            <h1>Settings</h1>
+        <div class="pview pview-left" id="pviewResources" data-active="false" hidden>
+          <p class="view-lede">Single-PC install or bulk push. Devices refresh on a schedule after they join.</p>
+          <div class="res-cards">
+            <a class="res-card" href="/download/GlowOpsAgent.exe">
+              <span class="res-kicker">Windows</span>
+              <strong>GlowOps Agent</strong>
+              <span class="res-desc">Paste the URL, key, and password from Enroll. Defaults to getglowop.com.</span>
+              <span class="res-action">Download EXE</span>
+            </a>
+            <a class="res-card" href="/download/Open-GlowOpsAgent.cmd">
+              <span class="res-kicker">Launcher</span>
+              <strong>Open-GlowOpsAgent</strong>
+              <span class="res-desc">Use when Windows blocks the EXE download.</span>
+              <span class="res-action">Download CMD</span>
+            </a>
+            <a class="res-card" href="/download/GlowOpsAgent-Win32.zip">
+              <span class="res-kicker">Fleet</span>
+              <strong>Win32 / Intune pack</strong>
+              <span class="res-desc">Generic pack with no key inside. For a keyed package, use Businesses → Deploy.</span>
+              <span class="res-action">Download ZIP</span>
+            </a>
+            <div class="res-card res-card-static">
+              <span class="res-kicker">Intervals</span>
+              <strong>Reporting cadence</strong>
+              <span class="res-desc"><strong>Heartbeat every 15 minutes</strong> · <strong>Full inventory every 6 hours</strong>.</span>
+              <span class="res-action">Built into the agent</span>
+            </div>
           </div>
-          <p class="view-lede">Partner account options. Optional AI / MCP access is only configured here — not required to run the fleet report.</p>
+        </div>
+
+        <div class="pview pview-left" id="pviewSettings" data-active="false" hidden>
+          <p class="view-lede">Optional access for a partner AI agent.</p>
 
           <section class="settings-section props-card">
-            <h3>MCP · AI agent access</h3>
-            <p class="hint">Optional. Mint a key if a partner AI agent needs read access to fleet data.</p>
+            <h3>MCP</h3>
+            <p class="hint">Mint a key when a partner AI agent needs read access to fleet data.</p>
             <div id="freshKey" class="fresh-key" hidden>
               <code id="freshKeyValue"></code>
               <button type="button" class="btn ghost" id="copyKey">Copy</button>
@@ -243,9 +328,110 @@
           </section>
         </div>
       </section>
+      </div>
+
+      <div class="qc-actionbar" id="qcActionBar" role="region" aria-label="Selected accounts" hidden>
+        <div class="qc-actionbar-inner">
+          <p class="qc-actionbar-count" aria-live="polite"><b id="qcSelCount">0</b> <span id="qcSelNoun">accounts selected</span></p>
+          <div class="qc-actionbar-actions">
+            <button type="button" class="btn ghost" data-qc-act="clear">Clear</button>
+            <button type="button" class="btn ghost" data-qc-act="send" disabled>Send</button>
+            <button type="button" class="btn ghost" data-qc-act="deploy" disabled>Deploy</button>
+            <button type="button" class="btn ghost" data-qc-act="open" disabled>Open</button>
+            <button type="button" class="btn lime" data-qc-act="print" disabled>Print PDF</button>
+          </div>
+        </div>
+      </div>
     </section>
+    <div class="qc-backdrop" id="qcBackdrop" hidden></div>
   </main>
-  <script src="/app/clerk-partner.js?v=clerk-9"></script>
-  <script src="/app/partner.js?v=clerk-9"></script>
+  <dialog id="qcScopeDialog" class="qc-dialog" aria-labelledby="qcScopeTitle">
+    <div class="qc-dialog-panel">
+      <div class="qc-dialog-head">
+        <h2 id="qcScopeTitle">Switch scope</h2>
+        <kbd class="qc-kbd">Esc</kbd>
+      </div>
+      <label class="qc-dialog-search">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <span class="sr-only">Search accounts</span>
+        <input id="qcScopeQuery" type="text" inputmode="search" placeholder="Search accounts" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="qcScopeList" aria-autocomplete="list" />
+      </label>
+      <ul id="qcScopeList" class="qc-scope-list" role="listbox" aria-label="Scopes"></ul>
+      <p class="qc-dialog-foot"><kbd class="qc-kbd">↑</kbd><kbd class="qc-kbd">↓</kbd> move · <kbd class="qc-kbd">Enter</kbd> open · <kbd class="qc-kbd">Esc</kbd> close</p>
+    </div>
+  </dialog>
+  <dialog id="deployDialog" class="deploy-dialog" aria-labelledby="deployTitle">
+    <form method="dialog" class="deploy-head">
+      <div>
+        <p class="res-kicker">Deploy the agent</p>
+        <h2 id="deployTitle">Business</h2>
+      </div>
+      <button class="btn ghost" value="close" aria-label="Close">Close</button>
+    </form>
+    <p class="hint deploy-lede">Each download carries a new join key for this business. Devices that run it land here. Only a hash of the password is stored.</p>
+    <div class="deploy-row deploy-ttl">
+      <label for="deployTtl" class="res-kicker">Key works for</label>
+      <select id="deployTtl">
+        <option value="168">7 days</option>
+        <option value="720" selected>30 days</option>
+      </select>
+    </div>
+
+    <section class="deploy-card" id="deployIntune">
+      <div class="deploy-card-head">
+        <span class="res-kicker">Intune</span>
+        <span class="deploy-pill" id="intuneState">Checking…</span>
+      </div>
+      <strong>Push to Intune</strong>
+      <p class="res-desc" id="intuneLede">Uploads a Win32 app to this customer's Intune and assigns it. Devices install as System and join this business.</p>
+      <div class="deploy-row" id="intuneConnectRow" hidden>
+        <button type="button" class="btn lime" id="intuneConnect">Connect Intune</button>
+        <span class="hint">A Global Admin of the customer's Microsoft 365 approves once.</span>
+      </div>
+      <div class="deploy-row" id="intunePushRow" hidden>
+        <select id="intuneAssign" aria-label="Assignment">
+          <option value="all">Required · all devices</option>
+          <option value="group">Required · one Entra group</option>
+          <option value="none">Upload only, I'll assign</option>
+        </select>
+        <input id="intuneGroup" placeholder="Entra group object id" hidden />
+        <button type="button" class="btn lime" id="intunePush">Push to Intune</button>
+      </div>
+      <p class="hint" id="intuneResult"></p>
+      <div class="deploy-row">
+        <button type="button" class="btn ghost" data-kit="intune">Download .intunewin</button>
+        <span class="hint">Upload by hand. Settings sheet and Detect.ps1 are in the zip.</span>
+      </div>
+    </section>
+
+    <section class="deploy-card">
+      <div class="deploy-card-head"><span class="res-kicker">RMM</span></div>
+      <strong>RMM script</strong>
+      <p class="res-desc">One PowerShell file for this business. Add it to this client's script library in NinjaOne, Datto, ConnectWise, or N-able and run it as SYSTEM.</p>
+      <div class="deploy-row">
+        <button type="button" class="btn lime" data-kit="rmm">Download RMM script</button>
+      </div>
+    </section>
+
+    <section class="deploy-card">
+      <div class="deploy-card-head"><span class="res-kicker">Any Windows PC</span></div>
+      <strong>One-click installer</strong>
+      <p class="res-desc">Unzip, double-click <code>Install GlowOps.cmd</code>, approve the admin prompt. That PC joins this business.</p>
+      <div class="deploy-row">
+        <button type="button" class="btn lime" data-kit="device">Download installer</button>
+      </div>
+    </section>
+
+    <div class="deploy-foot">
+      <p class="hint" id="deployStatus"></p>
+      <h3>Join keys for this business</h3>
+      <div class="people-list" id="deployKeys"></div>
+      <p class="hint">Keys stop new joins when they expire, and devices that already joined keep reporting. Revoke also stops devices that joined with that key.</p>
+    </div>
+  </dialog>
+  <script src="/app/report.js?v=lux-50"></script>
+  <script src="/app/clerk-partner.js?v=lux-50"></script>
+  <script src="/app/quiet-command.js?v=lux-54"></script>
+  <script src="/app/partner.js?v=lux-54"></script>
 </body>
 </html>
